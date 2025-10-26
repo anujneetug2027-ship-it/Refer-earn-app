@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Refer & Earn</title>
+  <style>
+    section { display: none; }
+    section.active { display: block; }
+    input { margin: 5px 0; padding: 5px; }
+    button { padding: 5px 10px; }
+  </style>
+</head>
+<body>
+
+<h1>Refer & Earn System</h1>
+
+<!-- SIGNUP SECTION -->
+<section id="signupSection" class="active">
+  <h2>Signup</h2>
+  <form id="signupForm">
+    <input type="text" name="name" placeholder="Name" required><br>
+    <input type="email" name="email" placeholder="Email" required><br>
+    <button type="submit">Send OTP</button>
+  </form>
+</section>
+
+<!-- OTP VERIFICATION SECTION -->
+<section id="verifySection">
+  <h2>Enter OTP</h2>
+  <form id="otpForm">
+    <input type="number" name="otp" placeholder="OTP" required><br>
+    <button type="submit">Verify OTP</button>
+  </form>
+</section>
+
+<!-- DASHBOARD SECTION -->
+<section id="dashboardSection">
+  <h2>Dashboard</h2>
+  <p>Your Referral Link:</p>
+  <input type="text" id="refLink" readonly><br>
+  <p>Reward Balance: <span id="rewardBalance"></span></p>
+</section>
+
+<script>
+// Utility to show/hide sections
+function showSection(sectionId) {
+  document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+  document.getElementById(sectionId).classList.add('active');
+}
+
+let signupEmail = '';
+
+// --- SIGNUP ---
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData.entries());
+  signupEmail = data.email;
+
+  const res = await fetch('/send-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const result = await res.json();
+  alert(result.msg);
+  if(result.success) showSection('verifySection');
+});
+
+// --- VERIFY OTP ---
+document.getElementById('otpForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const otp = e.target.otp.value;
+
+  const res = await fetch('/verify-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: signupEmail, otp })
+  });
+  const result = await res.json();
+  alert(result.msg);
+  if(result.success) {
+    // Save referral code and reward balance
+    localStorage.setItem('referralCode', result.referralCode);
+    localStorage.setItem('rewardBalance', result.rewardBalance);
+    showSection('dashboardSection');
+
+    // Update dashboard fields
+    document.getElementById('refLink').value = window.location.origin + '/signup?ref=' + result.referralCode;
+    document.getElementById('rewardBalance').innerText = result.rewardBalance;
+  }
+});
+</script>
+
+</body>
+      </html>
