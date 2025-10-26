@@ -16,7 +16,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
   const data = Object.fromEntries(formData.entries());
-  const res = await fetch('https://refer-earn-app-1.onrender.com/send-otp', {
+  const res = await fetch('https://refer-earn-app-1.onrender.com/api/auth/send-otp', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -28,4 +28,5 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
 </script>
 </body>
 </html>
+
 
