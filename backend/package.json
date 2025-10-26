@@ -1,17 +1,16 @@
 {
-      "name": "refer-earn-app",
-        "version": "1.0.0",
-          "main": "server.js",
-            "scripts": {
-                "start": "node backend/server.js"
-                  },
-                    "dependencies": {
-                        "express": "^4.18.2",
-                            "mongoose": "^7.3.1",
-                                "cookie-parser": "^1.4.6",
-                                    "body-parser": "^1.20.2",
-                                        "nodemailer": "^6.9.4",
-                                            "dotenv": "^16.3.1"
-                                              }
-                                              
+  "name": "refer-earn-system",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "bcrypt": "^5.1.0",
+    "nodemailer": "^6.9.4"
+  }
 }
