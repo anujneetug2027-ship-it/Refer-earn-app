@@ -17,7 +17,7 @@ const email = urlParams.get('email');
 document.getElementById('otpForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const otp = e.target.otp.value;
-  const res = await fetch('/verify-otp', {
+  const res = await fetch('https://refer-earn-app-1.onrender.com/verify-otp', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, otp })
