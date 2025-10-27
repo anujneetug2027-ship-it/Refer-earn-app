@@ -1,398 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Refer & Earn — Signup</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refer & Earn | Ambika Shelf</title>
   <style>
-    :root{
-      --bg:#0f1724;
-      --card:#0b1220;
-      --muted:#94a3b8;
-      --accent:#06b6d4;
-      --success:#16a34a;
-      --danger:#ef4444;
-      --glass: rgba(255,255,255,0.03);
-      --radius:12px;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-    html,body { height:100%; margin:0; background:linear-gradient(180deg,#071124 0%, #071a2b 100%); color:#e6eef8; }
-    .wrapper { max-width:920px; margin:40px auto; padding:28px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:16px; box-shadow:0 10px 30px rgba(2,6,23,0.6); }
-    header { display:flex; align-items:center; gap:16px; margin-bottom:18px; }
-    .logo { width:56px; height:56px; background:linear-gradient(90deg,var(--accent),#60a5fa); border-radius:12px; display:grid; place-items:center; font-weight:700; color:#052024; }
-    h1{ margin:0; font-size:20px; letter-spacing:0.2px; }
-    p.lead{ margin:6px 0 18px; color:var(--muted); font-size:14px; }
-
-    .grid { display:grid; grid-template-columns: 1fr 360px; gap:20px; }
-    .card { background:var(--card); padding:18px; border-radius:var(--radius); border:1px solid rgba(255,255,255,0.03); }
-    form .row { display:flex; gap:10px; margin-bottom:12px; }
-    label{ display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
-    input[type="text"], input[type="email"], input[type="number"] {
-      width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:var(--glass); color:inherit; font-size:14px;
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
     }
-    button { background:linear-gradient(90deg,var(--accent),#60a5fa); border:none; padding:10px 12px; border-radius:10px; color:#022; font-weight:600; cursor:pointer; }
-    button.secondary { background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); }
-    .muted-note{ font-size:13px; color:var(--muted); margin-top:8px; }
-
-    .hidden{ display:none !important; }
-    .center { text-align:center; }
-
-    .status {
-      margin-top:12px;
-      padding:10px 12px;
-      border-radius:10px;
-      font-size:14px;
-      display:none;
+    h1 {
+      margin-bottom: 1rem;
+      color: #333;
     }
-    .status.show { display:block; }
-    .status.success { background: rgba(22,163,74,0.12); color:var(--success); border:1px solid rgba(22,163,74,0.12); }
-    .status.error { background: rgba(239,68,68,0.08); color:var(--danger); border:1px solid rgba(239,68,68,0.08); }
-
-    .dashboard { display:flex; flex-direction:column; gap:10px; }
-    .refbox { display:flex; gap:8px; align-items:center; }
-    .refbox input { font-family:monospace; }
-    .small { font-size:13px; color:var(--muted); }
-    .copy-btn { background:transparent; border:1px solid rgba(255,255,255,0.05); padding:8px 10px; border-radius:8px; color:var(--muted); cursor:pointer; }
-
-    footer { margin-top:16px; color:var(--muted); font-size:13px; }
-    @media (max-width:880px){
-      .grid { grid-template-columns: 1fr; }
-      .logo{display:none;}
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .hidden {
+      display: none;
+    }
+    .alert {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 6px;
+    }
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    #loader {
+      display: none;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <header>
-      <div class="logo">RE</div>
-      <div>
-        <h1>Refer & Earn</h1>
-        <p class="lead">Simple signup with email OTP, automatic referral detection and clear success/error feedback.</p>
-      </div>
-    </header>
+  <div class="container">
+    <h1>Refer & Earn</h1>
 
-    <div class="grid">
-      <!-- LEFT: Forms -->
-      <div class="card">
-        <!-- SIGNUP -->
-        <section id="signupSection">
-          <h3>Sign up</h3>
-          <form id="signupForm" autocomplete="off">
-            <div class="row"><div style="flex:1">
-              <label for="name">Full name</label>
-              <input id="name" name="name" type="text" placeholder="Your full name" required />
-            </div></div>
-
-            <div class="row"><div style="flex:1">
-              <label for="email">Email</label>
-              <input id="email" name="email" type="email" placeholder="you@example.com" required />
-            </div></div>
-
-            <div class="row">
-              <button id="sendOtpBtn" type="submit">Get OTP</button>
-              <button id="useCodeBtn" type="button" class="secondary">I have referral code</button>
-            </div>
-
-            <div id="manualCodeRow" class="hidden">
-              <label for="manualCode">Referral code (optional)</label>
-              <div style="display:flex;gap:8px">
-                <input id="manualCode" type="text" placeholder="AB12CD" />
-                <button id="applyManualCode" class="secondary" type="button">Apply</button>
-              </div>
-              <div id="manualCodeNote" class="small muted-note">If you were given a referral code instead of a link, enter it here before getting the OTP.</div>
-            </div>
-          </form>
-
-          <div id="signupStatus" class="status"></div>
-        </section>
-
-        <!-- VERIFY OTP -->
-        <section id="verifySection" class="hidden" style="margin-top:10px">
-          <h3>Verify OTP</h3>
-          <form id="otpForm" autocomplete="off">
-            <label for="otp">Enter OTP</label>
-            <input id="otp" name="otp" type="number" placeholder="6-digit code" inputmode="numeric" required />
-            <div style="display:flex;gap:8px;margin-top:10px">
-              <button id="verifyBtn" type="submit">Verify & Continue</button>
-              <button id="resendBtn" type="button" class="secondary">Resend OTP</button>
-            </div>
-            <div id="otpTimer" class="small muted-note">OTP expires in <span id="timer">--:--</span></div>
-          </form>
-
-          <div id="verifyStatus" class="status"></div>
-        </section>
-
-      </div>
-
-      <!-- RIGHT: Dashboard / Info -->
-      <aside class="card">
-        <div id="preAuthBlock">
-          <h3 class="center">Quick Info</h3>
-          <p class="small">When you sign up via a referral link (or apply a referral code), the referrer gets rewarded automatically after verification.</p>
-          <p class="small">Your backend base URL:</p>
-          <p class="small"><code id="baseUrl"></code></p>
-        </div>
-
-        <div id="dashboardBlock" class="hidden">
-          <h3 class="center">Your Dashboard</h3>
-          <div class="dashboard">
-            <div>
-              <label>Your referral link</label>
-              <div class="refbox">
-                <input id="refLink" readonly />
-                <button id="copyRef" class="copy-btn">Copy</button>
-              </div>
-            </div>
-            <div>
-              <label>Reward balance</label>
-              <div style="font-size:18px;font-weight:600" id="rewardBalance">0</div>
-              <div class="small muted-note">Rewards will be credited when your referee completes the required action (signup/first purchase etc.)</div>
-            </div>
-            <div>
-              <button id="signoutBtn" class="secondary">Sign out</button>
-            </div>
-          </div>
-          <div id="dashboardStatus" class="status"></div>
-        </div>
-      </aside>
+    <!-- Signup Section -->
+    <div id="signupSection">
+      <input type="text" id="name" placeholder="Full Name" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <button id="getOtpBtn">Send OTP</button>
+      <div id="signupMsg" class="alert hidden"></div>
+      <div id="loader">⏳ Sending OTP...</div>
     </div>
 
-    <footer class="center">
-      <small>Made with ❤️ — keep your server URL correct in BASE_URL.</small>
-    </footer>
+    <!-- OTP Section -->
+    <div id="otpSection" class="hidden">
+      <h3>Enter OTP</h3>
+      <input type="text" id="otp" placeholder="Enter 6-digit OTP" />
+      <button id="verifyOtpBtn">Verify OTP</button>
+      <div id="otpMsg" class="alert hidden"></div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="hidden">
+      <h3>Welcome!</h3>
+      <p>Your referral link:</p>
+      <input type="text" id="refLink" readonly />
+      <p>Reward Balance: <strong id="rewardBalance">0</strong></p>
+    </div>
   </div>
 
-<script>
-/*
-  Single-page front-end:
-  - Uses BASE_URL for API endpoints (set below).
-  - Robust error + success handling with visible messages.
-  - OTP timer + resend.
-  - Copy referral link and simple dashboard display.
-*/
+  <script>
+    const BASE_URL = "https://payment-07mb.onrender.com";
 
-const BASE_URL = "https://payment-07mb.onrender.com"; // <-- your "hackers" URL as requested
-document.getElementById('baseUrl').innerText = BASE_URL;
+    const show = (id) => document.getElementById(id).classList.remove("hidden");
+    const hide = (id) => document.getElementById(id).classList.add("hidden");
 
-// Elements
-const signupForm = document.getElementById('signupForm');
-const sendOtpBtn = document.getElementById('sendOtpBtn');
-const signupStatus = document.getElementById('signupStatus');
-const useCodeBtn = document.getElementById('useCodeBtn');
-const manualCodeRow = document.getElementById('manualCodeRow');
-const applyManualCode = document.getElementById('applyManualCode');
-const manualCodeInput = document.getElementById('manualCode');
-
-const verifySection = document.getElementById('verifySection');
-const verifyStatus = document.getElementById('verifyStatus');
-const otpForm = document.getElementById('otpForm');
-const verifyBtn = document.getElementById('verifyBtn');
-const resendBtn = document.getElementById('resendBtn');
-const timerEl = document.getElementById('timer');
-
-const dashboardBlock = document.getElementById('dashboardBlock');
-const dashboardStatus = document.getElementById('dashboardStatus');
-const refLink = document.getElementById('refLink');
-const copyRef = document.getElementById('copyRef');
-const rewardBalanceEl = document.getElementById('rewardBalance');
-const signoutBtn = document.getElementById('signoutBtn');
-
-let signupEmail = '';
-let currentReferralCode = '';
-let otpExpiry = null;
-let otpTimerInterval = null;
-
-// Helpers
-function showStatus(el, message, type='success', autoHide=true){
-  el.className = 'status show ' + (type === 'error' ? 'error' : 'success');
-  el.innerText = message;
-  if(autoHide) setTimeout(()=>{ el.className = 'status'; }, 6000);
-}
-function showSection(id){ document.querySelectorAll('section').forEach(s=>s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
-function enableBtn(btn, enable=true){ btn.disabled=!enable; btn.style.opacity = enable? '1' : '0.6'; }
-function startOtpTimer(seconds){
-  clearInterval(otpTimerInterval);
-  let remaining = seconds;
-  const fmt = s => {
-    const m = Math.floor(s/60).toString().padStart(2,'0');
-    const sec = (s%60).toString().padStart(2,'0');
-    return `${m}:${sec}`;
-  };
-  timerEl.innerText = fmt(remaining);
-  otpTimerInterval = setInterval(()=>{
-    remaining--;
-    if(remaining <= 0){
-      clearInterval(otpTimerInterval);
-      timerEl.innerText = '00:00';
-      showStatus(verifyStatus, 'OTP expired. Please resend.', 'error', false);
-      enableBtn(resendBtn, true);
-      enableBtn(verifyBtn, false);
-    } else {
-      timerEl.innerText = fmt(remaining);
+    function showMessage(elementId, type, text) {
+      const el = document.getElementById(elementId);
+      el.textContent = text;
+      el.className = "alert " + type;
+      show(elementId);
+      setTimeout(() => hide(elementId), 4000);
     }
-  }, 1000);
-}
 
-// Toggle manual code field
-useCodeBtn.addEventListener('click', ()=>{
-  if(manualCodeRow.classList.contains('hidden')) manualCodeRow.classList.remove('hidden');
-  else manualCodeRow.classList.add('hidden');
-});
+    document.getElementById("getOtpBtn").addEventListener("click", async () => {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
 
-// Apply manual referral code locally (shows confirmation)
-applyManualCode.addEventListener('click', ()=>{
-  const val = manualCodeInput.value.trim();
-  if(!val){ showStatus(signupStatus, 'Enter a referral code to apply.', 'error'); return; }
-  currentReferralCode = val;
-  showStatus(signupStatus, `Referral code "${val}" will be applied on signup.`, 'success');
-});
+      if (!name || !email) {
+        showMessage("signupMsg", "error", "Please enter name and email!");
+        return;
+      }
 
-// SEND OTP handler
-signupForm.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  enableBtn(sendOtpBtn, false);
-  showStatus(signupStatus, 'Sending OTP...', 'success', false);
+      show("loader");
 
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  if(!name || !email){ showStatus(signupStatus,'Name & email are required','error'); enableBtn(sendOtpBtn,true); return; }
+      try {
+        const res = await fetch(`${BASE_URL}/send-otp`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email }),
+        });
 
-  // payload — include manual code if provided
-  const payload = { name, email };
-  if(currentReferralCode) payload.manualReferralCode = currentReferralCode;
+        const data = await res.json();
+        hide("loader");
 
-  try {
-    const res = await fetch(`${BASE_URL}/send-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify(payload)
+        if (res.ok && data.success) {
+          showMessage("signupMsg", "success", data.msg || "OTP sent successfully!");
+          hide("signupSection");
+          show("otpSection");
+          localStorage.setItem("userEmail", email);
+        } else {
+          showMessage("signupMsg", "error", data.msg || "Failed to send OTP!");
+        }
+      } catch (error) {
+        hide("loader");
+        showMessage("signupMsg", "error", "Server error! Check backend connection.");
+      }
     });
-    const data = await res.json().catch(()=>({ success:false, msg: 'Invalid response from server' }));
 
-    if(!res.ok || !data.success){
-      showStatus(signupStatus, data.msg || `Error: ${res.status} ${res.statusText}`, 'error');
-      enableBtn(sendOtpBtn, true);
-      return;
-    }
+    document.getElementById("verifyOtpBtn").addEventListener("click", async () => {
+      const otp = document.getElementById("otp").value.trim();
+      const email = localStorage.getItem("userEmail");
 
-    // success
-    signupEmail = email;
-    showSection('verifySection');
-    showStatus(verifyStatus, 'OTP sent! Check your email.', 'success');
-    // Start client side OTP timer (5 minutes = 300s) — server should also enforce expiry
-    startOtpTimer(300);
-    enableBtn(sendOtpBtn,true);
-  } catch(err){
-    console.error('Network error sending OTP:', err);
-    showStatus(signupStatus, 'Network error. Check your connection or backend URL.', 'error', false);
-    enableBtn(sendOtpBtn,true);
-  }
-});
+      if (!otp || !email) {
+        showMessage("otpMsg", "error", "Please enter OTP!");
+        return;
+      }
 
-// RESEND OTP
-resendBtn.addEventListener('click', async ()=>{
-  if(!signupEmail){ showStatus(verifyStatus, 'No email found — go back and request OTP again.', 'error'); return; }
-  enableBtn(resendBtn, false);
-  showStatus(verifyStatus, 'Resending OTP...', 'success', false);
+      try {
+        const res = await fetch(`${BASE_URL}/verify-otp`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp }),
+        });
 
-  try {
-    const res = await fetch(`${BASE_URL}/send-otp`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ name: document.getElementById('name').value.trim(), email: signupEmail })
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          showMessage("otpMsg", "success", "OTP verified successfully!");
+          hide("otpSection");
+          show("dashboard");
+          document.getElementById("refLink").value =
+            `${window.location.origin}?ref=${data.referralCode}`;
+          document.getElementById("rewardBalance").textContent = data.rewardBalance || 0;
+        } else {
+          showMessage("otpMsg", "error", data.msg || "Invalid OTP!");
+        }
+      } catch (error) {
+        showMessage("otpMsg", "error", "Server error during OTP verification!");
+      }
     });
-    const data = await res.json().catch(()=>({ success:false, msg:'Invalid response' }));
-    if(!res.ok || !data.success){
-      showStatus(verifyStatus, data.msg || `Error: ${res.status}`, 'error');
-      enableBtn(resendBtn, true);
-      return;
-    }
-    showStatus(verifyStatus, 'OTP resent. Check your email.', 'success');
-    startOtpTimer(300);
-    enableBtn(resendBtn, true);
-  } catch(err){
-    console.error('Resend failed:', err);
-    showStatus(verifyStatus, 'Network error while resending OTP.', 'error', false);
-    enableBtn(resendBtn, true);
-  }
-});
-
-// VERIFY OTP
-otpForm.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const otpValue = document.getElementById('otp').value.trim();
-  if(!signupEmail || !otpValue){ showStatus(verifyStatus, 'Email and OTP required', 'error'); return; }
-  enableBtn(verifyBtn, false);
-  showStatus(verifyStatus, 'Verifying OTP...', 'success', false);
-
-  try {
-    const res = await fetch(`${BASE_URL}/verify-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ email: signupEmail, otp: otpValue })
-    });
-    const data = await res.json().catch(()=>({ success:false, msg:'Invalid response' }));
-    if(!res.ok || !data.success){
-      showStatus(verifyStatus, data.msg || `Error: ${res.status}`, 'error');
-      enableBtn(verifyBtn, true);
-      return;
-    }
-
-    // Verified — show dashboard
-    clearInterval(otpTimerInterval);
-    showStatus(verifyStatus, 'Verified! Redirecting to dashboard...', 'success');
-    // Save to localStorage (simple client-side persistence)
-    localStorage.setItem('referralCode', data.referralCode || '');
-    localStorage.setItem('rewardBalance', data.rewardBalance ?? 0);
-    showDashboard(data.referralCode || '', data.rewardBalance ?? 0);
-
-  } catch(err){
-    console.error('OTP verify error:', err);
-    showStatus(verifyStatus, 'Network error during verification.', 'error', false);
-    enableBtn(verifyBtn, true);
-  }
-});
-
-function showDashboard(code, balance){
-  document.getElementById('preAuthBlock').classList.add('hidden');
-  document.getElementById('dashboardBlock').classList.remove('hidden');
-  refLink.value = `${location.origin}/signup?ref=${code}`; // this is the user-visible referral link
-  rewardBalanceEl.innerText = balance;
-  showSection('signupSection'); // hide forms section (page layout keeps card visible)
-  // show a small success in dashboard area
-  showStatus(dashboardStatus, 'Welcome! Your referral link is ready.', 'success');
-}
-
-// COPY REFERRAL LINK
-copyRef.addEventListener('click', async ()=>{
-  try {
-    await navigator.clipboard.writeText(refLink.value);
-    showStatus(dashboardStatus, 'Referral link copied to clipboard.', 'success');
-  } catch(err){
-    showStatus(dashboardStatus, 'Unable to copy. Select and copy manually.', 'error');
-  }
-});
-
-// SIGN OUT (local only)
-signoutBtn.addEventListener('click', ()=>{
-  localStorage.removeItem('referralCode');
-  localStorage.removeItem('rewardBalance');
-  document.getElementById('preAuthBlock').classList.remove('hidden');
-  document.getElementById('dashboardBlock').classList.add('hidden');
-  showStatus(signupStatus, 'Signed out.', 'success');
-  enableBtn(sendOtpBtn, true);
-});
-
-// On load — if localStorage has user info, populate dashboard
-window.addEventListener('load', ()=>{
-  const storedCode = localStorage.getItem('referralCode');
-  const storedBal = localStorage.getItem('rewardBalance');
-  if(storedCode){
-    showDashboard(storedCode, storedBal ?? 0);
-  } else {
-    showSection('signupSection');
-  }
-});
-</script>
+  </script>
 </body>
-  </html>
+        </html>
