@@ -56,7 +56,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
   const data = Object.fromEntries(formData.entries());
   signupEmail = data.email;
 
-  const res = await fetch('/send-otp', {
+  const res = await fetch('https://payment-07mb.onrender.com/api/auth/send-otp', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -71,7 +71,7 @@ document.getElementById('otpForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const otp = e.target.otp.value;
 
-  const res = await fetch('/verify-otp', {
+  const res = await fetch('https://payment-07mb.onrender.com/api/auth/verify-otp', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: signupEmail, otp })
