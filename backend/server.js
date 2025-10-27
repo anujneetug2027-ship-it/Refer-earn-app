@@ -70,7 +70,7 @@ app.post('/send-otp', async (req, res) => {
 
     const newUser = await User.create({ name, email, referralCode, referredBy, otp, otpExpires });
 
-    await transporter.sendMail({
+    res.json({ success: true, msg: "OTP generated", otp });({
       from: process.env.EMAIL_PUBLIC_KEY,
       to: email,
       subject: 'Your OTP Code',
