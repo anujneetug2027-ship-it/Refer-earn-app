@@ -22,7 +22,6 @@
     .logo { width:56px; height:56px; background:linear-gradient(90deg,var(--accent),#60a5fa); border-radius:12px; display:grid; place-items:center; font-weight:700; color:#052024; }
     h1{ margin:0; font-size:20px; letter-spacing:0.2px; }
     p.lead{ margin:6px 0 18px; color:var(--muted); font-size:14px; }
-
     .grid { display:grid; grid-template-columns: 1fr 360px; gap:20px; }
     .card { background:var(--card); padding:18px; border-radius:var(--radius); border:1px solid rgba(255,255,255,0.03); }
     form .row { display:flex; gap:10px; margin-bottom:12px; }
@@ -33,10 +32,8 @@
     button { background:linear-gradient(90deg,var(--accent),#60a5fa); border:none; padding:10px 12px; border-radius:10px; color:#022; font-weight:600; cursor:pointer; }
     button.secondary { background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); }
     .muted-note{ font-size:13px; color:var(--muted); margin-top:8px; }
-
     .hidden{ display:none !important; }
     .center { text-align:center; }
-
     .status {
       margin-top:12px;
       padding:10px 12px;
@@ -47,13 +44,11 @@
     .status.show { display:block; }
     .status.success { background: rgba(22,163,74,0.12); color:var(--success); border:1px solid rgba(22,163,74,0.12); }
     .status.error { background: rgba(239,68,68,0.08); color:var(--danger); border:1px solid rgba(239,68,68,0.08); }
-
     .dashboard { display:flex; flex-direction:column; gap:10px; }
     .refbox { display:flex; gap:8px; align-items:center; }
     .refbox input { font-family:monospace; }
     .small { font-size:13px; color:var(--muted); }
     .copy-btn { background:transparent; border:1px solid rgba(255,255,255,0.05); padding:8px 10px; border-radius:8px; color:var(--muted); cursor:pointer; }
-
     footer { margin-top:16px; color:var(--muted); font-size:13px; }
     @media (max-width:880px){
       .grid { grid-template-columns: 1fr; }
@@ -73,7 +68,6 @@
 
     <div class="grid">
       <div class="card">
-        <!-- SIGNUP SECTION -->
         <section id="signupSection">
           <h3>Sign up</h3>
           <form id="signupForm" autocomplete="off">
@@ -100,7 +94,6 @@
               <label for="manualCode">Referral code (optional)</label>
               <div style="display:flex;gap:8px">
                 <input id="manualCode" type="text" placeholder="AB12CD" />
-                <button id="applyManualCode" class="secondary" type="button">Apply</button>
               </div>
             </div>
           </form>
@@ -108,7 +101,6 @@
           <div id="signupStatus" class="status"></div>
         </section>
 
-        <!-- OTP VERIFY SECTION -->
         <section id="verifySection" class="hidden" style="margin-top:10px">
           <h3>Verify OTP</h3>
           <form id="otpForm" autocomplete="off">
@@ -124,7 +116,6 @@
         </section>
       </div>
 
-      <!-- DASHBOARD SECTION -->
       <aside class="card">
         <div id="preAuthBlock">
           <h3 class="center">Quick Info</h3>
@@ -148,7 +139,6 @@
             </div>
             <button id="signoutBtn" class="secondary">Sign out</button>
           </div>
-          <div id="dashboardStatus" class="status"></div>
         </div>
       </aside>
     </div>
@@ -158,10 +148,9 @@
     </footer>
   </div>
 
-  <!-- ✅ EmailJS Integration -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
-    emailjs.init("nrRHkmrcj0okGAbI2"); // replace with your EmailJS public key
+    emailjs.init("nrRHkmrcj0okGAbI2");
   </script>
 
   <script>
@@ -173,13 +162,17 @@
   const verifySection = document.getElementById("verifySection");
   const verifyStatus = document.getElementById("verifyStatus");
   const otpForm = document.getElementById("otpForm");
-  const resendBtn = document.getElementById("resendBtn");
   const timerEl = document.getElementById("timer");
   const rewardBalanceEl = document.getElementById("rewardBalance");
   const refLink = document.getElementById("refLink");
+  const copyRefBtn = document.getElementById("copyRef");
+  const manualCodeRow = document.getElementById("manualCodeRow");
+  const useCodeBtn = document.getElementById("useCodeBtn");
 
   let signupEmail = "";
   let otpTimer;
+
+  useCodeBtn.addEventListener("click", ()=> manualCodeRow.classList.toggle("hidden"));
 
   function showStatus(el, msg, type="success") {
     el.className = `status show ${type}`;
@@ -204,6 +197,9 @@
     e.preventDefault();
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
+    const manualCode = document.getElementById("manualCode").value.trim();
+    const urlCode = new URLSearchParams(location.search).get("ref");
+    const refCode = manualCode || urlCode || null;
     signupEmail = email;
 
     showStatus(signupStatus,"Generating OTP...");
@@ -212,13 +208,12 @@
       const res = await fetch(`${BASE_URL}/send-otp`,{
         method:"POST",
         headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({ name,email })
+        body:JSON.stringify({ name,email,refCode })
       });
       const data = await res.json();
 
       if(!data.success){ showStatus(signupStatus,data.msg,"error"); return; }
 
-      // Use EmailJS to send OTP
       await emailjs.send("service_h2opout","template_vepoizn",{
         email: email,
         passcode: data.otp,
@@ -243,9 +238,7 @@
       const res = await fetch(`${BASE_URL}/verify-otp`,{
         method:"POST",
         headers:{ "Content-Type":"application/json" },
-      
-        const manualCode = document.getElementById("manualCode").value.trim();
-body: JSON.stringify({ name, email, refCode: manualCode || new URLSearchParams(location.search).get("ref") })
+        body:JSON.stringify({ email:signupEmail, otp })
       });
       const data = await res.json();
 
@@ -261,6 +254,11 @@ body: JSON.stringify({ name, email, refCode: manualCode || new URLSearchParams(l
       console.error(err);
       showStatus(verifyStatus,"Verification failed.","error");
     }
+  });
+
+  copyRefBtn.addEventListener("click", ()=>{
+    navigator.clipboard.writeText(refLink.value);
+    showStatus(signupStatus,"Referral link copied!","success");
   });
   </script>
 </body>
