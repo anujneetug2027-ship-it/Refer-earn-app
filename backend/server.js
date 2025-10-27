@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
 const User = require('./models/User');
@@ -18,20 +19,27 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // ---------- FRONTEND ----------
-// ✅ Handle referral links first
-app.get('/signup', (req, res) => {
-  const refCode = req.query.ref;
-  if (refCode) {
-    res.cookie('ref', refCode, { maxAge: 7 * 24 * 60 * 60 * 1000 });
-  }
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ---------- MONGO CONNECTION ----------
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('MongoDB Error:', err));
+
+// ---------- EMAIL SETUP ----------
+// Works with Gmail, Mailtrap, Outlook, etc.
+// Example (Gmail): EMAIL_SERVICE=gmail
+// Example (Mailtrap): use host + port below instead of service.
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || undefined,
+  port: process.env.EMAIL_PORT || undefined,
+  service: process.env.EMAIL_SERVICE || undefined,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_PUBLIC_KEY,
+    pass: process.env.EMAIL_PRIVATE_KEY
+  }
+});
 
 // ---------- HELPERS ----------
 function generateReferralCode() {
@@ -75,11 +83,19 @@ app.post('/send-otp', async (req, res) => {
 
     await User.create({ name, email, referralCode, referredBy, otp, otpExpires });
 
-    // ✅ Do NOT send mail from backend — handled by EmailJS frontend
-    return res.json({ success: true, msg: "OTP generated", otp });
+    // ---- SEND EMAIL ----
+    await transporter.sendMail({
+      from: `"Refer & Earn" <${process.env.EMAIL_PUBLIC_KEY}>`,
+      to: email,
+      subject: 'Your OTP Code',
+      html: `<p>Hi ${name},</p>
+             <p>Your OTP is <b>${otp}</b>. It expires in 5 minutes.</p>`
+    });
+
+    return res.json({ success: true, msg: "OTP sent successfully" });
   } catch (err) {
     console.error('❌ Error in /send-otp:', err.message);
-    return res.status(500).json({ success: false, msg: "Server error" });
+    return res.status(500).json({ success: false, msg: "Error sending OTP. Check mail setup." });
   }
 });
 
