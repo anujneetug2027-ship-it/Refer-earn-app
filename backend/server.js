@@ -18,6 +18,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // ---------- FRONTEND ----------
+// ✅ Handle referral links first
+app.get('/signup', (req, res) => {
+  const refCode = req.query.ref;
+  if (refCode) {
+    res.cookie('ref', refCode, { maxAge: 7 * 24 * 60 * 60 * 1000 });
+  }
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ---------- MONGO CONNECTION ----------
