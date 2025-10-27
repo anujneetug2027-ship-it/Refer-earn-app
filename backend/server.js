@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
 const User = require('./models/User');
@@ -26,44 +25,25 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('MongoDB Error:', err));
 
-// ---------- EMAIL SETUP ----------
-// Works with Gmail, Mailtrap, Outlook, etc.
-// Example (Gmail): EMAIL_SERVICE=gmail
-// Example (Mailtrap): use host + port below instead of service.
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || undefined,
-  port: process.env.EMAIL_PORT || undefined,
-  service: process.env.EMAIL_SERVICE || undefined,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_PUBLIC_KEY,
-    pass: process.env.EMAIL_PRIVATE_KEY
-  }
-});
-
 // ---------- HELPERS ----------
 function generateReferralCode() {
   return crypto.randomBytes(3).toString('hex').toUpperCase(); // 6-char code
 }
 function generateOTP() {
-  return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 // ---------- ROUTES ----------
-
-// Serve frontend signup
 app.get('/signup', (req, res) => {
   const refCode = req.query.ref;
-  if (refCode) {
-    res.cookie('ref', refCode, { maxAge: 7 * 24 * 60 * 60 * 1000 });
-  }
+  if (refCode) res.cookie('ref', refCode, { maxAge: 7*24*60*60*1000 });
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // ---------- SEND OTP ----------
 app.post('/send-otp', async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, refCode } = req.body;
     if (!name || !email)
       return res.json({ success: false, msg: "Name and email required" });
 
@@ -75,27 +55,18 @@ app.post('/send-otp', async (req, res) => {
     const referralCode = generateReferralCode();
 
     let referredBy = null;
-    const refCode = req.cookies.ref;
-    if (refCode) {
-      const referrer = await User.findOne({ referralCode: refCode });
+    const cookieRef = req.cookies.ref;
+    const finalRef = refCode || cookieRef;
+    if (finalRef) {
+      const referrer = await User.findOne({ referralCode: finalRef });
       if (referrer) referredBy = referrer._id;
     }
 
     await User.create({ name, email, referralCode, referredBy, otp, otpExpires });
-
-    // ---- SEND EMAIL ----
-    await transporter.sendMail({
-      from: `"Refer & Earn" <${process.env.EMAIL_PUBLIC_KEY}>`,
-      to: email,
-      subject: 'Your OTP Code',
-      html: `<p>Hi ${name},</p>
-             <p>Your OTP is <b>${otp}</b>. It expires in 5 minutes.</p>`
-    });
-
-    return res.json({ success: true, msg: "OTP sent successfully" });
+    return res.json({ success: true, msg: "OTP generated", otp });
   } catch (err) {
-    console.error('❌ Error in /send-otp:', err.message);
-    return res.status(500).json({ success: false, msg: "Error sending OTP. Check mail setup." });
+    console.error('❌ /send-otp:', err.message);
+    return res.status(500).json({ success: false, msg: "Server error" });
   }
 });
 
@@ -109,12 +80,10 @@ app.post('/verify-otp', async (req, res) => {
       return res.json({ success: false, msg: "Invalid or expired OTP" });
     }
 
-    // OTP correct
     user.otp = null;
     user.otpExpires = null;
     await user.save();
 
-    // Reward referrer
     if (user.referredBy) {
       await User.findByIdAndUpdate(user.referredBy, { $inc: { rewardBalance: 50 } });
       await Referral.create({
@@ -129,14 +98,13 @@ app.post('/verify-otp', async (req, res) => {
       success: true,
       msg: "Signup successful!",
       referralCode: user.referralCode,
-      rewardBalance: user.rewardBalance
+      rewardBalance: user.rewardBalance || 0
     });
   } catch (err) {
-    console.error('❌ Error in /verify-otp:', err.message);
+    console.error('❌ /verify-otp:', err.message);
     res.status(500).json({ success: false, msg: "Internal server error" });
   }
 });
 
-// ---------- START SERVER ----------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
