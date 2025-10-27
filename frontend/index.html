@@ -139,7 +139,24 @@
               <label>Your referral link</label>
               <div class="refbox">
                 <input id="refLink" readonly />
-                <button id="copyRef" class="copy-btn">Copy</button>
+                <button id="copyBtn">Copy Referral Link</button>
+<p id="refLink"></p>
+
+<script>
+const copyBtn = document.getElementById("copyBtn");
+const refLink = document.getElementById("refLink");
+
+copyBtn.addEventListener("click", async () => {
+  const link = refLink.textContent.trim();
+  if (!link) return alert("Referral link not generated yet!");
+  try {
+    await navigator.clipboard.writeText(link);
+    alert("Referral link copied!");
+  } catch (err) {
+    alert("Failed to copy link");
+  }
+});
+</script>
               </div>
             </div>
             <div>
