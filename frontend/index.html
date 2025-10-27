@@ -139,24 +139,7 @@
               <label>Your referral link</label>
               <div class="refbox">
                 <input id="refLink" readonly />
-                <button id="copyBtn">Copy Referral Link</button>
-<p id="refLink"></p>
-
-<script>
-const copyBtn = document.getElementById("copyBtn");
-const refLink = document.getElementById("refLink");
-
-copyBtn.addEventListener("click", async () => {
-  const link = refLink.textContent.trim();
-  if (!link) return alert("Referral link not generated yet!");
-  try {
-    await navigator.clipboard.writeText(link);
-    alert("Referral link copied!");
-  } catch (err) {
-    alert("Failed to copy link");
-  }
-});
-</script>
+                <button id="copyRef" class="copy-btn">Copy</button>
               </div>
             </div>
             <div>
@@ -176,7 +159,7 @@ copyBtn.addEventListener("click", async () => {
   </div>
 
   <!-- ✅ EmailJS Integration -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
     emailjs.init("nrRHkmrcj0okGAbI2"); // replace with your EmailJS public key
   </script>
@@ -279,4 +262,4 @@ copyBtn.addEventListener("click", async () => {
   });
   </script>
 </body>
-                </html>
+                  </html>
