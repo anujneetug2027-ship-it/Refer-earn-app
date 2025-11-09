@@ -261,5 +261,51 @@
     showStatus(signupStatus,"Referral link copied!","success");
   });
   </script>
+
+  <!-- ✅ CHATBASE CHATBOT EMBED (ADDED) -->
+  <script>
+    (function(){
+      if(!window.chatbase||window.chatbase("getState")!=="initialized"){
+        window.chatbase=(...arguments)=>{
+          if(!window.chatbase.q){window.chatbase.q=[]}
+          window.chatbase.q.push(arguments)
+        };
+        window.chatbase=new Proxy(window.chatbase,{
+          get(target,prop){
+            if(prop==="q"){return target.q}
+            return(...args)=>target(prop,...args)
+          }
+        })
+      }
+      const onLoad=function(){
+        const script=document.createElement("script");
+        script.src="https://www.chatbase.co/embed.min.js";
+        script.id="4VTYoAghoQOn5dL2mWh84"; // Your bot ID
+        script.domain="www.chatbase.co";
+        document.body.appendChild(script)
+      };
+      if(document.readyState==="complete"){onLoad()}
+      else{window.addEventListener("load",onLoad)}
+    })();
+  </script>
+
+  <!-- ✅ CHATBASE USER IDENTIFICATION TEST -->
+  <script src="https://cdn.jsdelivr.net/npm/jsonwebtoken@9.0.2/dist/browser/jsonwebtoken.min.js"></script>
+  <script>
+    async function identifyUserForChatbase(){
+      try {
+        // ⚠️ TESTING ONLY: using static secret directly (do not use in production)
+        const secret = "YOUR_CHATBASE_SECRET_KEY";
+        const payload = {
+          user_id: localStorage.getItem("referralCode") || "guest_" + Math.random().toString(36).substr(2,6),
+          email: signupEmail || "guest@example.com"
+        };
+        const token = KJUR.jws.JWS.sign(null, {alg:"HS256"}, payload, secret);
+        window.chatbase('identify', { token });
+      } catch(err){ console.error("Chatbase identify failed:", err); }
+    }
+    // Trigger after OTP verification or after user signup
+    identifyUserForChatbase();
+  </script>
 </body>
-                  </html>
+  </html>
