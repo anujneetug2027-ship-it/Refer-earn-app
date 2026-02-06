@@ -15,7 +15,7 @@
                                             "nodemailer": "^6.9.4",
                                                 "dotenv": "^16.4.5",
                                                     "cookie-parser": "^1.4.6",
-                        "@emailjs/nodejs": "^3.0.0"
+                        "@emailjs/nodejs": "^4.0.0"
                                                       },
                                                         "engines": {
                                                             "node": ">=18.0.0"
