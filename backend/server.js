@@ -8,6 +8,7 @@ const cors = require('cors');
 const path = require('path');
 const User = require('./models/User');
 const Referral = require('./models/Referral');
+const sendWelcomeMail = require('./welcomeMail'); // ✅ Added
 
 const app = express();
 
@@ -93,6 +94,13 @@ app.post('/verify-otp', async (req, res) => {
         rewardGranted: true
       });
     }
+
+    // ✅ Send welcome email after signup success
+    sendWelcomeMail({
+      email: user.email,
+      username: user.name,
+      name: user.name
+    });
 
     res.json({
       success: true,
