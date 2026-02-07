@@ -96,6 +96,8 @@ app.post('/verify-otp', async (req, res) => {
     }
 
     // ✅ Send welcome email after signup success
+
+    console.log("VERIFY OTP SUCCESS - sending email");
     sendWelcomeMail({
       email: user.email,
       username: user.name,
