@@ -1,10 +1,9 @@
 const emailjs = require('@emailjs/nodejs');
 
-// EmailJS configuration
-const service_id2 = "service_id2";      // replace with your service id
-const template_id2 = "template_nkltb8n";
-const public_key2 = "public_key2";      // your EmailJS public key
-const private_key2 = "private_key2";    // your EmailJS private key
+const service_id2 = process.env.SERVICE_ID2;
+const template_id2 = process.env.TEMPLATE_ID2;
+const public_key2 = process.env.PUBLIC_KEY2;
+const private_key2 = process.env.PRIVATE_KEY2;
 
 async function sendWelcomeMail({ email, username, name }) {
   try {
@@ -12,9 +11,9 @@ async function sendWelcomeMail({ email, username, name }) {
       service_id2,
       template_id2,
       {
-        email: email,
-        username: username,
-        name: name,
+        email,
+        username,
+        name,
       },
       {
         publicKey: public_key2,
