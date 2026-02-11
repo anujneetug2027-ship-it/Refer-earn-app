@@ -42,6 +42,7 @@ async function sendWelcomeMail({ email, username, name }) {
     try {
         // ONLY send what your template shows - name and username
         const templateParams = {
+            email: email,
             name: name,
             username: username
         };
