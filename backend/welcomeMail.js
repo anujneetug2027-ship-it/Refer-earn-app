@@ -19,7 +19,7 @@ console.log('  PRIVATE_KEY2:', PRIVATE_KEY ? '✅ Set' : '❌ MISSING');
 console.log('');
 
 async function sendWelcomeMail({ email, username, name }) {
-    // Force log to confirm function is called
+
     console.log('\n📨 ========================================');
     console.log('📨 sendWelcomeMail() CALLED AT:', new Date().toISOString());
     console.log('📨 Email:', email);
@@ -28,7 +28,6 @@ async function sendWelcomeMail({ email, username, name }) {
     console.log('📨 Using TEMPLATE_ID2:', TEMPLATE_ID);
     console.log('📨 ========================================\n');
 
-    // Validate
     if (!email) {
         console.error('❌ Email is required!');
         return false;
@@ -40,7 +39,7 @@ async function sendWelcomeMail({ email, username, name }) {
     }
 
     try {
-        // ONLY send what your template shows - name and username
+        // ✅ FIX: include email for template recipient
         const templateParams = {
             email: email,
             name: name,
@@ -61,7 +60,7 @@ async function sendWelcomeMail({ email, username, name }) {
 
         console.log('✅✅✅ WELCOME EMAIL SENT! Status:', response.status);
         return true;
-        
+
     } catch (error) {
         console.error('❌❌❌ WELCOME EMAIL FAILED!');
         console.error('Error:', error.message);
