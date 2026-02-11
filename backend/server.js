@@ -214,35 +214,61 @@ app.post('/send-otp', async (req, res) => {
 });
 
 // ---------- VERIFY OTP - FIXED WITH PROPER AWAIT AND LOGGING ----------
+// ---------- VERIFY OTP - FIXED WITH AWAIT ----------
 app.post('/verify-otp', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    console.log('🔐 /verify-otp called for:', email);
+
+    const user = await User.findOne({ email });
+    if (!user) return res.json({ success: false, msg: "User not found" });
+    
+    if (user.otp !== otp || user.otpExpires < new Date()) {
+      return res.json({ success: false, msg: "Invalid or expired OTP" });
+    }
+
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+
+    if (user.referredBy) {
+      await User.findByIdAndUpdate(user.referredBy, { $inc: { rewardBalance: 50 } });
+      await Referral.create({
+        referrerId: user.referredBy,
+        refereeId: user._id,
+        status: 'completed',
+        rewardGranted: true
+      });
+    }
+
+    // ✅ CRITICAL FIX: ADD AWAIT HERE!
+    console.log("📧 VERIFY OTP SUCCESS - sending welcome email to:", user.email);
+    
     try {
-        const { email, otp } = req.body;
-        console.log('\n🔐 ========================================');
-        console.log('🔐 /verify-otp CALLED AT:', new Date().toISOString());
-        console.log('🔐 Email:', email);
-        console.log('🔐 ========================================\n');
+      const emailSent = await sendWelcomeMail({
+        email: user.email,
+        username: user.name,
+        name: user.name
+      });
+      
+      console.log("📧 Welcome email result:", emailSent ? "✅ SUCCESS" : "❌ FAILED");
+      
+    } catch (emailError) {
+      console.error("📧 Welcome email ERROR:", emailError.message);
+    }
 
-        if (!email || !otp) {
-            return res.json({ success: false, msg: "Email and OTP required" });
-        }
-
-        const user = await User.findOne({ email });
-        if (!user) {
-            console.log('❌ User not found:', email);
-            return res.json({ success: false, msg: "User not found" });
-        }
-
-        console.log('✅ User found:', { name: user.name, email: user.email });
-
-        if (user.otp !== otp) {
-            console.log('❌ Invalid OTP for:', email);
-            return res.json({ success: false, msg: "Invalid OTP" });
-        }
-
-        if (user.otpExpires < new Date()) {
-            console.log('❌ OTP expired for:', email);
-            return res.json({ success: false, msg: "OTP expired" });
-        }
+    res.json({
+      success: true,
+      msg: "Signup successful!",
+      referralCode: user.referralCode,
+      rewardBalance: user.rewardBalance || 0
+    });
+    
+  } catch (err) {
+    console.error('❌ /verify-otp:', err.message);
+    res.status(500).json({ success: false, msg: "Internal server error" });
+  }
+});
 
         // Clear OTP
         user.otp = null;
