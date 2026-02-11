@@ -407,8 +407,8 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('📍 Port:', PORT);
     console.log('🌐 Environment:', process.env.NODE_ENV || 'production');
     console.log('📧 Email Service:', typeof sendWelcomeMail === 'function' ? '✅ Configured' : '⚠️ Fallback');
-    console.log('🔗 Health Check: https://refer-earn-app.onrender.com/health');
-    console.log('🧪 Test Email: https://refer-earn-app.onrender.com/test-email/your-email@gmail.com');
+    console.log('🔗 Health Check: https://refer-earn-app-1.onrender.com/health');
+    console.log('🧪 Test Email: https://refer-earn-app-1.onrender.com/test-email/your-email@gmail.com');
     console.log('='.repeat(60) + '\n');
 });
 
