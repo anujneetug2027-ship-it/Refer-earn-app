@@ -1,25 +1,8 @@
 // ============================================
-// SERVER.JS - COMPLETE FIXED VERSION
+// SERVER.JS - COMPLETE FIXED VERSION FOR RENDER
 // ============================================
 
-// ---------- 1. LOAD ENVIRONMENT VARIABLES FIRST ----------
 require('dotenv').config();
-
-// ---------- 2. IMMEDIATE ENVIRONMENT VALIDATION ----------
-console.log('\n' + '='.repeat(60));
-console.log('🚀 AMBIKASHELF REFER & EARN SYSTEM - STARTING UP');
-console.log('='.repeat(60));
-console.log('📋 ENVIRONMENT VARIABLES CHECK:');
-console.log('   MONGO_URI:', process.env.MONGO_URI ? '✅ Connected' : '❌ MISSING');
-console.log('   SERVICE_ID2:', process.env.SERVICE_ID2 ? '✅ Set' : '❌ MISSING');
-console.log('   TEMPLATE_ID2:', process.env.TEMPLATE_ID2 ? '✅ Set' : '❌ MISSING');
-console.log('   PUBLIC_KEY2:', process.env.PUBLIC_KEY2 ? '✅ Set' : '❌ MISSING');
-console.log('   PRIVATE_KEY2:', process.env.PRIVATE_KEY2 ? '✅ Set' : '❌ MISSING');
-console.log('   COOKIE_SECRET:', process.env.COOKIE_SECRET ? '✅ Set' : '❌ MISSING');
-console.log('   PORT:', process.env.PORT || '5000 (default)');
-console.log('='.repeat(60) + '\n');
-
-// ---------- 3. IMPORT DEPENDENCIES ----------
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
@@ -28,102 +11,140 @@ const crypto = require('crypto');
 const cors = require('cors');
 const path = require('path');
 
-// ---------- 4. IMPORT MODELS ----------
+// ---------- IMPORT MODELS ----------
 const User = require('./models/User');
 const Referral = require('./models/Referral');
 
-// ---------- 5. IMPORT WELCOME MAIL FUNCTION WITH DEBUG ----------
+// ---------- IMPORT WELCOME MAIL ----------
 let sendWelcomeMail;
 try {
     sendWelcomeMail = require('./welcomeMail');
-    console.log('📧 WelcomeMail module loaded:', typeof sendWelcomeMail === 'function' ? '✅ SUCCESS' : '❌ NOT A FUNCTION');
-    
-    if (typeof sendWelcomeMail !== 'function') {
-        console.error('⚠️ Warning: sendWelcomeMail is not a function! Type:', typeof sendWelcomeMail);
-        // Create a fallback function
-        sendWelcomeMail = async ({ email, username, name }) => {
-            console.log('📧 FALLBACK: Would send welcome email to:', email);
-            console.log('   Username:', username);
-            console.log('   Name:', name);
-            console.log('   ⚠️ Email not actually sent - check EmailJS configuration');
-            return false;
-        };
-        console.log('✅ Fallback email function created');
-    }
+    console.log('📧 WelcomeMail module loaded: ✅ SUCCESS');
 } catch (error) {
-    console.error('❌ Failed to load welcomeMail module:', error.message);
-    console.log('📧 Creating fallback email function...');
+    console.error('❌ WelcomeMail module failed to load:', error.message);
+    // Create fallback function
     sendWelcomeMail = async ({ email, username, name }) => {
-        console.log('📧 FALLBACK: Would send welcome email to:', email);
+        console.log('📧 FALLBACK: Welcome email would be sent to:', email);
+        console.log('   To fix: Check welcomeMail.js file and EmailJS credentials');
         return false;
     };
 }
 
 const app = express();
 
-// ---------- 6. MIDDLEWARE ----------
-app.use(cors({ 
-    origin: '*', 
-    credentials: true 
-}));
+// ---------- ENVIRONMENT VARIABLES CHECK ----------
+console.log('\n' + '='.repeat(60));
+console.log('🚀 AMBIKASHELF REFER & EARN - RENDER DEPLOYMENT');
+console.log('='.repeat(60));
+console.log('📋 ENVIRONMENT CHECK:');
 
-app.use(cookieParser(process.env.COOKIE_SECRET || 'fallback-secret-key-2026'));
+// FIX: Handle MongoDB URI - MUST include database name
+const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
+console.log('📊 MongoDB URI:', MONGO_URI ? '✅ Present' : '❌ MISSING');
 
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+if (MONGO_URI) {
+    // Check if database name is included
+    if (!MONGO_URI.includes('.net/') || MONGO_URI.includes('.net/?') || MONGO_URI.includes('.net/?')) {
+        console.warn('⚠️ WARNING: Your MongoDB URI might be missing a database name!');
+        console.warn('   Should be: ...mongodb.net/DATABASE_NAME?parameters...');
+    }
+    // Mask password for logging
+    const maskedUri = MONGO_URI.replace(/:([^:@]+)@/, ':***@');
+    console.log('   Connection:', maskedUri);
+}
 
-// Request logging middleware
+console.log('🔐 COOKIE_SECRET:', process.env.COOKIE_SECRET ? '✅ Set' : '❌ MISSING');
+console.log('📧 EMAILJS CONFIG:');
+console.log('   SERVICE_ID2:', process.env.SERVICE_ID2 ? '✅ Set' : '❌ MISSING');
+console.log('   TEMPLATE_ID2:', process.env.TEMPLATE_ID2 ? '✅ Set' : '❌ MISSING');
+console.log('   PUBLIC_KEY2:', process.env.PUBLIC_KEY2 ? '✅ Set' : '❌ MISSING');
+console.log('   PRIVATE_KEY2:', process.env.PRIVATE_KEY2 ? '✅ Set' : '❌ MISSING');
+console.log('='.repeat(60) + '\n');
+
+// ---------- MIDDLEWARE ----------
+app.use(cors({ origin: '*', credentials: true }));
+
+// Use cookie secret with fallback (but log warning)
+const COOKIE_SECRET = process.env.COOKIE_SECRET || 'ambikashelf-fallback-secret-2026';
+if (!process.env.COOKIE_SECRET) {
+    console.warn('⚠️ Warning: Using fallback COOKIE_SECRET. Set this in environment variables!');
+}
+app.use(cookieParser(COOKIE_SECRET));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Request logging
 app.use((req, res, next) => {
     console.log(`📨 ${req.method} ${req.path} - ${new Date().toISOString()}`);
     next();
 });
 
-// ---------- 7. FRONTEND STATIC FILES ----------
+// ---------- STATIC FILES ----------
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// ---------- 8. MONGOOSE CONNECTION WITH BETTER ERROR HANDLING ----------
-if (!process.env.MONGO_URI) {
-    console.error('❌ CRITICAL: MONGO_URI is not defined in environment variables!');
+// ---------- MONGO CONNECTION - FIXED ----------
+if (!MONGO_URI) {
+    console.error('❌ CRITICAL: No MongoDB URI found!');
+    console.error('   Set MONGO_URI in Render environment variables');
     process.exit(1);
 }
 
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB connected successfully'))
-.catch(err => {
-    console.error('❌ MongoDB Connection Error:', err.message);
-    console.error('Please check your MONGO_URI and network connection');
+// Check if database name is missing and show helpful error
+if (MONGO_URI.includes('.net/?') || MONGO_URI.includes('.net/?')) {
+    console.error('❌ CRITICAL: Your MongoDB URI is missing a database name!');
+    console.error('\n🔧 FIX THIS NOW:');
+    console.error('   1. Go to Render Dashboard → Environment Variables');
+    console.error('   2. Update MONGO_URI to include a database name:');
+    console.error('\n   CURRENT:');
+    console.error(`   ${MONGO_URI.replace(/:([^:@]+)@/, ':***@')}`);
+    console.error('\n   SHOULD BE:');
+    console.error(`   mongodb+srv://ambikashelf:YOUR_PASSWORD@cluster0.pulil65.mongodb.net/ambikashelf?retryWrites=true&w=majority&appName=Cluster0`);
+    console.error('\n   ⚠️ Replace YOUR_PASSWORD with your actual MongoDB password');
     process.exit(1);
-});
+}
 
-// ---------- 9. HELPER FUNCTIONS ----------
+// Connect to MongoDB
+mongoose.connect(MONGO_URI)
+    .then(() => {
+        console.log('✅ MongoDB connected successfully');
+        console.log(`   Database: ${mongoose.connection.name}`);
+        console.log(`   Host: ${mongoose.connection.host}`);
+    })
+    .catch(err => {
+        console.error('❌ MongoDB Connection Error:', err.message);
+        console.error('\n🔍 TROUBLESHOOTING:');
+        console.error('   1. Verify your password is correct in MONGO_URI');
+        console.error('   2. Go to MongoDB Atlas → Network Access → Add 0.0.0.0/0');
+        console.error('   3. Check if database user has read/write permissions');
+        console.error('   4. Make sure database name exists in the connection string');
+        console.error('   5. Try creating the database first in MongoDB Atlas');
+        process.exit(1);
+    });
+
+// ---------- HELPERS ----------
 function generateReferralCode() {
-    return crypto.randomBytes(3).toString('hex').toUpperCase(); // 6-char code
+    return crypto.randomBytes(3).toString('hex').toUpperCase();
 }
 
 function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// ---------- 10. ROUTES ----------
-
-// Health check endpoint
+// ---------- ROUTES ----------
 app.get('/health', (req, res) => {
-    res.json({ 
-        status: 'OK', 
-        timestamp: new Date().toISOString(),
+    res.json({
+        status: 'OK',
         mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-        emailjs: typeof sendWelcomeMail === 'function' ? 'configured' : 'fallback'
+        database: mongoose.connection.name || 'unknown',
+        time: new Date().toISOString()
     });
 });
 
-// Signup page with referral cookie
 app.get('/signup', (req, res) => {
     const refCode = req.query.ref;
     if (refCode) {
-        res.cookie('ref', refCode, { 
+        res.cookie('ref', refCode, {
             maxAge: 7 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production'
@@ -137,25 +158,21 @@ app.get('/signup', (req, res) => {
 app.post('/send-otp', async (req, res) => {
     try {
         const { name, email, refCode } = req.body;
-        console.log('📤 /send-otp called for:', { name, email, refCode });
+        console.log('📤 /send-otp:', { name, email, refCode });
 
         if (!name || !email) {
             return res.json({ success: false, msg: "Name and email required" });
         }
 
-        // Check if user exists
         const existing = await User.findOne({ email });
         if (existing) {
-            console.log('❌ Email already registered:', email);
             return res.json({ success: false, msg: "Email already registered" });
         }
 
-        // Generate OTP and referral code
         const otp = generateOTP();
         const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
         const referralCode = generateReferralCode();
 
-        // Check for referral
         let referredBy = null;
         const cookieRef = req.cookies.ref;
         const finalRef = refCode || cookieRef;
@@ -164,36 +181,34 @@ app.post('/send-otp', async (req, res) => {
             const referrer = await User.findOne({ referralCode: finalRef });
             if (referrer) {
                 referredBy = referrer._id;
-                console.log('🎁 Referral detected! Referrer:', referrer.email);
+                console.log('🎁 Referral detected:', referrer.email);
             }
         }
 
-        // Create user
-        await User.create({ 
-            name, 
-            email, 
-            referralCode, 
-            referredBy, 
-            otp, 
+        await User.create({
+            name,
+            email,
+            referralCode,
+            referredBy,
+            otp,
             otpExpires,
             rewardBalance: 0,
+            verified: false,
             createdAt: new Date()
         });
 
-        console.log('✅ User created successfully:', { email, referralCode });
+        console.log('✅ User created:', { email, referralCode });
         
-        return res.json({ 
-            success: true, 
-            msg: "OTP sent successfully", 
-            otp // Remove this in production!
+        return res.json({
+            success: true,
+            msg: "OTP sent successfully",
+            // Only return OTP in development
+            otp: process.env.NODE_ENV === 'development' ? otp : undefined
         });
         
     } catch (err) {
         console.error('❌ /send-otp error:', err);
-        return res.status(500).json({ 
-            success: false, 
-            msg: "Server error. Please try again." 
-        });
+        return res.status(500).json({ success: false, msg: "Server error" });
     }
 });
 
@@ -201,34 +216,16 @@ app.post('/send-otp', async (req, res) => {
 app.post('/verify-otp', async (req, res) => {
     try {
         const { email, otp } = req.body;
-        console.log('🔐 /verify-otp called for:', { email, otp: '***' });
+        console.log('🔐 /verify-otp:', { email });
 
-        if (!email || !otp) {
-            return res.json({ success: false, msg: "Email and OTP required" });
-        }
-
-        // Find user
         const user = await User.findOne({ email });
         if (!user) {
-            console.log('❌ User not found:', email);
             return res.json({ success: false, msg: "User not found" });
         }
 
-        console.log('✅ User found:', { 
-            name: user.name, 
-            email: user.email,
-            otpExpires: user.otpExpires 
-        });
-
-        // Verify OTP
-        if (user.otp !== otp) {
-            console.log('❌ Invalid OTP - Provided:', otp, 'Stored:', user.otp);
-            return res.json({ success: false, msg: "Invalid OTP" });
-        }
-
-        if (user.otpExpires < new Date()) {
-            console.log('❌ OTP expired:', user.otpExpires);
-            return res.json({ success: false, msg: "OTP expired" });
+        if (user.otp !== otp || user.otpExpires < new Date()) {
+            console.log('❌ Invalid OTP for:', email);
+            return res.json({ success: false, msg: "Invalid or expired OTP" });
         }
 
         // Clear OTP
@@ -236,190 +233,59 @@ app.post('/verify-otp', async (req, res) => {
         user.otpExpires = null;
         user.verified = true;
         await user.save();
-        console.log('✅ OTP verified and cleared for:', email);
+        console.log('✅ OTP verified for:', email);
 
-        // Process referral reward if applicable
+        // Process referral
         if (user.referredBy) {
             try {
-                await User.findByIdAndUpdate(user.referredBy, { 
-                    $inc: { rewardBalance: 50 } 
-                });
-                
+                await User.findByIdAndUpdate(user.referredBy, { $inc: { rewardBalance: 50 } });
                 await Referral.create({
                     referrerId: user.referredBy,
                     refereeId: user._id,
                     status: 'completed',
                     rewardGranted: true,
-                    rewardAmount: 50,
-                    createdAt: new Date()
+                    rewardAmount: 50
                 });
-                
-                console.log('🎁 Referral reward granted to:', user.referredBy);
+                console.log('🎁 Referral reward granted');
             } catch (refError) {
-                console.error('⚠️ Referral processing error:', refError);
-                // Don't fail the signup if referral processing fails
+                console.error('⚠️ Referral error:', refError);
             }
         }
 
-        // ---------- SEND WELCOME EMAIL WITH PROPER AWAIT ----------
-        console.log('📧 Attempting to send welcome email to:', user.email);
-        console.log('📧 Email function type:', typeof sendWelcomeMail);
-        
-        let emailSent = false;
-        try {
-            emailSent = await sendWelcomeMail({
-                email: user.email,
-                username: user.name,
-                name: user.name
-            });
-            
-            console.log('📧 Welcome email result:', emailSent ? '✅ SUCCESS' : '❌ FAILED');
-            
-        } catch (emailError) {
-            console.error('❌ Welcome email exception:', {
-                name: emailError.name,
-                message: emailError.message,
-                stack: emailError.stack
-            });
-            emailSent = false;
-        }
+        // Send welcome email (don't await - non-blocking)
+        console.log('📧 Triggering welcome email for:', user.email);
+        sendWelcomeMail({
+            email: user.email,
+            username: user.name,
+            name: user.name
+        }).catch(err => console.error('📧 Email error:', err));
 
-        // Clear referral cookie if exists
+        // Clear referral cookie
         res.clearCookie('ref');
-
-        // Send success response
+        
         res.json({
             success: true,
             msg: "Signup successful!",
             referralCode: user.referralCode,
-            rewardBalance: user.rewardBalance || 0,
-            emailSent: emailSent
-        });
-        
-        console.log('✅ Signup completed successfully for:', user.email);
-        
-    } catch (err) {
-        console.error('❌ /verify-otp critical error:', {
-            message: err.message,
-            stack: err.stack
-        });
-        
-        res.status(500).json({ 
-            success: false, 
-            msg: "Internal server error. Please try again." 
-        });
-    }
-});
-
-// Get user details endpoint
-app.post('/get-user', async (req, res) => {
-    try {
-        const { email } = req.body;
-        const user = await User.findOne({ email }).select('-otp -otpExpires');
-        
-        if (!user) {
-            return res.json({ success: false, msg: "User not found" });
-        }
-        
-        res.json({
-            success: true,
-            user: {
-                name: user.name,
-                email: user.email,
-                referralCode: user.referralCode,
-                rewardBalance: user.rewardBalance || 0,
-                referredBy: user.referredBy,
-                verified: user.verified || false
-            }
+            rewardBalance: user.rewardBalance || 0
         });
         
     } catch (err) {
-        console.error('❌ /get-user error:', err);
-        res.status(500).json({ success: false, msg: "Server error" });
+        console.error('❌ /verify-otp error:', err);
+        res.status(500).json({ success: false, msg: "Internal server error" });
     }
 });
 
-// Get referral stats
-app.post('/referral-stats', async (req, res) => {
-    try {
-        const { referralCode } = req.body;
-        
-        const user = await User.findOne({ referralCode });
-        if (!user) {
-            return res.json({ success: false, msg: "Invalid referral code" });
-        }
-        
-        const totalReferrals = await Referral.countDocuments({ referrerId: user._id });
-        const successfulReferrals = await Referral.countDocuments({ 
-            referrerId: user._id, 
-            status: 'completed' 
-        });
-        
-        res.json({
-            success: true,
-            stats: {
-                totalReferrals,
-                successfulReferrals,
-                rewardBalance: user.rewardBalance || 0,
-                referralCode: user.referralCode
-            }
-        });
-        
-    } catch (err) {
-        console.error('❌ /referral-stats error:', err);
-        res.status(500).json({ success: false, msg: "Server error" });
-    }
-});
-
-// ---------- 11. ERROR HANDLING MIDDLEWARE ----------
-app.use((req, res) => {
-    res.status(404).json({ success: false, msg: "Endpoint not found" });
-});
-
-app.use((err, req, res, next) => {
-    console.error('🔥 Unhandled error:', err);
-    res.status(500).json({ 
-        success: false, 
-        msg: "Something went wrong on our end" 
-    });
-});
-
-// ---------- 12. START SERVER ----------
-const PORT = process.env.PORT || 5000;
-
-const server = app.listen(PORT, () => {
+// ---------- START SERVER ----------
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
     console.log('\n' + '='.repeat(60));
     console.log(`✅ SERVER RUNNING SUCCESSFULLY`);
     console.log(`📍 Port: ${PORT}`);
-    console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌐 Environment: ${process.env.NODE_ENV || 'production'}`);
     console.log(`📧 Email Service: ${typeof sendWelcomeMail === 'function' ? 'Configured' : 'Fallback'}`);
+    console.log(`🔗 Health Check: https://refer-earn-app.onrender.com/health`);
     console.log('='.repeat(60) + '\n');
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-    console.log('🛑 SIGTERM received. Closing server...');
-    server.close(() => {
-        console.log('✅ Server closed');
-        mongoose.connection.close(false, () => {
-            console.log('✅ MongoDB connection closed');
-            process.exit(0);
-        });
-    });
-});
-
-process.on('uncaughtException', (err) => {
-    console.error('💥 Uncaught Exception:', err);
-    // Log but don't exit in production
-    if (process.env.NODE_ENV === 'production') {
-        console.error('Continuing despite error...');
-    } else {
-        process.exit(1);
-    }
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 module.exports = app;
