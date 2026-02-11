@@ -1,62 +1,53 @@
 // ============================================
-// welcomeMail.js - WITH FULL DEBUG LOGGING
+// welcomeMail.js - USING YOUR IDs WITH 2 (WELCOME)
 // ============================================
 
 const emailjs = require('@emailjs/nodejs');
 
-// Get environment variables
+// These are your WELCOME email credentials (IDs with 2)
 const SERVICE_ID = process.env.SERVICE_ID2;
 const TEMPLATE_ID = process.env.TEMPLATE_ID2;
 const PUBLIC_KEY = process.env.PUBLIC_KEY2;
 const PRIVATE_KEY = process.env.PRIVATE_KEY2;
 
-// Log configuration at startup
-console.log('\n📧 EmailJS Configuration:');
-console.log('  - SERVICE_ID:', SERVICE_ID ? '✅ Set' : '❌ MISSING');
-console.log('  - TEMPLATE_ID:', TEMPLATE_ID ? '✅ Set' : '❌ MISSING');
-console.log('  - PUBLIC_KEY:', PUBLIC_KEY ? '✅ Set' : '❌ MISSING');
-console.log('  - PRIVATE_KEY:', PRIVATE_KEY ? '✅ Set' : '❌ MISSING');
+// Log at startup
+console.log('\n📧 WELCOME EMAIL CONFIGURATION:');
+console.log('  SERVICE_ID2:', SERVICE_ID ? '✅ Set' : '❌ MISSING');
+console.log('  TEMPLATE_ID2:', TEMPLATE_ID ? '✅ Set' : '❌ MISSING');
+console.log('  PUBLIC_KEY2:', PUBLIC_KEY ? '✅ Set' : '❌ MISSING');
+console.log('  PRIVATE_KEY2:', PRIVATE_KEY ? '✅ Set' : '❌ MISSING');
 console.log('');
 
 async function sendWelcomeMail({ email, username, name }) {
-    // ALWAYS log when function is called
+    // Force log to confirm function is called
     console.log('\n📨 ========================================');
     console.log('📨 sendWelcomeMail() CALLED AT:', new Date().toISOString());
-    console.log('📨 Recipient:', email);
+    console.log('📨 Email:', email);
     console.log('📨 Username:', username);
     console.log('📨 Name:', name);
+    console.log('📨 Using TEMPLATE_ID2:', TEMPLATE_ID);
     console.log('📨 ========================================\n');
 
-    // Validate inputs
+    // Validate
     if (!email) {
-        console.error('❌ ERROR: Email is required but was not provided!');
+        console.error('❌ Email is required!');
         return false;
     }
 
-    // Validate environment variables
     if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY || !PRIVATE_KEY) {
-        console.error('❌ ERROR: EmailJS environment variables missing!');
-        console.error('   SERVICE_ID:', SERVICE_ID ? '✅' : '❌');
-        console.error('   TEMPLATE_ID:', TEMPLATE_ID ? '✅' : '❌');
-        console.error('   PUBLIC_KEY:', PUBLIC_KEY ? '✅' : '❌');
-        console.error('   PRIVATE_KEY:', PRIVATE_KEY ? '✅' : '❌');
+        console.error('❌ Missing welcome email credentials!');
         return false;
     }
 
     try {
-        // Template params - ONLY what your template shows
+        // ONLY send what your template shows - name and username
         const templateParams = {
             name: name,
             username: username
         };
 
-        console.log('📤 Sending email via EmailJS...');
-        console.log('   Service ID:', SERVICE_ID);
-        console.log('   Template ID:', TEMPLATE_ID);
-        console.log('   Template Params:', templateParams);
-        console.log('   Timestamp:', new Date().toISOString());
+        console.log('📤 Sending with params:', templateParams);
 
-        // Send email
         const response = await emailjs.send(
             SERVICE_ID,
             TEMPLATE_ID,
@@ -67,35 +58,14 @@ async function sendWelcomeMail({ email, username, name }) {
             }
         );
 
-        console.log('\n✅✅✅ EMAIL SENT SUCCESSFULLY! ✅✅✅');
-        console.log('   Status:', response.status);
-        console.log('   Response:', response.text);
-        console.log('   To:', email);
-        console.log('✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅\n');
-        
+        console.log('✅✅✅ WELCOME EMAIL SENT! Status:', response.status);
         return true;
         
     } catch (error) {
-        console.error('\n❌❌❌ EMAIL FAILED! ❌❌❌');
-        console.error('   Error name:', error.name);
-        console.error('   Error message:', error.message);
-        
-        if (error.status) {
-            console.error('   HTTP Status:', error.status);
-        }
-        
-        if (error.text) {
-            console.error('   Response text:', error.text);
-        }
-        
-        // Log full error details
-        try {
-            console.error('   Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
-        } catch (e) {
-            console.error('   Could not stringify error:', error);
-        }
-        
-        console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌❌❌❌❌❌❌\n');
+        console.error('❌❌❌ WELCOME EMAIL FAILED!');
+        console.error('Error:', error.message);
+        if (error.status) console.error('Status:', error.status);
+        if (error.text) console.error('Text:', error.text);
         return false;
     }
 }
