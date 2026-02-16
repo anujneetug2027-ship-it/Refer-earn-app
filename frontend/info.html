@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Ambikashelf Enterprises — Information</title>
+<title>AmbikaShelf Enterprises — Company Information</title>
 
 <link rel="icon" href="favicon.ico">
 
@@ -14,18 +13,17 @@
   --card:#0b1220;
   --muted:#94a3b8;
   --accent:#06b6d4;
-  --glass: rgba(255,255,255,0.03);
+  --glass: rgba(255,255,255,.03);
   --radius:12px;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  font-family: Inter, system-ui, Segoe UI, Roboto, Arial;
 }
 
-html,body{
+body{
   margin:0;
   background:linear-gradient(180deg,#071124,#071a2b);
   color:#e6eef8;
 }
 
-/* Layout */
 .wrapper{
   max-width:1000px;
   margin:auto;
@@ -38,77 +36,62 @@ header{
   align-items:center;
 }
 
-.logo{
-  font-weight:700;
-  font-size:20px;
-}
+.brand{ font-weight:700; font-size:20px; }
 
-/* Hamburger */
-.menu-btn{
-  font-size:26px;
-  cursor:pointer;
-  user-select:none;
-}
+.menu-btn{ font-size:26px; cursor:pointer; }
 
 .menu{
   position:fixed;
-  top:0;
   right:-280px;
+  top:0;
   width:260px;
   height:100%;
   background:#0b1220;
-  box-shadow:-10px 0 30px rgba(0,0,0,0.5);
   padding:20px;
   transition:.3s;
+  box-shadow:-10px 0 30px rgba(0,0,0,.6);
 }
 
 .menu.open{ right:0; }
 
 .menu a{
   display:block;
-  padding:12px 0;
+  padding:14px 0;
   color:#e6eef8;
   text-decoration:none;
-  border-bottom:1px solid rgba(255,255,255,0.05);
+  border-bottom:1px solid rgba(255,255,255,.05);
 }
-
-.menu a:hover{ color:var(--accent); }
 
 .card{
   background:var(--card);
   padding:22px;
   border-radius:var(--radius);
   margin-top:18px;
-  border:1px solid rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,.03);
 }
 
-h2{
-  margin-top:0;
-  color:var(--accent);
-}
+h2{ color:var(--accent); margin-top:0; }
 
 .small{
-  color:var(--muted);
   font-size:14px;
-  line-height:1.7;
+  line-height:1.8;
+  color:var(--muted);
 }
 
-.whatsapp-btn{
+.whatsapp{
   display:inline-flex;
   align-items:center;
   gap:10px;
-  background:linear-gradient(90deg,var(--accent),#60a5fa);
+  margin-top:12px;
   padding:12px 16px;
+  background:linear-gradient(90deg,var(--accent),#60a5fa);
   border-radius:10px;
   text-decoration:none;
   color:#002;
   font-weight:600;
-  margin-top:10px;
 }
 
-.whatsapp-btn img{
-  width:22px;
-}
+.whatsapp img{ width:22px; }
 
 footer{
   text-align:center;
@@ -124,145 +107,66 @@ footer{
 <div class="wrapper">
 
 <header>
-  <div class="logo">Ambikashelf Enterprises</div>
+  <div class="brand">AmbikaShelf Enterprises</div>
   <div class="menu-btn" onclick="toggleMenu()">☰</div>
 </header>
 
-<!-- Sidebar menu -->
 <div id="menu" class="menu">
   <a href="/signup">Login / Signup</a>
   <a href="#about">About Us</a>
-  <a href="#contact">Contact Us</a>
+  <a href="#contact">Contact</a>
   <a href="#privacy">Privacy Policy</a>
   <a href="#terms">Terms & Conditions</a>
 </div>
 
-<!-- ABOUT -->
 <div class="card" id="about">
-<h2>About Ambikashelf Enterprises</h2>
-
+<h2>About AmbikaShelf Enterprises</h2>
 <p class="small">
-Ambikashelf Enterprises is a modern digital-first company founded and operated by <strong>Anuj Chauhan</strong>, focused on building scalable solutions in e-commerce, technology services, and artificial intelligence-driven products.
+AmbikaShelf Enterprises is a privately operated digital enterprise founded and managed by <strong>Anuj Chauhan</strong>. The organization focuses on building scalable consumer platforms, technology services, and experimental artificial intelligence solutions.
 </p>
-
 <p class="small">
-The organization was established with the mission of enabling seamless access to essential goods, digital solutions, and intelligent services while supporting entrepreneurs and startups in building sustainable businesses. Over time, the company has grown into a multi-division enterprise, serving customers across India through online platforms and technology-driven services.
-</p>
-
-<p class="small">
-Ambikashelf Enterprises emphasizes innovation, affordability, customer trust, and technological excellence. The organization continually experiments with modern business models and technology solutions to improve digital commerce experiences and empower emerging businesses.
-</p>
-
-<p class="small">
-Our long-term vision is to build a strong ecosystem combining commerce, artificial intelligence, and digital services to serve both consumers and companies efficiently.
+The company was established with the vision of combining commerce, technology, and innovation into a unified ecosystem that benefits customers, startups, and partner businesses.
 </p>
 
 <h3>Brands & Divisions</h3>
-
-<p class="small">
-<strong>Ambikashelf.shop</strong> — Our primary e-commerce platform offering essential commodities, kitchen accessories, household goods, books, and everyday lifestyle products with reliable delivery and customer support.
-</p>
-
-<p class="small">
-<strong>Ambikashelf Solutions</strong> — Provides website development, application building, branding, and digital infrastructure support to startups and growing companies.
-</p>
-
-<p class="small">
-<strong>Ambikashelf AI</strong> — A research and product initiative experimenting with personalized AI systems and providing AI integration services to businesses seeking automation and customer experience improvements.
-</p>
-
-<p class="small">
-Additional services and innovations are continuously being developed under the Ambikashelf ecosystem.
-</p>
-
+<p class="small"><strong>AmbikaShelf.shop</strong> — E-commerce platform selling essential commodities, kitchen accessories, books, and daily-use products.</p>
+<p class="small"><strong>AmbikaShelf Solutions</strong> — Web development, application building, branding, and startup enablement services.</p>
+<p class="small"><strong>AmbikaShelf AI</strong> — Research-driven initiative focused on personalized AI systems and business automation.</p>
 </div>
 
-<!-- CONTACT -->
 <div class="card" id="contact">
 <h2>Contact Us</h2>
-
-<p class="small">
-<strong>Ambikashelf Enterprises</strong><br>
-India
-</p>
-
 <p class="small">
 Customer Support: support@ambikashelf.shop<br>
-Business Partnerships: business@ambikashelf.shop<br>
+Business Services: business@ambikashelf.shop<br>
 General Enquiries: enquire@ambikashelf.shop
 </p>
 
-<a class="whatsapp-btn"
-href="https://wa.me/919125573750?text=I%20have%20a%20query..."
-target="_blank">
+<a class="whatsapp" href="https://wa.me/919125573750?text=I%20have%20a%20query..." target="_blank">
 <img src="https://ambikashelf.shop/whatsapp.png">
-Chat Now on WhatsApp
+Chat Now
 </a>
-
 </div>
 
-<!-- PRIVACY POLICY -->
 <div class="card" id="privacy">
 <h2>Privacy Policy</h2>
-
 <p class="small">
-Ambikashelf Enterprises respects user privacy and is committed to protecting personal information shared through our platforms and services.
+We collect limited personal information solely to provide services, maintain platform security, and improve user experience. Data is never sold to third parties.
 </p>
-
 <p class="small">
-We collect limited information such as names, email addresses, and usage data to enable account creation, provide services, improve user experience, and ensure platform security.
+Third-party tools such as analytics, payments, and advertising platforms may collect anonymized data under their respective policies.
 </p>
-
-<p class="small">
-Information collected is used only for operational, service improvement, communication, and legal compliance purposes. We do not sell personal data to third parties.
-</p>
-
-<p class="small">
-Third-party services such as payment gateways, analytics providers, and advertising networks may collect anonymized data subject to their respective policies.
-</p>
-
-<p class="small">
-Users may request correction or deletion of personal information by contacting support channels. Security measures are applied to protect user data against unauthorized access.
-</p>
-
-<p class="small">
-Use of our services indicates acceptance of this privacy policy.
-</p>
-
 </div>
 
-<!-- TERMS -->
 <div class="card" id="terms">
 <h2>Terms & Conditions</h2>
-
 <p class="small">
-By accessing Ambikashelf Enterprises platforms or services, users agree to comply with applicable laws and platform guidelines.
+Users must comply with platform policies and applicable laws. AmbikaShelf reserves the right to modify services, offers, or policies at any time.
 </p>
-
-<p class="small">
-Users must provide accurate information during account registration and maintain confidentiality of account credentials.
-</p>
-
-<p class="small">
-Services, rewards, offers, and referral benefits may change without prior notice. Misuse of referral programs or fraudulent activity may result in account suspension.
-</p>
-
-<p class="small">
-Ambikashelf Enterprises reserves rights to update services, modify pricing, or discontinue features based on operational needs.
-</p>
-
-<p class="small">
-The company is not liable for losses resulting from service interruptions, external provider failures, or misuse of services by users.
-</p>
-
-<p class="small">
-Continued use of services indicates acceptance of these terms.
-</p>
-
 </div>
 
 <footer>
-© 2026 Ambikashelf Enterprises — All Rights Reserved
+© AmbikaShelf 2026. All rights reserved.
 </footer>
 
 </div>
@@ -274,4 +178,4 @@ function toggleMenu(){
 </script>
 
 </body>
-    </html>
+  </html>
