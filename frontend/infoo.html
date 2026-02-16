@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambika Shelf · about & policies</title>
+  <link rel="icon" href="favicon.ico?v=4" type="image/x-icon">
+  <link rel="shortcut icon" href="favicon.ico?v=4">
+  <meta name="theme-color" content="#0f1724">
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#94a3b8;
+      --accent:#06b6d4;
+      --success:#16a34a;
+      --danger:#ef4444;
+      --glass: rgba(255,255,255,0.03);
+      --radius:12px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body { 
+      height:100%; 
+      margin:0; 
+      background:linear-gradient(180deg,#071124 0%, #071a2b 100%); 
+      color:#e6eef8; 
+    }
+    .wrapper { 
+      max-width:1020px; 
+      margin:30px auto; 
+      padding:28px; 
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); 
+      border-radius:16px; 
+      box-shadow:0 10px 30px rgba(2,6,23,0.6); 
+    }
+    /* top page navigation (3‑line list) */
+    .top-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem 3rem;
+      margin-bottom: 32px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 15px;
+      font-weight: 500;
+      list-style: none;
+      background: transparent;
+    }
+    .top-nav li {
+      margin:0;
+      padding:0;
+    }
+    .top-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: 0.2s;
+      letter-spacing: 0.2px;
+    }
+    .top-nav a:hover {
+      color: var(--accent);
+    }
+    .top-nav .active a {
+      color: white;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+    }
+    header { 
+      display:flex; 
+      align-items:center; 
+      gap:16px; 
+      margin-bottom:28px; 
+    }
+    .logo { 
+      width:56px; 
+      height:56px; 
+      background:linear-gradient(90deg,var(--accent),#60a5fa); 
+      border-radius:12px; 
+      display:grid; 
+      place-items:center; 
+      font-weight:700; 
+      color:#052024; 
+      font-size:24px;
+    }
+    h1{ 
+      margin:0; 
+      font-size:22px; 
+      letter-spacing:0.2px; 
+    }
+    .lead{ 
+      margin:6px 0 0; 
+      color:var(--muted); 
+      font-size:14px; 
+    }
+    /* cards for content */
+    .policy-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      margin: 30px 0 20px;
+    }
+    .card {
+      background: var(--card);
+      padding: 28px 26px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.03);
+      transition: 0.2s;
+    }
+    .card h2 {
+      font-size: 20px;
+      margin-top: 0;
+      margin-bottom: 20px;
+      border-left: 4px solid var(--accent);
+      padding-left: 16px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+    }
+    .card h3 {
+      font-size: 17px;
+      margin: 24px 0 10px;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+    .card p, .card li {
+      color: #cbd5e1;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .card ul, .card ol {
+      padding-left: 24px;
+    }
+    .contact-block {
+      background: rgba(6,182,212,0.03);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-top: 18px;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 0;
+      flex-wrap: wrap;
+    }
+    .contact-email {
+      font-family: 'Fira Code', monospace;
+      background: var(--glass);
+      padding: 6px 12px;
+      border-radius: 40px;
+      border: 1px solid rgba(255,255,255,0.03);
+      color: var(--accent);
+    }
+    .whatsapp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: #25D36620;
+      border: 1px solid #25D36640;
+      padding: 10px 24px 10px 20px;
+      border-radius: 40px;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      margin: 16px 0 8px;
+      transition: 0.2s;
+    }
+    .whatsapp-btn:hover {
+      background: #25D36640;
+      border-color: #25D366;
+    }
+    .whatsapp-btn img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+    .footer-note {
+      margin-top: 36px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding-top: 24px;
+    }
+    hr {
+      border: none;
+      height: 1px;
+      background: rgba(255,255,255,0.03);
+      margin: 20px 0;
+    }
+    .muted-text {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .brand-logos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin: 15px 0;
+    }
+    .brand-item {
+      background: rgba(255,255,255,0.02);
+      border-radius: 30px;
+      padding: 6px 18px;
+      border: 1px solid rgba(255,255,255,0.03);
+      font-weight: 500;
+      font-size: 15px;
+    }
+    .brand-accent {
+      color: var(--accent);
+    }
+    @media (max-width:680px){
+      .wrapper{padding:18px;}
+      .top-nav{gap:1rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <!-- 3‑line top nav: Login/signup, About us, Contact us, Privacy policy, T&C -->
+    <ul class="top-nav">
+      <li><a href="signup.html" target="_blank">🔑 Login / Signup</a></li>  <!-- current page indicator is just for style, active class can be set manually if needed -->
+      <li class="active"><a href="#">📄 About us</a></li>
+      <li><a href="#contact">📞 Contact us</a></li>
+      <li><a href="#privacy">🛡️ Privacy policy</a></li>
+      <li><a href="#terms">⚖️ T&amp;C</a></li>
+    </ul>
+
+    <header>
+      <div class="logo">AS</div>
+      <div>
+        <h1>Ambika Shelf Enterprises</h1>
+        <p class="lead">founded & operated by Anuj Chauhan · since 2023</p>
+      </div>
+    </header>
+
+    <!-- info + policies container (all in one professional scroll) -->
+    <div class="policy-grid">
+
+      <!-- ABOUT US – long note, brands, founder etc -->
+      <section class="card" id="about">
+        <h2>🏢 About AmbikaShelf</h2>
+        <p><strong>AmbikaShelf Enterprises</strong> is a private Indian enterprise founded and operated by <strong>Anuj Chauhan</strong> with a vision to build reliable, customer‑first digital & commerce solutions. Headquartered in New Delhi, the company operates across e‑commerce, tech consultancy, and experimental AI — all under the core principle of <em>“transparency meets innovation”</em>.</p>
+        <p>What started as a small bookshelf brand in 2022 quickly evolved into a multi‑vertical organisation. Today AmbikaShelf comprises three distinct brand pillars, each serving a unique market segment while sharing the same infrastructure of trust and quality.</p>
+
+        <h3>📌 Brands under AmbikaShelf Enterprises</h3>
+        <div class="brand-logos">
+          <span class="brand-item">📦 AmbikaShelf.shop</span>
+          <span class="brand-item">⚙️ AmbikaShelf Solutions</span>
+          <span class="brand-item">🤖 AmbikaShelf AI</span>
+          <span class="brand-item">📚 more loading ..</span>
+        </div>
+
+        <ul style="margin-top:0">
+          <li><span class="brand-accent">AmbikaShelf.shop</span> – an e‑commerce platform selling essential commodities, kitchen accessories, books, and daily‑use items. Thousands of products delivered across 200+ cities.</li>
+          <li><span class="brand-accent">AmbikaShelf Solutions</span> – web development, brand strategy, and digital growth for early‑stage startups. We build MVPs, scale brands, and provide tech consulting.</li>
+          <li><span class="brand-accent">AmbikaShelf AI</span> – experimental personalised AI tools, LLM fine‑tuning, and chatbot integrations for companies. Currently in private beta with three enterprise partners.</li>
+        </ul>
+        <p>Our team of 20+ remote collaborators works across India to deliver clean, modern, and accessible solutions. We’re bootstrapped, profitable, and obsessed with user privacy – exactly why we’re building this Adsense‑ready property.</p>
+      </section>
+
+      <!-- CONTACT US (with WhatsApp button) -->
+      <section class="card" id="contact">
+        <h2>📬 Contact us</h2>
+        <p><strong>AmbikaShelf Enterprises</strong><br>
+        (registered office: Noida, IN — correspondence via email only)</p>
+
+        <div class="contact-block">
+          <div class="contact-item">
+            <span>📧</span>
+            <span class="contact-email">support@ambikashelf.shop</span>
+            <span class="muted-text" style="margin-left:auto;">customer issues / orders</span>
+          </div>
+          <div class="contact-item">
+            <span>📧</span>
+            <span class="contact-email">business@ambikashelf.shop</span>
+            <span class="muted-text" style="margin-left:auto;">partners, startups, B2B</span>
+          </div>
+          <div class="contact-item">
+            <span>📧</span>
+            <span class="contact-email">enquire@ambikashelf.shop</span>
+            <span class="muted-text" style="margin-left:auto;">general enquiry / media</span>
+          </div>
+        </div>
+
+        <!-- WhatsApp button with hosted logo & prefilled message -->
+        <a href="https://wa.me/919125573750?text=Hello%2C%20I%20have%20a%20query%20regarding%20AmbikaShelf%20services." target="_blank" class="whatsapp-btn">
+          <img src="https://ambikashelf.shop/whatsapp.png" alt="WhatsApp" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%2325D366\'%3E%3Cpath d=\'M19.05 4.91A9.82 9.82 0 0 0 12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01zm-7.01 15.24c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.32a8.26 8.26 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c.01 4.54-3.69 8.24-8.22 8.24z\'/%3E%3Cpath fill=\'%2325D366\' d=\'M17.18 13.6c-.27-.13-1.6-.79-1.85-.88-.25-.09-.43-.13-.62.13-.19.26-.73.88-.89 1.06-.16.18-.32.2-.59.07-.27-.13-1.13-.42-2.15-1.33-.8-.71-1.33-1.58-1.49-1.85-.16-.27-.02-.42.12-.55.12-.13.27-.34.4-.51.13-.17.18-.29.27-.48.09-.19.04-.36-.02-.5s-.59-1.42-.81-1.95c-.21-.52-.43-.45-.59-.46h-.5c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.71 4.29 3.8.6.26 1.07.41 1.44.52.6.18 1.15.16 1.58.1.48-.07 1.48-.6 1.69-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.5-.29z\'/%3E%3C/svg%3E';">
+          <span>Chat now <span style="opacity:0.7;">+91 91255 73750</span></span>
+        </a>
+        <p class="muted-text" style="margin-top:6px;">📱 auto‑filled: “Hello, I have a query…” — replies within 2h.</p>
+      </section>
+
+      <!-- PRIVACY POLICY – huge, comprehensive (adsense ready) -->
+      <section class="card" id="privacy">
+        <h2>🔒 Privacy policy</h2>
+        <p><em>Last updated: February 2026</em></p>
+        <p>AmbikaShelf Enterprises ("we", "our", "us") operates the websites <strong>ambikashelf.shop</strong>, <strong>signup page</strong>, and related services. This policy describes how we collect, use, and share information when you use our platform. By using our services, you agree to the collection and use of information in accordance with this policy.</p>
+        <h3>1. Information we collect</h3>
+        <p><strong>Personal data:</strong> name, email address, phone number, referral code, and any information you provide during signup or communication. <strong>Usage data:</strong> IP address, browser type, pages visited, time spent, referral URLs, and cookies. We use Google AdSense, which may place cookies for personalised ads (see section 6).</p>
+        <h3>2. How we use your information</h3>
+        <p>To create and manage accounts, send OTPs and service emails, track referrals, calculate rewards, improve our website, and display relevant advertisements. We may also use it to comply with legal obligations.</p>
+        <h3>3. Sharing of information</h3>
+        <p>We do not sell your personal information. We may share anonymised data with analytics partners (Google Analytics, emailjs) and advertising partners (Google AdSense) to serve relevant ads. Third‑party service providers are bound by confidentiality.</p>
+        <h3>4. Data retention & security</h3>
+        <p>We retain personal data as long as your account is active or as needed to provide services. We implement reasonable security measures, but no method of transmission over the Internet is 100% secure.</p>
+        <h3>5. Your rights</h3>
+        <p>You may access, update, or delete your account information by contacting <em>support@ambikashelf.shop</em>. You can opt out of personalised ads via <a href="https://adssettings.google.com" target="_blank" style="color:var(--accent);">Google Ad Settings</a>.</p>
+        <h3>6. Cookies and AdSense</h3>
+        <p>We use cookies to enhance user experience and for AdSense to serve interest‑based ads. Google’s use of advertising cookies enables it and its partners to serve ads based on visits to our sites. Users may opt out by visiting <a href="https://www.aboutads.info/choices" target="_blank" style="color:var(--accent);">aboutads.info</a>.</p>
+        <h3>7. Children’s privacy</h3>
+        <p>Our service is not directed to persons under 13. We do not knowingly collect information from children.</p>
+        <h3>8. Changes</h3>
+        <p>We may update this policy and will post the new version with an updated effective date.</p>
+      </section>
+
+      <!-- TERMS & CONDITIONS – also long and standard -->
+      <section class="card" id="terms">
+        <h2>📜 Terms & conditions</h2>
+        <p><strong>Effective:</strong> February 2026</p>
+        <p>These Terms govern your use of AmbikaShelf’s signup page, referral program, and related services. By accessing or using the service, you agree to be bound by these Terms.</p>
+        <h3>1. Eligibility</h3>
+        <p>You must be at least 18 years old, or have parental consent. By using, you represent that all information provided is accurate.</p>
+        <h3>2. Referral program & rewards</h3>
+        <p>Referral codes are non‑transferable. Rewards are credited based on successful signups that are not fraudulent. AmbikaShelf reserves the right to revoke rewards if abuse is detected. Reward balance has no cash value and cannot be exchanged for money.</p>
+        <h3>3. OTP and account security</h3>
+        <p>You are responsible for maintaining the confidentiality of your OTP and account. Notify us immediately of any unauthorised use. We are not liable for any loss arising from unauthorized use.</p>
+        <h3>4. Prohibited conduct</h3>
+        <p>You agree not to: (a) use the service for any illegal purpose; (b) spam, scrape, or interfere with the security; (c) create multiple accounts to abuse referrals; (d) reverse engineer any part of the platform.</p>
+        <h3>5. Intellectual property</h3>
+        <p>All content, logos, and software are owned by AmbikaShelf Enterprises or its licensors. You may not copy, modify, or use our branding without written permission.</p>
+        <h3>6. Termination</h3>
+        <p>We may suspend or terminate your account if you violate these Terms, with or without notice.</p>
+        <h3>7. Limitation of liability</h3>
+        <p>To the maximum extent permitted by law, AmbikaShelf shall not be liable for any indirect, incidental, or consequential damages arising from your use of the service.</p>
+        <h3>8. Governing law</h3>
+        <p>These Terms are governed by the laws of India. Any disputes shall be resolved in the courts of Delhi.</p>
+        <h3>9. Changes</h3>
+        <p>We may modify these Terms; continued use after changes constitutes acceptance.</p>
+      </section>
+    </div>
+
+    <!-- footer copyright -->
+    <div class="footer-note">
+      © 2026 AmbikaShelf Enterprises (Anuj Chauhan) — All rights reserved. <br>
+      <span style="opacity:0.5;">built with ❤️ for transparency & AdSense compliance</span>
+    </div>
+  </div>
+
+  <!-- tiny script to set active nav based on hash (cosmetic) -->
+  <script>
+    (function highlightNav() {
+      const hash = window.location.hash || '#about'; // default to about if empty
+      const links = document.querySelectorAll('.top-nav a');
+      links.forEach(link => {
+        const li = link.parentElement;
+        if (link.getAttribute('href') === hash) {
+          li.classList.add('active');
+        } else {
+          li.classList.remove('active');
+        }
+      });
+      // if no hash matches, set about active (just for demo)
+      if(!Array.from(links).some(l=>l.parentElement.classList.contains('active'))){
+        document.querySelector('.top-nav li:first-child')?.classList.add('active');
+      }
+    })();
+  </script>
+</body>
+    </html>
