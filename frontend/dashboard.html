@@ -147,11 +147,11 @@ footer{
   <div class="close-btn" onclick="closeMenu()">✕</div>
 
   <a href="dashboard.html" onclick="closeMenu()">Dashboard</a>
-  <a href="aboutus.html" onclick="closeMenu()">About Us</a>
+  <a href="about.html" onclick="closeMenu()">About Us</a>
   <a href="contact.html" onclick="closeMenu()">Contact</a>
   <a href="privacy.html" onclick="closeMenu()">Privacy Policy</a>
   <a href="terms.html" onclick="closeMenu()">Terms & Conditions</a>
-  <a href="login.html" onclick="closeMenu()">Logout</a>
+  <a href="index.html" onclick="closeMenu()">Logout</a>
 </div>
 
 <div class="wrapper">
@@ -213,7 +213,7 @@ const balance = localStorage.getItem("rewardBalance") || "0";
 document.getElementById("refCode").innerText = code;
 document.getElementById("balance").innerText = "₹" + balance;
 document.getElementById("refLink").value =
-  location.origin + "/login.html?ref=" + code;
+  location.origin + "/?ref=" + code;
 
 function copyLink(){
   navigator.clipboard.writeText(
