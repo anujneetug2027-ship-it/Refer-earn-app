@@ -7,8 +7,6 @@
 <title>Ambika Shelf — Signup</title>
 
 <link rel="icon" href="favicon.ico?v=4" type="image/x-icon">
-<link rel="shortcut icon" href="favicon.ico?v=4">
-
 <meta name="theme-color" content="#0f1724">
 
 <style>
@@ -27,47 +25,10 @@
 html,body {
   height:100%;
   margin:0;
-  background:linear-gradient(180deg,#071124 0%, #071a2b 100%);
+  background:linear-gradient(180deg,#071124,#071a2b);
   color:#e6eef8;
 }
 
-/* MENU */
-.topbar{
-  display:flex;
-  justify-content:flex-end;
-  padding:10px 20px;
-}
-
-.menu-btn{font-size:26px;cursor:pointer;}
-
-.menu{
-  position:fixed;
-  top:0;
-  right:-280px;
-  width:260px;
-  height:100%;
-  background:#0b1220;
-  padding:20px;
-  transition:.3s;
-  z-index:9999;
-}
-
-.menu.open{right:0;}
-
-.menu a{
-  display:block;
-  padding:14px 0;
-  color:#e6eef8;
-  text-decoration:none;
-}
-
-.close-btn{
-  font-size:22px;
-  cursor:pointer;
-  margin-bottom:10px;
-}
-
-/* ORIGINAL PAGE STYLES */
 .wrapper {
   max-width:920px;
   margin:40px auto;
@@ -87,8 +48,12 @@ header {
 .logo {
   width:56px;
   height:56px;
+  background:linear-gradient(90deg,var(--accent),#60a5fa);
   border-radius:12px;
-  overflow:hidden;
+  display:grid;
+  place-items:center;
+  font-weight:700;
+  color:#052024;
 }
 
 h1{ margin:0; font-size:20px; }
@@ -100,7 +65,6 @@ p.lead{ margin:6px 0 18px; color:var(--muted); }
   background:var(--card);
   padding:18px;
   border-radius:var(--radius);
-  border:1px solid rgba(255,255,255,0.03);
 }
 
 form .row { display:flex; gap:10px; margin-bottom:12px; }
@@ -109,7 +73,7 @@ label{ font-size:13px; color:var(--muted); }
 
 input{
   width:100%;
-  padding:10px 12px;
+  padding:10px;
   border-radius:10px;
   border:1px solid rgba(255,255,255,0.04);
   background:var(--glass);
@@ -119,9 +83,8 @@ input{
 button{
   background:linear-gradient(90deg,var(--accent),#60a5fa);
   border:none;
-  padding:10px 12px;
+  padding:10px;
   border-radius:10px;
-  color:#022;
   font-weight:600;
   cursor:pointer;
 }
@@ -135,53 +98,35 @@ button.secondary{
 .status{margin-top:12px;padding:10px;border-radius:10px;display:none;}
 .status.show{display:block;}
 
-footer {
-  margin-top:16px;
-  color:var(--muted);
-  font-size:13px;
-  text-align:center;
-}
+.hidden{display:none;}
 
-@media (max-width:880px){
-  .grid { grid-template-columns: 1fr; }
+footer{
+  text-align:center;
+  margin-top:20px;
+  color:var(--muted);
 }
 </style>
 </head>
 
 <body>
 
-<!-- MENU BUTTON -->
-<div class="topbar">
-  <div class="menu-btn" onclick="openMenu()">☰</div>
-</div>
-
-<div id="menu" class="menu">
-  <div class="close-btn" onclick="closeMenu()">✕</div>
-  <a href="index.html" onclick="closeMenu()">Login</a>
-  <a href="about.html" onclick="closeMenu()">About Us</a>
-  <a href="contact.html" onclick="closeMenu()">Contact</a>
-  <a href="privacy.html" onclick="closeMenu()">Privacy Policy</a>
-  <a href="terms.html" onclick="closeMenu()">Terms & Conditions</a>
-</div>
-
 <div class="wrapper">
+
 <header>
-  <div class="logo">
-    <img src="https://ambikashelf.shop/ambikashelf.png"
-         style="width:100%;height:100%;object-fit:contain;">
-  </div>
-  <div>
-    <h1>Ambika Shelf</h1>
-    <p class="lead">Signup with email OTP, referral tracking, and instant rewards.</p>
-  </div>
+<div class="logo">RE</div>
+<div>
+<h1>Ambika Shelf</h1>
+<p class="lead">Signup with email OTP, referral tracking, and instant rewards.</p>
+</div>
 </header>
 
 <div class="grid">
 <div class="card">
 
+<section id="signupSection">
 <h3>Sign up</h3>
 
-<form id="signupForm">
+<form id="signupForm" autocomplete="off">
 
 <label>Full name</label>
 <input id="name" required>
@@ -189,46 +134,118 @@ footer {
 <label>Email</label>
 <input id="email" required>
 
-<div style="margin:12px 0;color:#94a3b8;font-size:13px;">
-<label>
-<input type="checkbox" id="agreeTnc" required>
-I agree to
-<a href="terms.html" style="color:#06b6d4;text-decoration:none;">
-Terms & Conditions
-</a>
-</label>
-</div>
-
 <div class="row">
 <button type="submit">Get OTP</button>
-<button type="button" class="secondary">I have referral code</button>
+<button type="button" id="useCodeBtn" class="secondary">
+I have referral code
+</button>
+</div>
+
+<div id="manualCodeRow" class="hidden">
+<label>Referral code</label>
+<input id="manualCode">
 </div>
 
 </form>
+
+<div id="signupStatus" class="status"></div>
+</section>
+
+<section id="verifySection" class="hidden">
+<h3>Verify OTP</h3>
+
+<form id="otpForm">
+<input id="otp" required>
+
+<button type="submit">Verify & Continue</button>
+</form>
+
+<div id="verifyStatus" class="status"></div>
+</section>
 
 </div>
 
 <div class="card">
 <h3>Quick Info</h3>
-<p style="color:#94a3b8;">Base URL:</p>
-<p style="color:#94a3b8;">https://refer-earn-app-1.onrender.com</p>
+<p id="baseUrl"></p>
 </div>
 
 </div>
 
 <footer>
-© AmbikaShelf 2026 — All rights reserved.
+© AmbikaShelf 2026
 </footer>
 
 </div>
 
 <script>
-function openMenu(){menu.classList.add("open")}
-function closeMenu(){menu.classList.remove("open")}
-document.body.addEventListener("click",e=>{
-  if(!menu.contains(e.target) && !e.target.classList.contains("menu-btn")){
-    closeMenu();
-  }
+const BASE_URL="https://refer-earn-app-1.onrender.com";
+document.getElementById("baseUrl").innerText=BASE_URL;
+
+const signupForm=document.getElementById("signupForm");
+const signupStatus=document.getElementById("signupStatus");
+const verifySection=document.getElementById("verifySection");
+const verifyStatus=document.getElementById("verifyStatus");
+const otpForm=document.getElementById("otpForm");
+
+let signupEmail="";
+
+signupForm.addEventListener("submit", async e=>{
+e.preventDefault();
+
+const name=nameInput.value;
+const email=emailInput.value;
+signupEmail=email;
+
+signupStatus.className="status show";
+signupStatus.textContent="Sending OTP...";
+
+const res=await fetch(BASE_URL+"/send-otp",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({name,email})
+});
+
+const data=await res.json();
+
+if(!data.success){
+signupStatus.textContent=data.msg;
+return;
+}
+
+verifySection.classList.remove("hidden");
+signupStatus.textContent="OTP sent!";
+});
+
+otpForm.addEventListener("submit", async e=>{
+e.preventDefault();
+
+const otp=document.getElementById("otp").value;
+
+verifyStatus.className="status show";
+verifyStatus.textContent="Verifying...";
+
+const res=await fetch(BASE_URL+"/verify-otp",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email:signupEmail,otp})
+});
+
+const data=await res.json();
+
+if(!data.success){
+verifyStatus.textContent=data.msg;
+return;
+}
+
+localStorage.setItem("referralCode",data.referralCode);
+localStorage.setItem("rewardBalance",data.rewardBalance);
+
+verifyStatus.textContent="Success! Redirecting...";
+
+setTimeout(()=>{
+window.location.href="dashboard.html";
+},800);
 });
 </script>
 
