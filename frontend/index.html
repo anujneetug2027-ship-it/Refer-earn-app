@@ -58,9 +58,62 @@
       .grid { grid-template-columns: 1fr; }  
       .logo{display:none;}  
     }  
+    /* ===== MENU ===== */
+.topbar{
+  display:flex;
+  justify-content:flex-end;
+  padding:10px 20px;
+}
+
+.menu-btn{
+  font-size:26px;
+  cursor:pointer;
+}
+
+.menu{
+  position:fixed;
+  top:0;
+  right:-280px;
+  width:260px;
+  height:100%;
+  background:#0b1220;
+  padding:20px;
+  transition:.3s;
+  z-index:9999;
+}
+
+.menu.open{ right:0; }
+
+.menu a{
+  display:block;
+  padding:14px 0;
+  color:#e6eef8;
+  text-decoration:none;
+}
+
+.close-btn{
+  font-size:22px;
+  cursor:pointer;
+  margin-bottom:10px;
+    }
   </style>  
 </head>  
 <body>  
+  <!-- MENU BUTTON -->
+<div class="topbar">
+  <div class="menu-btn" onclick="openMenu()">☰</div>
+</div>
+
+<!-- MENU PANEL -->
+<div id="menu" class="menu">
+  <div class="close-btn" onclick="closeMenu()">✕</div>
+
+  <a href="index.html" onclick="closeMenu()">Login</a>
+  <a href="about.html" onclick="closeMenu()">About Us</a>
+  <a href="contact.html" onclick="closeMenu()">Contact</a>
+  <a href="privacy.html" onclick="closeMenu()">Privacy Policy</a>
+  <a href="terms.html" onclick="closeMenu()">Terms & Conditions</a>
+</div>
   <div class="wrapper">  
     <header>  
       <div class="logo">RE</div>  
@@ -297,5 +350,22 @@
     }  
     // Trigger after OTP verification or after user signup  
     identifyUserForChatbase();  
-  </script>  </body>  
+  </script>
+<script>
+function openMenu(){
+  document.getElementById("menu").classList.add("open");
+}
+
+function closeMenu(){
+  document.getElementById("menu").classList.remove("open");
+}
+
+document.body.addEventListener("click",function(e){
+  const menu = document.getElementById("menu");
+  if(!menu.contains(e.target) &&
+     !e.target.classList.contains("menu-btn")){
+    closeMenu();
+  }
+});
+</script></body>  
   </html>
