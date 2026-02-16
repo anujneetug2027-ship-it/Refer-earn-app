@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us — AmbikaShelf Enterprises</title>
+<link rel="icon" href="favicon.ico">
+
+<style>
+:root{
+  --card:#0b1220;
+  --muted:#94a3b8;
+  --accent:#06b6d4;
+  font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#071124,#071a2b);
+  color:#e6eef8;
+}
+.wrapper{max-width:1000px;margin:auto;padding:28px;}
+header{display:flex;justify-content:space-between;}
+.menu-btn{font-size:26px;cursor:pointer;}
+.menu{position:fixed;right:-280px;top:0;width:260px;height:100%;background:#0b1220;padding:20px;transition:.3s;}
+.menu.open{right:0;}
+.menu a{display:block;padding:14px 0;color:#e6eef8;text-decoration:none;}
+.card{background:var(--card);padding:22px;border-radius:12px;margin-top:18px;}
+h2{color:var(--accent);}
+.small{line-height:1.8;color:var(--muted);}
+footer{text-align:center;margin-top:30px;color:var(--muted);}
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+
+<header>
+<h2>AmbikaShelf Enterprises</h2>
+<div class="menu-btn" onclick="toggleMenu()">☰</div>
+</header>
+
+<div id="menu" class="menu">
+<a href="/signup">Login / Signup</a>
+<a href="/aboutus.html">About Us</a>
+<a href="/contact.html">Contact</a>
+<a href="/privacy.html">Privacy Policy</a>
+<a href="/terms.html">Terms & Conditions</a>
+</div>
+
+<div class="card">
+<h2>About Us</h2>
+
+<p class="small">
+AmbikaShelf Enterprises is a technology-driven organization founded and operated by Anuj Chauhan, created with the objective of enabling efficient digital commerce and scalable business services across India.
+</p>
+
+<p class="small">
+The company began as an e-commerce initiative focused on delivering essential commodities and practical household products through a digitally optimized supply chain. Over time, the organization expanded into technology services and artificial intelligence experimentation to serve startups and modern businesses.
+</p>
+
+<p class="small">
+AmbikaShelf Enterprises operates with a customer-first approach, focusing on affordability, operational transparency, and service reliability. Our platforms continuously evolve to integrate automation, data insights, and user-centric design.
+</p>
+
+<h3>Our Divisions</h3>
+
+<p class="small">
+<strong>AmbikaShelf.shop</strong> — An e-commerce platform providing kitchen accessories, books, essential commodities, and lifestyle goods.
+</p>
+
+<p class="small">
+<strong>AmbikaShelf Solutions</strong> — Offers web development, digital infrastructure, branding, and growth services to emerging businesses.
+</p>
+
+<p class="small">
+<strong>AmbikaShelf AI</strong> — A research initiative exploring personalized AI systems and automation technologies.
+</p>
+
+<p class="small">
+Additional service units are under development to support logistics, technology, and commerce innovation.
+</p>
+
+</div>
+
+<footer>
+© AmbikaShelf 2026 — All Rights Reserved
+</footer>
+
+</div>
+
+<script>
+function toggleMenu(){
+document.getElementById("menu").classList.toggle("open");
+}
+</script>
+
+</body>
+</html>
