@@ -293,15 +293,25 @@
       });  
       const data = await res.json();  
   
-      if(!data.success){ showStatus(verifyStatus,data.msg,"error"); return; }  
-  
-      localStorage.setItem("referralCode",data.referralCode);  
-      localStorage.setItem("rewardBalance",data.rewardBalance);  
-      refLink.value = `${location.origin}/signup?ref=${data.referralCode}`;  
-      rewardBalanceEl.textContent = data.rewardBalance;  
-      document.getElementById("dashboardBlock").classList.remove("hidden");  
-      showStatus(verifyStatus,"OTP verified!","success");  
-    } catch(err){  
+      if(!data.success){
+  showStatus(verifyStatus,data.msg,"error");
+  return;
+}
+
+localStorage.setItem("referralCode",data.referralCode);
+localStorage.setItem("rewardBalance",data.rewardBalance);
+
+refLink.value = `${location.origin}/signup?ref=${data.referralCode}`;
+rewardBalanceEl.textContent = data.rewardBalance;
+
+document.getElementById("dashboardBlock").classList.remove("hidden");
+
+showStatus(verifyStatus,"OTP verified!","success");
+
+setTimeout(()=>{
+  window.location.href = "dashboard.html";
+}, 800);
+     catch(err){  
       console.error(err);  
       showStatus(verifyStatus,"Verification failed.","error");  
     }  
