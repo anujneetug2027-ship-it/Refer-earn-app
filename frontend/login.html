@@ -8,8 +8,6 @@
 
 <link rel="icon" href="favicon.ico?v=4" type="image/x-icon">
 <link rel="shortcut icon" href="favicon.ico?v=4">
-<link rel="apple-touch-icon" href="android-chrome-192x192.png?v=4">
-<link rel="manifest" href="manifest.json?v=4">
 
 <meta name="theme-color" content="#0f1724">
 
@@ -23,33 +21,24 @@
   --danger:#ef4444;
   --glass: rgba(255,255,255,0.03);
   --radius:12px;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  font-family: Inter, system-ui, Arial;
 }
 
 html,body {
   height:100%;
   margin:0;
-  background:linear-gradient(180deg,#071124,#071a2b);
+  background:linear-gradient(180deg,#071124 0%, #071a2b 100%);
   color:#e6eef8;
 }
 
-/* ===== TOP MENU ===== */
+/* MENU */
 .topbar{
   display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:14px 20px;
+  justify-content:flex-end;
+  padding:10px 20px;
 }
 
-.brand{
-  font-weight:700;
-  font-size:18px;
-}
-
-.menu-btn{
-  font-size:26px;
-  cursor:pointer;
-}
+.menu-btn{font-size:26px;cursor:pointer;}
 
 .menu{
   position:fixed;
@@ -59,46 +48,47 @@ html,body {
   height:100%;
   background:#0b1220;
   padding:20px;
-  box-shadow:-10px 0 30px rgba(0,0,0,.5);
   transition:.3s;
   z-index:9999;
 }
 
-.menu.open{ right:0; }
+.menu.open{right:0;}
 
 .menu a{
   display:block;
   padding:14px 0;
   color:#e6eef8;
   text-decoration:none;
-  border-bottom:1px solid rgba(255,255,255,.05);
 }
 
-.menu a:hover{
-  color:var(--accent);
+.close-btn{
+  font-size:22px;
+  cursor:pointer;
+  margin-bottom:10px;
 }
 
-/* ===== PAGE CONTENT ===== */
+/* ORIGINAL PAGE STYLES */
 .wrapper {
   max-width:920px;
-  margin:20px auto 40px;
+  margin:40px auto;
   padding:28px;
   background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   border-radius:16px;
   box-shadow:0 10px 30px rgba(2,6,23,0.6);
 }
 
-header { display:flex; align-items:center; gap:16px; margin-bottom:18px; }
+header {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-bottom:18px;
+}
 
 .logo {
   width:56px;
   height:56px;
-  background:linear-gradient(90deg,var(--accent),#60a5fa);
   border-radius:12px;
-  display:grid;
-  place-items:center;
-  font-weight:700;
-  color:#052024;
+  overflow:hidden;
 }
 
 h1{ margin:0; font-size:20px; }
@@ -115,9 +105,9 @@ p.lead{ margin:6px 0 18px; color:var(--muted); }
 
 form .row { display:flex; gap:10px; margin-bottom:12px; }
 
-label{ display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+label{ font-size:13px; color:var(--muted); }
 
-input[type="text"], input[type="email"], input[type="number"]{
+input{
   width:100%;
   padding:10px 12px;
   border-radius:10px;
@@ -145,49 +135,84 @@ button.secondary{
 .status{margin-top:12px;padding:10px;border-radius:10px;display:none;}
 .status.show{display:block;}
 
-footer{
-  text-align:center;
+footer {
   margin-top:16px;
   color:var(--muted);
   font-size:13px;
+  text-align:center;
 }
 
 @media (max-width:880px){
   .grid { grid-template-columns: 1fr; }
-  .logo{display:none;}
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== MENU BAR ===== -->
+<!-- MENU BUTTON -->
 <div class="topbar">
-  <div class="brand">AmbikaShelf</div>
-  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+  <div class="menu-btn" onclick="openMenu()">☰</div>
 </div>
 
 <div id="menu" class="menu">
-  <a href="/signup">Login / Signup</a>
-  <a href="/aboutus.html">About Us</a>
-  <a href="/contact.html">Contact Us</a>
-  <a href="/privacy.html">Privacy Policy</a>
-  <a href="/terms.html">Terms & Conditions</a>
+  <div class="close-btn" onclick="closeMenu()">✕</div>
+  <a href="login.html" onclick="closeMenu()">Login</a>
+  <a href="aboutus.html" onclick="closeMenu()">About Us</a>
+  <a href="contact.html" onclick="closeMenu()">Contact</a>
+  <a href="privacy.html" onclick="closeMenu()">Privacy Policy</a>
+  <a href="terms.html" onclick="closeMenu()">Terms & Conditions</a>
 </div>
 
-<!-- ===== MAIN CONTENT ===== -->
 <div class="wrapper">
-
 <header>
-  <div class="logo">RE</div>
+  <div class="logo">
+    <img src="https://ambikashelf.shop/ambikashelf.png"
+         style="width:100%;height:100%;object-fit:contain;">
+  </div>
   <div>
     <h1>Ambika Shelf</h1>
     <p class="lead">Signup with email OTP, referral tracking, and instant rewards.</p>
   </div>
 </header>
 
-<!-- YOUR ORIGINAL PAGE CONTENT REMAINS -->
-<!-- (OTP, referral, dashboard logic unchanged) -->
+<div class="grid">
+<div class="card">
+
+<h3>Sign up</h3>
+
+<form id="signupForm">
+
+<label>Full name</label>
+<input id="name" required>
+
+<label>Email</label>
+<input id="email" required>
+
+<div style="margin:12px 0;color:#94a3b8;font-size:13px;">
+<label>
+<input type="checkbox" id="agreeTnc" required>
+I agree to
+<a href="terms.html" style="color:#06b6d4;text-decoration:none;">
+Terms & Conditions
+</a>
+</label>
+</div>
+
+<div class="row">
+<button type="submit">Get OTP</button>
+<button type="button" class="secondary">I have referral code</button>
+</div>
+
+</form>
+
+</div>
+
+<div class="card">
+<h3>Quick Info</h3>
+<p style="color:#94a3b8;">Base URL:</p>
+<p style="color:#94a3b8;">https://refer-earn-app-1.onrender.com</p>
+</div>
 
 </div>
 
@@ -195,10 +220,16 @@ footer{
 © AmbikaShelf 2026 — All rights reserved.
 </footer>
 
+</div>
+
 <script>
-function toggleMenu(){
-  document.getElementById("menu").classList.toggle("open");
-}
+function openMenu(){menu.classList.add("open")}
+function closeMenu(){menu.classList.remove("open")}
+document.body.addEventListener("click",e=>{
+  if(!menu.contains(e.target) && !e.target.classList.contains("menu-btn")){
+    closeMenu();
+  }
+});
 </script>
 
 </body>
