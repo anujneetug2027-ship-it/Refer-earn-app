@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard — AmbikaShelf</title>
+
+<link rel="icon" href="favicon.ico">
+
+<style>
+:root{
+  --card:#0b1220;
+  --accent:#06b6d4;
+  --muted:#94a3b8;
+  --glass: rgba(255,255,255,0.03);
+  --radius:12px;
+  font-family:Inter, Arial;
+}
+
+body{
+  margin:0;
+  background:linear-gradient(180deg,#071124,#071a2b);
+  color:#e6eef8;
+}
+
+/* ===== MENU ===== */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 20px;
+}
+
+.logo-img{ height:36px; }
+
+.menu-btn{font-size:26px;cursor:pointer;}
+
+.menu{
+  position:fixed;
+  top:0;
+  right:-280px;
+  width:260px;
+  height:100%;
+  background:#0b1220;
+  padding:20px;
+  transition:.3s;
+  z-index:9999;
+}
+
+.menu.open{right:0;}
+
+.menu a{
+  display:block;
+  padding:14px 0;
+  color:#e6eef8;
+  text-decoration:none;
+}
+
+.close-btn{
+  font-size:22px;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+
+/* ===== CONTENT ===== */
+.wrapper{
+  max-width:920px;
+  margin:20px auto;
+  padding:24px;
+}
+
+.card{
+  background:var(--card);
+  padding:20px;
+  border-radius:var(--radius);
+  margin-bottom:18px;
+  border:1px solid rgba(255,255,255,0.03);
+}
+
+/* Wallet */
+.wallet{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.wallet-icon{
+  font-size:28px;
+}
+
+/* Referral */
+.ref-input{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  background:var(--glass);
+  border:1px solid rgba(255,255,255,.05);
+  color:white;
+  margin-top:6px;
+}
+
+.copy-btn{
+  margin-top:8px;
+  padding:8px 12px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(90deg,#06b6d4,#60a5fa);
+  cursor:pointer;
+}
+
+/* Flow */
+.flow{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.step{
+  flex:1;
+  background:#111827;
+  padding:14px;
+  border-radius:10px;
+  text-align:center;
+  min-width:120px;
+}
+
+footer{
+  text-align:center;
+  margin:20px;
+  color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <img src="https://ambikashelf.shop/ambikashelf.png" class="logo-img">
+  <div class="menu-btn" onclick="openMenu()">☰</div>
+</div>
+
+<!-- ===== MENU ===== -->
+<div id="menu" class="menu">
+  <div class="close-btn" onclick="closeMenu()">✕</div>
+
+  <a href="dashboard.html" onclick="closeMenu()">Dashboard</a>
+  <a href="aboutus.html" onclick="closeMenu()">About Us</a>
+  <a href="contact.html" onclick="closeMenu()">Contact</a>
+  <a href="privacy.html" onclick="closeMenu()">Privacy Policy</a>
+  <a href="terms.html" onclick="closeMenu()">Terms & Conditions</a>
+  <a href="login.html" onclick="closeMenu()">Logout</a>
+</div>
+
+<div class="wrapper">
+
+<!-- WALLET -->
+<div class="card wallet">
+  <div>
+    <h3>Wallet Balance</h3>
+    <h2 id="balance">₹0</h2>
+  </div>
+  <div class="wallet-icon">💼</div>
+</div>
+
+<!-- REFERRAL -->
+<div class="card">
+<h3>Your Referral Code</h3>
+<h2 id="refCode">------</h2>
+
+<label>Your Referral Link</label>
+<input id="refLink" class="ref-input" readonly>
+
+<button class="copy-btn" onclick="copyLink()">Copy Referral Link</button>
+</div>
+
+<!-- FLOW -->
+<div class="card">
+<h3>How Referral Works</h3>
+
+<div class="flow">
+<div class="step">Share Code</div>
+<div class="step">Friend Signs Up</div>
+<div class="step">OTP Verified</div>
+<div class="step">You Earn ₹50</div>
+</div>
+
+</div>
+
+</div>
+
+<footer>
+© AmbikaShelf 2026 — All rights reserved.
+</footer>
+
+<script>
+/* Menu */
+function openMenu(){menu.classList.add("open")}
+function closeMenu(){menu.classList.remove("open")}
+
+document.body.addEventListener("click",e=>{
+  if(!menu.contains(e.target) && !e.target.classList.contains("menu-btn")){
+    closeMenu();
+  }
+});
+
+/* Load user data */
+const code = localStorage.getItem("referralCode") || "------";
+const balance = localStorage.getItem("rewardBalance") || "0";
+
+document.getElementById("refCode").innerText = code;
+document.getElementById("balance").innerText = "₹" + balance;
+document.getElementById("refLink").value =
+  location.origin + "/login.html?ref=" + code;
+
+function copyLink(){
+  navigator.clipboard.writeText(
+    document.getElementById("refLink").value
+  );
+  alert("Referral link copied!");
+}
+</script>
+
+</body>
+  </html>
