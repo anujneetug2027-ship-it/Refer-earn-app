@@ -3,106 +3,122 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QR Scanner & Generator</title>
+<title>QR Tools — Ambika Shelf</title>
 
-<!-- Scanner Library -->
 <script src="https://unpkg.com/html5-qrcode"></script>
-
-<!-- QR Generator -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#667eea,#764ba2);
-    margin: 0;
-    padding: 0;
-    text-align: center;
-    color: white;
+:root{
+  --bg:#0f1724;
+  --card:#0b1220;
+  --muted:#94a3b8;
+  --accent:#06b6d4;
+  --glass: rgba(255,255,255,0.03);
+  --radius:12px;
+  font-family: Inter, system-ui;
 }
 
-.container {
-    max-width: 600px;
-    margin: auto;
-    padding: 20px;
+body{
+  margin:0;
+  background:linear-gradient(180deg,#071124 0%, #071a2b 100%);
+  color:#e6eef8;
 }
 
-section {
-    background: white;
-    color: black;
-    padding: 20px;
-    margin-top: 20px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+.wrapper{
+  max-width:920px;
+  margin:40px auto;
+  padding:28px;
 }
 
-button {
-    padding: 10px 15px;
-    margin: 8px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background: #667eea;
-    color: white;
-    font-weight: bold;
+.card{
+  background:var(--card);
+  padding:18px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,0.03);
+  margin-bottom:20px;
 }
 
-button:hover {
-    background: #5a67d8;
+h2{
+  margin-top:0;
 }
 
-input {
-    padding: 10px;
-    width: 85%;
-    margin-top: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+button{
+  background:linear-gradient(90deg,var(--accent),#60a5fa);
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  color:#022;
+  font-weight:600;
+  cursor:pointer;
 }
 
-#reader {
-    width: 100%;
-    margin-top: 10px;
+button.secondary{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.06);
+  color:var(--muted);
 }
 
-.result-box {
-    margin-top: 15px;
-    padding: 10px;
-    background: #f3f3f3;
-    border-radius: 6px;
+input{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.04);
+  background:var(--glass);
+  color:inherit;
+}
+
+#reader{
+  margin-top:10px;
+}
+
+.result-box{
+  margin-top:15px;
+  background:var(--glass);
+  padding:12px;
+  border-radius:10px;
+  word-break: break-word; /* FIX OVERFLOW */
+}
+
+.action-row{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+  flex-wrap:wrap;
 }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-    <h1>QR Scanner & Generator</h1>
+<div class="wrapper">
 
-    <!-- SCANNER -->
-    <section>
-        <h2>Scan QR Code</h2>
+  <div class="card">
+    <h2>Scan QR Code</h2>
 
-        <div id="reader"></div>
+    <div id="reader"></div>
 
-        <button onclick="startScanner()">Start Camera</button>
-        <button onclick="stopScanner()">Stop Camera</button>
+    <div class="action-row">
+      <button onclick="startScanner()">Start Camera</button>
+      <button class="secondary" onclick="stopScanner()">Stop</button>
+    </div>
 
-        <h3>Or Upload Image</h3>
-        <input type="file" id="qr-upload" accept="image/*">
+    <p class="small" style="color:var(--muted);margin-top:10px;">Or upload QR image</p>
+    <input type="file" id="qr-upload" accept="image/*">
 
-        <div id="scan-result" class="result-box"></div>
-    </section>
+    <div id="scan-result" class="result-box"></div>
+  </div>
 
-    <!-- GENERATOR -->
-    <section>
-        <h2>Generate QR Code</h2>
+  <div class="card">
+    <h2>Generate QR Code</h2>
 
-        <input type="text" id="qr-input" placeholder="Enter URL here">
-        <br>
-        <button onclick="generateQR()">Generate QR</button>
+    <input type="text" id="qr-input" placeholder="Enter link or text">
 
-        <div id="qr-output" style="margin-top:15px;"></div>
-    </section>
+    <div class="action-row">
+      <button onclick="generateQR()">Generate</button>
+    </div>
+
+    <div id="qr-output" style="margin-top:15px;"></div>
+  </div>
 
 </div>
 
@@ -110,89 +126,74 @@ input {
 
 let html5QrCode;
 
-// Start Camera Scanner
-function startScanner() {
-    html5QrCode = new Html5Qrcode("reader");
+function startScanner(){
+  html5QrCode = new Html5Qrcode("reader");
 
-    html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        qrMessage => {
-            showResult(qrMessage);
-            stopScanner();
-        }
-    ).catch(err => {
-        alert("Camera permission required.");
-    });
-}
-
-// Stop Scanner
-function stopScanner() {
-    if (html5QrCode) {
-        html5QrCode.stop().then(() => {
-            html5QrCode.clear();
-        }).catch(err => console.log(err));
+  html5QrCode.start(
+    { facingMode:"environment" },
+    { fps:10, qrbox:250 },
+    message=>{
+      showResult(message);
+      stopScanner();
     }
+  );
 }
 
-// Show Scan Result
-function showResult(text) {
-    const resultBox = document.getElementById("scan-result");
-
-    let isUrl = text.startsWith("http");
-
-    resultBox.innerHTML = `
-        <strong>Decoded:</strong><br>${text}<br><br>
-        ${isUrl ? `<a href="${text}" target="_blank"><button>Go To Site</button></a>` : ""}
-        <button onclick="copyText('${text}')">Copy</button>
-    `;
+function stopScanner(){
+  if(html5QrCode){
+    html5QrCode.stop().then(()=>html5QrCode.clear());
+  }
 }
 
-// Copy to Clipboard
-function copyText(text) {
-    navigator.clipboard.writeText(text);
-    alert("Copied!");
+function showResult(text){
+  const box = document.getElementById("scan-result");
+  const isUrl = text.startsWith("http");
+
+  box.innerHTML = `
+    <strong>Decoded:</strong><br>
+    ${text}
+    <div class="action-row">
+      <button onclick="copyText('${text}')">Copy</button>
+      ${isUrl ? `<button onclick="redirectTo('${text}')">Redirect</button>` : ""}
+    </div>
+  `;
 }
 
-// Upload QR Image Scanner
-document.getElementById("qr-upload").addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+function copyText(text){
+  navigator.clipboard.writeText(text);
+}
 
-    const reader = new FileReader();
-    reader.onload = function() {
-        const html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.scanFile(file, true)
-            .then(decodedText => {
-                showResult(decodedText);
-            })
-            .catch(err => {
-                alert("No QR code found.");
-            });
-    };
-    reader.readAsDataURL(file);
+function redirectTo(url){
+  window.open(url,"_blank");
+}
+
+document.getElementById("qr-upload").addEventListener("change",function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const qr = new Html5Qrcode("reader");
+  qr.scanFile(file,true)
+    .then(decoded=>{
+      showResult(decoded);
+    })
+    .catch(()=> alert("No QR found"));
 });
 
-// Generate QR
-function generateQR() {
-    const input = document.getElementById("qr-input").value;
-    const output = document.getElementById("qr-output");
+function generateQR(){
+  const input = document.getElementById("qr-input").value;
+  const output = document.getElementById("qr-output");
 
-    output.innerHTML = "";
+  output.innerHTML="";
+  if(!input) return;
 
-    if (!input) {
-        alert("Enter valid text or URL");
-        return;
-    }
-
-    new QRCode(output, {
-        text: input,
-        width: 200,
-        height: 200
-    });
+  new QRCode(output,{
+    text:input,
+    width:200,
+    height:200
+  });
 }
 
 </script>
 
 </body>
-  </html>
+</html>
