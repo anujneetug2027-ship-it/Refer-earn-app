@@ -8,7 +8,12 @@ const cors = require('cors');
 const path = require('path');
 const User = require('./models/User');
 const Referral = require('./models/Referral');
-const sendWelcomeMail = require('./welcomeMail'); // ✅ Added
+const sendWelcomeMail = require('./welcomeMail');
+
+// ✅ NEW: Socket + HTTP
+const http = require("http");
+const { Server } = require("socket.io");
+const chatSocket = require("./chatSocket");
 
 const app = express();
 
@@ -41,6 +46,11 @@ app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
+// ✅ NEW: World Chat Route
+app.get('/worldchat', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/worldchat.html'));
+});
+
 // ---------- SEND OTP ----------
 app.post('/send-otp', async (req, res) => {
   try {
@@ -65,8 +75,6 @@ app.post('/send-otp', async (req, res) => {
 
     await User.create({ name, email, referralCode, referredBy, otp, otpExpires });
     
-    // TODO: Add OTP email sending here if needed
-    
     return res.json({ success: true, msg: "OTP generated", otp });
   } catch (err) {
     console.error('❌ /send-otp:', err.message);
@@ -74,15 +82,11 @@ app.post('/send-otp', async (req, res) => {
   }
 });
 
-// ---------- VERIFY OTP - FIXED WITH AWAIT ----------
+// ---------- VERIFY OTP ----------
 app.post('/verify-otp', async (req, res) => {
   try {
     const { email, otp } = req.body;
-    console.log('\n🔐 ========================================');
-    console.log('🔐 VERIFY OTP CALLED:', new Date().toISOString());
-    console.log('🔐 Email:', email);
-    console.log('🔐 ========================================\n');
-    
+
     const user = await User.findOne({ email });
     if (!user) return res.json({ success: false, msg: "User not found" });
     
@@ -90,13 +94,10 @@ app.post('/verify-otp', async (req, res) => {
       return res.json({ success: false, msg: "Invalid or expired OTP" });
     }
 
-    // Clear OTP
     user.otp = null;
     user.otpExpires = null;
     await user.save();
-    console.log('✅ OTP verified for:', email);
 
-    // Process referral
     if (user.referredBy) {
       await User.findByIdAndUpdate(user.referredBy, { $inc: { rewardBalance: 50 } });
       await Referral.create({
@@ -105,29 +106,18 @@ app.post('/verify-otp', async (req, res) => {
         status: 'completed',
         rewardGranted: true
       });
-      console.log('🎁 Referral reward granted');
     }
 
-    // ---------- 🔴 FIX: ADD AWAIT HERE! ----------
-    console.log('📧 Sending welcome email to:', user.email);
-    
     try {
-      const emailSent = await sendWelcomeMail({
+      await sendWelcomeMail({
         email: user.email,
         username: user.name,
         name: user.name
       });
-      
-      if (emailSent) {
-        console.log('✅✅✅ WELCOME EMAIL SENT SUCCESSFULLY!');
-      } else {
-        console.error('❌❌❌ WELCOME EMAIL FAILED TO SEND!');
-      }
     } catch (emailError) {
-      console.error('💥 WELCOME EMAIL EXCEPTION:', emailError.message);
+      console.error('💥 WELCOME EMAIL ERROR:', emailError.message);
     }
 
-    // Send response
     res.json({
       success: true,
       msg: "Signup successful!",
@@ -141,5 +131,16 @@ app.post('/verify-otp', async (req, res) => {
   }
 });
 
+
+// ---------- CREATE HTTP SERVER ----------
+const server = http.createServer(app);
+
+// ---------- SOCKET.IO ----------
+const io = new Server(server);
+chatSocket(io);
+
+// ---------- START SERVER ----------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
