@@ -140,6 +140,7 @@ input{
   position:relative;
 }
 .scan-line{
+  display:none;
   position:absolute;
   width:100%;
   height:3px;
@@ -224,6 +225,7 @@ function closeMenu(){ document.getElementById("menu").classList.remove("open"); 
 
 /* SCANNER */
 function startScanner(){
+  document.querySelector(".scan-line").style.display = "block";
   html5QrCode=new Html5Qrcode("reader");
   html5QrCode.start(
     {facingMode:"environment"},
@@ -236,6 +238,7 @@ function startScanner(){
   );
 }
 function stopScanner(){
+  document.querySelector(".scan-line").style.display = "none";
   if(html5QrCode){
     html5QrCode.stop().then(()=>html5QrCode.clear());
   }
@@ -314,11 +317,13 @@ function addLogo(canvas){
   const logo=new Image();
   logo.src="https://ambikashelf.shop/ambikashelf.png";
   logo.onload=()=>{
-    const size=canvas.width*0.25;
+    const size=canvas.width*0.32;
     const x=(canvas.width-size)/2;
     const y=(canvas.height-size)/2;
     ctx.fillStyle="white";
-    ctx.fillRect(x-8,y-8,size+16,size+16);
+ctx.fillRect(x-10,y-10,size+20,size+20);
+ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = "high";
     ctx.drawImage(logo,x,y,size,size);
   };
 }
