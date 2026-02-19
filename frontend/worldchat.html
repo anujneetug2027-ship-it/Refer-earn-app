@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Common Chat</title>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; }
+    #login, #chat {
+      width: 400px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    #messages {
+      height: 250px;
+      border: 1px solid #ccc;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      padding: 5px;
+    }
+    .msg-time {
+      font-size: 11px;
+      color: gray;
+      float: right;
+    }
+    .top-buttons {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="login">
+  <h2>Enter Username</h2>
+  <input id="username" placeholder="Your name">
+  <button onclick="manualJoin()">Join</button>
+</div>
+
+<div id="chat" style="display:none;">
+  <h2>Common Chat</h2>
+
+  <div class="top-buttons">
+    <button onclick="exitChat()">Exit Chat</button>
+    <button onclick="clearChat()">Clear Chat</button>
+  </div>
+
+  <div id="messages"></div>
+
+  <input id="msg" placeholder="Type message">
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+  const socket = io();
+  let joined = false;
+
+  function setCookie(name, value) {
+    document.cookie = name + "=" + value + ";path=/";
+  }
+
+  function deleteCookie(name) {
+    document.cookie = name + "=; Max-Age=0; path=/;";
+  }
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  function showChat() {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("chat").style.display = "block";
+  }
+
+  function manualJoin() {
+    const username = document.getElementById("username").value.trim();
+    if (!username) return alert("Enter username");
+    setCookie("username", username);
+    joinAfterConnect(username);
+  }
+
+  function joinAfterConnect(username) {
+    if (joined) return;
+    socket.emit("join", username);
+    joined = true;
+    showChat();
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("msg");
+    const msg = input.value.trim();
+    if (!msg) return;
+    socket.emit("sendMessage", msg);
+    input.value = "";
+  }
+
+  function exitChat() {
+    deleteCookie("username");
+    location.reload();
+  }
+
+  function clearChat() {
+    socket.emit("clearChat");
+  }
+
+  socket.on("connect", () => {
+    const savedUser = getCookie("username");
+    if (savedUser) {
+      joinAfterConnect(savedUser);
+    }
+  });
+
+  socket.on("oldMessages", (oldMsgs) => {
+    const box = document.getElementById("messages");
+    box.innerHTML = "";
+    oldMsgs.forEach(addMessage);
+  });
+
+  socket.on("message", addMessage);
+
+  socket.on("chatCleared", () => {
+    document.getElementById("messages").innerHTML = "";
+  });
+
+  function addMessage(data) {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <b>${data.user}:</b> ${data.text}
+      <span class="msg-time">${data.time}</span>
+    `;
+    document.getElementById("messages").appendChild(div);
+  }
+</script>
+
+</body>
+    </html>
