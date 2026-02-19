@@ -286,8 +286,8 @@ function generateQR(withLogo=true){
 
   new QRCode(whiteBox,{
     text:input,
-    width:240,
-    height:240,
+    width:280,
+    height:280,
     colorDark:"#000000",
     colorLight:"#ffffff",
     correctLevel:QRCode.CorrectLevel.H
@@ -317,11 +317,11 @@ function addLogo(canvas){
   const logo=new Image();
   logo.src="https://ambikashelf.shop/ambikashelf.png";
   logo.onload=()=>{
-    const size=canvas.width*0.32;
+    const size=canvas.width*0.24;
     const x=(canvas.width-size)/2;
     const y=(canvas.height-size)/2;
     ctx.fillStyle="white";
-ctx.fillRect(x-10,y-10,size+20,size+20);
+ctx.fillRect(x-10,y-10,size+12,size+12);
 ctx.imageSmoothingEnabled = true;
 ctx.imageSmoothingQuality = "high";
     ctx.drawImage(logo,x,y,size,size);
