@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QR Tools — Ambika Shelf</title>
 
+<!-- QR Libraries -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
@@ -25,23 +26,75 @@ body{
   color:#e6eef8;
 }
 
-.wrapper{
-  max-width:920px;
-  margin:40px auto;
-  padding:28px;
+/* ===== MENU ===== */
+.topbar{
+  display:flex;
+  justify-content:flex-end;
+  padding:10px 20px;
+}
+.menu-btn{
+  font-size:26px;
+  cursor:pointer;
+}
+.menu{
+  position:fixed;
+  top:0;
+  right:-280px;
+  width:260px;
+  height:100%;
+  background:#0b1220;
+  padding:20px;
+  transition:.3s;
+  z-index:9999;
+}
+.menu.open{ right:0; }
+.menu a{
+  display:block;
+  padding:14px 0;
+  color:#e6eef8;
+  text-decoration:none;
+}
+.close-btn{
+  font-size:22px;
+  cursor:pointer;
+  margin-bottom:10px;
 }
 
+/* ===== WRAPPER ===== */
+.wrapper{
+  max-width:920px;
+  margin:20px auto;
+  padding:28px;
+  animation: fadeIn .6s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(15px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.logo-top{
+  text-align:center;
+  margin-bottom:20px;
+}
+.logo-top img{
+  width:150px;
+}
+
+/* ===== CARDS ===== */
 .card{
   background:var(--card);
   padding:18px;
   border-radius:var(--radius);
   border:1px solid rgba(255,255,255,0.03);
   margin-bottom:20px;
+  transition:.3s;
+}
+.card:hover{
+  transform:translateY(-3px);
 }
 
-h2{
-  margin-top:0;
-}
+h2{ margin-top:0; }
 
 button{
   background:linear-gradient(90deg,var(--accent),#60a5fa);
@@ -72,12 +125,18 @@ input{
   margin-top:10px;
 }
 
+/* Remove upload extra spacing */
+#reader video{
+  margin:0 !important;
+  padding:0 !important;
+}
+
 .result-box{
   margin-top:15px;
   background:var(--glass);
   padding:12px;
   border-radius:10px;
-  word-break: break-word; /* FIX OVERFLOW */
+  word-break: break-word;
 }
 
 .action-row{
@@ -86,12 +145,42 @@ input{
   margin-top:10px;
   flex-wrap:wrap;
 }
+
+/* WHITE QR BOX */
+.qr-white-box{
+  background:white;
+  padding:15px;
+  display:inline-block;
+  border-radius:12px;
+  margin-top:15px;
+}
 </style>
 </head>
 <body>
 
+<!-- MENU -->
+<div class="topbar">
+  <div class="menu-btn" onclick="openMenu()">☰</div>
+</div>
+
+<div id="menu" class="menu">
+  <div class="close-btn" onclick="closeMenu()">✕</div>
+  <a href="index.html" onclick="closeMenu()">Login</a>
+  <a href="about.html" onclick="closeMenu()">About Us</a>
+  <a href="contact.html" onclick="closeMenu()">Contact</a>
+  <a href="privacy.html" onclick="closeMenu()">Privacy Policy</a>
+  <a href="terms.html" onclick="closeMenu()">Terms</a>
+  <a href="qr.html" onclick="closeMenu()">QR Tools</a>
+</div>
+
 <div class="wrapper">
 
+  <!-- LOGO -->
+  <div class="logo-top">
+    <img src="https://ambikashelf.shop/ambikashelf.png">
+  </div>
+
+  <!-- SCAN -->
   <div class="card">
     <h2>Scan QR Code</h2>
 
@@ -102,12 +191,13 @@ input{
       <button class="secondary" onclick="stopScanner()">Stop</button>
     </div>
 
-    <p class="small" style="color:var(--muted);margin-top:10px;">Or upload QR image</p>
+    <p style="color:var(--muted);margin-top:10px;">Or upload QR image</p>
     <input type="file" id="qr-upload" accept="image/*">
 
     <div id="scan-result" class="result-box"></div>
   </div>
 
+  <!-- GENERATE -->
   <div class="card">
     <h2>Generate QR Code</h2>
 
@@ -115,25 +205,34 @@ input{
 
     <div class="action-row">
       <button onclick="generateQR()">Generate</button>
+      <button class="secondary" onclick="downloadQR()">Download</button>
     </div>
 
-    <div id="qr-output" style="margin-top:15px;"></div>
+    <div id="qr-container"></div>
   </div>
 
 </div>
 
+<!-- SOUND -->
+<audio id="scanSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+
 <script>
-
 let html5QrCode;
+let generatedCanvas = null;
 
+/* MENU */
+function openMenu(){ document.getElementById("menu").classList.add("open"); }
+function closeMenu(){ document.getElementById("menu").classList.remove("open"); }
+
+/* SCANNER */
 function startScanner(){
   html5QrCode = new Html5Qrcode("reader");
-
   html5QrCode.start(
     { facingMode:"environment" },
     { fps:10, qrbox:250 },
-    message=>{
-      showResult(message);
+    msg=>{
+      document.getElementById("scanSound").play();
+      showResult(msg);
       stopScanner();
     }
   );
@@ -150,8 +249,7 @@ function showResult(text){
   const isUrl = text.startsWith("http");
 
   box.innerHTML = `
-    <strong>Decoded:</strong><br>
-    ${text}
+    <strong>Decoded:</strong><br>${text}
     <div class="action-row">
       <button onclick="copyText('${text}')">Copy</button>
       ${isUrl ? `<button onclick="redirectTo('${text}')">Redirect</button>` : ""}
@@ -159,14 +257,10 @@ function showResult(text){
   `;
 }
 
-function copyText(text){
-  navigator.clipboard.writeText(text);
-}
+function copyText(text){ navigator.clipboard.writeText(text); }
+function redirectTo(url){ window.open(url,"_blank"); }
 
-function redirectTo(url){
-  window.open(url,"_blank");
-}
-
+/* IMAGE UPLOAD FIXED */
 document.getElementById("qr-upload").addEventListener("change",function(e){
   const file = e.target.files[0];
   if(!file) return;
@@ -174,26 +268,46 @@ document.getElementById("qr-upload").addEventListener("change",function(e){
   const qr = new Html5Qrcode("reader");
   qr.scanFile(file,true)
     .then(decoded=>{
+      document.getElementById("scanSound").play();
       showResult(decoded);
     })
     .catch(()=> alert("No QR found"));
 });
 
+/* GENERATOR */
 function generateQR(){
   const input = document.getElementById("qr-input").value;
-  const output = document.getElementById("qr-output");
+  const container = document.getElementById("qr-container");
 
-  output.innerHTML="";
+  container.innerHTML="";
   if(!input) return;
 
-  new QRCode(output,{
+  const whiteBox = document.createElement("div");
+  whiteBox.className="qr-white-box";
+
+  container.appendChild(whiteBox);
+
+  new QRCode(whiteBox,{
     text:input,
-    width:200,
-    height:200
+    width:220,
+    height:220,
+    colorDark:"#000000",
+    colorLight:"#ffffff",
+    correctLevel:QRCode.CorrectLevel.H
   });
+
+  generatedCanvas = whiteBox.querySelector("canvas");
 }
 
+function downloadQR(){
+  if(!generatedCanvas) return alert("Generate QR first");
+
+  const link = document.createElement("a");
+  link.download="ambikashelf-qr.png";
+  link.href = generatedCanvas.toDataURL();
+  link.click();
+}
 </script>
 
 </body>
-</html>
+  </html>
