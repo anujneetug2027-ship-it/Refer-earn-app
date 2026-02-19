@@ -1,139 +1,363 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Common Chat</title>
-  <style>
-    body { font-family: Arial; background: #f2f2f2; }
-    #login, #chat {
-      width: 400px;
-      margin: 40px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 5px;
-    }
-    #messages {
-      height: 250px;
-      border: 1px solid #ccc;
-      overflow-y: auto;
-      margin-bottom: 10px;
-      padding: 5px;
-    }
-    .msg-time {
-      font-size: 11px;
-      color: gray;
-      float: right;
-    }
-    .top-buttons {
-      margin-bottom: 10px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Chat — Ambika Shelf</title>
+
+<style>
+:root{
+  --bg:#0f1724;
+  --card:#0b1220;
+  --muted:#94a3b8;
+  --accent:#06b6d4;
+  --glass: rgba(255,255,255,0.05);
+  --radius:14px;
+  font-family: Inter, system-ui;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  background:linear-gradient(180deg,#071124 0%, #071a2b 100%);
+  color:#e6eef8;
+}
+
+/* MENU */
+.topbar{
+  display:flex;
+  justify-content:flex-end;
+  padding:10px 20px;
+}
+.menu-btn{ font-size:26px; cursor:pointer; }
+.menu{
+  position:fixed;
+  top:0;
+  right:-280px;
+  width:260px;
+  height:100%;
+  background:#0b1220;
+  padding:20px;
+  transition:.3s;
+  z-index:9999;
+}
+.menu.open{ right:0; }
+.menu a{
+  display:block;
+  padding:14px 0;
+  color:#e6eef8;
+  text-decoration:none;
+}
+.close-btn{ font-size:22px; cursor:pointer; margin-bottom:10px; }
+
+/* WRAPPER */
+.wrapper{
+  max-width:900px;
+  margin:20px auto;
+  padding:20px;
+  animation:fadeIn .5s ease;
+}
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.logo-top{
+  text-align:center;
+  margin-bottom:20px;
+}
+.logo-top img{
+  width:160px;
+}
+
+/* CARD */
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:18px;
+  border:1px solid rgba(255,255,255,0.04);
+}
+
+/* LOGIN */
+#login input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.1);
+  background:var(--glass);
+  color:white;
+}
+button{
+  background:linear-gradient(90deg,var(--accent),#60a5fa);
+  border:none;
+  padding:10px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+}
+button.secondary{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.2);
+  color:var(--muted);
+}
+
+/* CHAT AREA */
+#messages{
+  height:350px;
+  overflow-y:auto;
+  margin-bottom:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.message{
+  max-width:75%;
+  padding:10px 12px;
+  border-radius:14px;
+  position:relative;
+  animation:fadeIn .3s ease;
+}
+
+.message.self{
+  align-self:flex-end;
+  background:linear-gradient(90deg,var(--accent),#60a5fa);
+  color:#022;
+}
+
+.message.other{
+  align-self:flex-start;
+  background:var(--glass);
+}
+
+.msg-time{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+.reactions{
+  margin-top:5px;
+  font-size:14px;
+}
+
+.reply-box{
+  font-size:12px;
+  padding:6px;
+  background:rgba(255,255,255,0.08);
+  border-left:3px solid var(--accent);
+  margin-bottom:6px;
+  border-radius:6px;
+}
+
+.input-area{
+  display:flex;
+  gap:8px;
+}
+
+input#msg{
+  flex:1;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.1);
+  background:var(--glass);
+  color:white;
+}
+
+/* Emoji Picker */
+.emoji-picker{
+  display:none;
+  position:absolute;
+  bottom:100%;
+  background:#0b1220;
+  padding:6px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.emoji-picker span{
+  cursor:pointer;
+  padding:4px;
+  font-size:18px;
+}
+
+.copy-btn{
+  font-size:11px;
+  color:var(--muted);
+  cursor:pointer;
+  margin-left:6px;
+}
+</style>
 </head>
 <body>
 
-<div id="login">
-  <h2>Enter Username</h2>
-  <input id="username" placeholder="Your name">
-  <button onclick="manualJoin()">Join</button>
+<div class="topbar">
+  <div class="menu-btn" onclick="openMenu()">☰</div>
 </div>
 
-<div id="chat" style="display:none;">
-  <h2>Common Chat</h2>
+<div id="menu" class="menu">
+  <div class="close-btn" onclick="closeMenu()">✕</div>
+  <a href="/">Login</a>
+  <a href="/worldchat">World Chat</a>
+</div>
 
-  <div class="top-buttons">
-    <button onclick="exitChat()">Exit Chat</button>
-    <button onclick="clearChat()">Clear Chat</button>
-  </div>
+<div class="wrapper">
+
+<div class="logo-top">
+  <img src="https://ambikashelf.shop/ambikashelf.png">
+</div>
+
+<div class="card" id="login">
+  <h2>Enter Username</h2>
+  <input id="username" placeholder="Your name">
+  <br><br>
+  <button onclick="manualJoin()">Join Chat</button>
+</div>
+
+<div class="card" id="chat" style="display:none;">
+  <h2>World Chat</h2>
 
   <div id="messages"></div>
 
-  <input id="msg" placeholder="Type message">
-  <button onclick="sendMessage()">Send</button>
+  <div id="replyPreview" style="display:none;"></div>
+
+  <div class="input-area">
+    <input id="msg" placeholder="Type message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+  <br>
+  <button class="secondary" onclick="exitChat()">Exit</button>
+</div>
+
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-
 <script>
-  const socket = io();
-  let joined = false;
+const socket = io();
+let joined=false;
+let currentReply=null;
 
-  function setCookie(name, value) {
-    document.cookie = name + "=" + value + ";path=/";
+function openMenu(){document.getElementById("menu").classList.add("open");}
+function closeMenu(){document.getElementById("menu").classList.remove("open");}
+
+function setCookie(n,v){document.cookie=n+"="+v+";path=/";}
+function getCookie(n){const v=`; ${document.cookie}`;const p=v.split(`; ${n}=`);if(p.length===2)return p.pop().split(';').shift();}
+function deleteCookie(n){document.cookie=n+"=; Max-Age=0; path=/;";}
+
+function showChat(){
+  document.getElementById("login").style.display="none";
+  document.getElementById("chat").style.display="block";
+}
+
+function manualJoin(){
+  const u=document.getElementById("username").value.trim();
+  if(!u)return alert("Enter username");
+  setCookie("username",u);
+  joinAfterConnect(u);
+}
+
+function joinAfterConnect(username){
+  if(joined)return;
+  socket.emit("join",username);
+  joined=true;
+  showChat();
+}
+
+function sendMessage(){
+  const input=document.getElementById("msg");
+  const msg=input.value.trim();
+  if(!msg)return;
+
+  socket.emit("sendMessage",{
+    text:msg,
+    reply:currentReply
+  });
+
+  input.value="";
+  clearReply();
+}
+
+function clearReply(){
+  currentReply=null;
+  document.getElementById("replyPreview").style.display="none";
+}
+
+function exitChat(){
+  deleteCookie("username");
+  location.reload();
+}
+
+socket.on("connect",()=>{
+  const saved=getCookie("username");
+  if(saved){joinAfterConnect(saved);}
+});
+
+socket.on("message",data=>{
+  if(data.user==="System") data.user="AmbikaShelf";
+  addMessage(data);
+});
+
+function addMessage(data){
+  const box=document.getElementById("messages");
+
+  const div=document.createElement("div");
+  div.className="message "+(data.user===getCookie("username")?"self":"other");
+
+  let replyHTML="";
+  if(data.reply){
+    replyHTML=`<div class="reply-box">${data.reply}</div>`;
   }
 
-  function deleteCookie(name) {
-    document.cookie = name + "=; Max-Age=0; path=/;";
-  }
+  div.innerHTML=`
+    ${replyHTML}
+    <b>${data.user}:</b> ${data.text}
+    <div class="msg-time">${data.time}
+      <span class="copy-btn" onclick="copyText('${data.text}')">Copy</span>
+    </div>
+    <div class="reactions"></div>
+    <div class="emoji-picker">
+      <span onclick="react(this,'👍')">👍</span>
+      <span onclick="react(this,'😂')">😂</span>
+      <span onclick="react(this,'😅')">😅</span>
+      <span onclick="react(this,'🙏')">🙏</span>
+      <span onclick="react(this,'😥')">😥</span>
+    </div>
+  `;
 
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  }
+  div.ondblclick=()=>toggleEmoji(div);
 
-  function showChat() {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("chat").style.display = "block";
-  }
-
-  function manualJoin() {
-    const username = document.getElementById("username").value.trim();
-    if (!username) return alert("Enter username");
-    setCookie("username", username);
-    joinAfterConnect(username);
-  }
-
-  function joinAfterConnect(username) {
-    if (joined) return;
-    socket.emit("join", username);
-    joined = true;
-    showChat();
-  }
-
-  function sendMessage() {
-    const input = document.getElementById("msg");
-    const msg = input.value.trim();
-    if (!msg) return;
-    socket.emit("sendMessage", msg);
-    input.value = "";
-  }
-
-  function exitChat() {
-    deleteCookie("username");
-    location.reload();
-  }
-
-  function clearChat() {
-    socket.emit("clearChat");
-  }
-
-  socket.on("connect", () => {
-    const savedUser = getCookie("username");
-    if (savedUser) {
-      joinAfterConnect(savedUser);
+  div.onmousedown=(e)=>{
+    let startX=e.clientX;
+    div.onmouseup=(ev)=>{
+      if(ev.clientX-startX>80){
+        currentReply=data.text;
+        const rp=document.getElementById("replyPreview");
+        rp.innerHTML=`Replying to: ${data.text}`;
+        rp.style.display="block";
+      }
     }
-  });
+  };
 
-  socket.on("oldMessages", (oldMsgs) => {
-    const box = document.getElementById("messages");
-    box.innerHTML = "";
-    oldMsgs.forEach(addMessage);
-  });
+  box.appendChild(div);
+  box.scrollTop=box.scrollHeight;
+}
 
-  socket.on("message", addMessage);
+function toggleEmoji(div){
+  const picker=div.querySelector(".emoji-picker");
+  picker.style.display=picker.style.display==="block"?"none":"block";
+}
 
-  socket.on("chatCleared", () => {
-    document.getElementById("messages").innerHTML = "";
-  });
+function react(el,emoji){
+  const container=el.closest(".message").querySelector(".reactions");
+  container.innerText=emoji;
+  el.parentElement.style.display="none";
+}
 
-  function addMessage(data) {
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <b>${data.user}:</b> ${data.text}
-      <span class="msg-time">${data.time}</span>
-    `;
-    document.getElementById("messages").appendChild(div);
-  }
+function copyText(text){
+  navigator.clipboard.writeText(text);
+  alert("Copied!");
+}
 </script>
 
 </body>
-    </html>
+  </html>
