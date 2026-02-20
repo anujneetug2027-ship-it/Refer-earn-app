@@ -21,7 +21,7 @@ module.exports = function(io) {
       socket.emit("oldMessages", lastMessages);
 
       io.emit("message", {
-        user: "System",
+        user: "AmbikaShelf",
         text: `${username} joined the chat`,
         time: new Date().toLocaleTimeString()
       });
