@@ -1,15 +1,15 @@
 module.exports = function(io) {
 
-let messages = [];
-let users = {};
-let typingUsers = {};
+  let messages = [];
+  let users = {};
+  let typingUsers = {};
 
-function cleanOldMessages() {
-  const now = Date.now();
-  messages = messages.filter(m => now - m.createdAt < 24 * 60 * 60 * 1000);
-}
-
-module.exports = function(io) {
+  function cleanOldMessages() {
+    const now = Date.now();
+    messages = messages.filter(
+      m => now - m.createdAt < 24 * 60 * 60 * 1000
+    );
+  }
 
   io.on("connection", (socket) => {
 
@@ -19,7 +19,7 @@ module.exports = function(io) {
       users[socket.id] = username;
       cleanOldMessages();
 
-      socket.emit("oldMessages", messages.slice(-10));
+      socket.emit("oldMessages", messages.slice(-50));
 
       io.emit("message", {
         id: Date.now(),
@@ -59,7 +59,9 @@ module.exports = function(io) {
 
       messages.push(messageData);
 
-      if (messages.length > 50) messages.shift();
+      if (messages.length > 100) {
+        messages.shift();
+      }
 
       io.emit("message", messageData);
     });
@@ -69,11 +71,16 @@ module.exports = function(io) {
       if (!msg) return;
 
       msg.reactions[emoji] = (msg.reactions[emoji] || 0) + 1;
-      io.emit("reactionUpdate", {id, reactions: msg.reactions});
+
+      io.emit("reactionUpdate", {
+        id,
+        reactions: msg.reactions
+      });
     });
 
     socket.on("disconnect", () => {
       const username = users[socket.id];
+
       if (username) {
         io.emit("message", {
           id: Date.now(),
@@ -83,7 +90,9 @@ module.exports = function(io) {
           createdAt: Date.now()
         });
       }
+
       delete users[socket.id];
+      delete typingUsers[socket.id];
     });
 
   });
