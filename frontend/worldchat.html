@@ -11,8 +11,8 @@
   --card:#0b1220;
   --muted:#94a3b8;
   --accent:#06b6d4;
-  --glass: rgba(255,255,255,0.05);
-  --radius:14px;
+  --glass: rgba(255,255,255,0.06);
+  --radius:16px;
   font-family: Inter, system-ui;
 }
 
@@ -22,102 +22,58 @@ body{
   margin:0;
   background:linear-gradient(180deg,#071124 0%, #071a2b 100%);
   color:#e6eef8;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
 }
 
-/* MENU */
+/* TOPBAR */
 .topbar{
   display:flex;
   justify-content:flex-end;
   padding:10px 20px;
 }
-.menu-btn{ font-size:26px; cursor:pointer; }
-.menu{
-  position:fixed;
-  top:0;
-  right:-280px;
-  width:260px;
-  height:100%;
-  background:#0b1220;
-  padding:20px;
-  transition:.3s;
-  z-index:9999;
-}
-.menu.open{ right:0; }
-.menu a{
-  display:block;
-  padding:14px 0;
-  color:#e6eef8;
-  text-decoration:none;
-}
-.close-btn{ font-size:22px; cursor:pointer; margin-bottom:10px; }
+.menu-btn{font-size:26px;cursor:pointer;}
 
-/* WRAPPER */
-.wrapper{
-  max-width:900px;
-  margin:20px auto;
-  padding:20px;
-  animation:fadeIn .5s ease;
-}
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(10px);}
-  to{opacity:1; transform:translateY(0);}
-}
-
-.logo-top{
-  text-align:center;
-  margin-bottom:20px;
-}
-.logo-top img{
-  width:160px;
-}
-
-/* CARD */
-.card{
-  background:var(--card);
-  border-radius:var(--radius);
-  padding:18px;
-  border:1px solid rgba(255,255,255,0.04);
-}
-
-/* LOGIN */
-#login input{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.1);
-  background:var(--glass);
-  color:white;
-}
-button{
-  background:linear-gradient(90deg,var(--accent),#60a5fa);
-  border:none;
-  padding:10px 14px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:600;
-}
-button.secondary{
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.2);
-  color:var(--muted);
-}
-
-/* CHAT AREA */
-#messages{
-  height:350px;
-  overflow-y:auto;
-  margin-bottom:10px;
+/* MAIN WRAPPER */
+.chat-container{
+  flex:1;
   display:flex;
   flex-direction:column;
-  gap:8px;
+  max-width:900px;
+  margin:auto;
+  width:100%;
+  padding:10px;
 }
 
+/* LOGO */
+.logo-top{
+  text-align:center;
+  margin-bottom:10px;
+}
+.logo-top img{width:150px;}
+
+/* MESSAGES */
+#messages{
+  flex:1;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding-bottom:80px;
+}
+
+/* MESSAGE */
 .message{
   max-width:75%;
-  padding:10px 12px;
-  border-radius:14px;
+  padding:10px 14px;
+  border-radius:16px;
   position:relative;
   animation:fadeIn .3s ease;
+}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(5px);}
+  to{opacity:1;transform:translateY(0);}
 }
 
 .message.self{
@@ -125,7 +81,6 @@ button.secondary{
   background:linear-gradient(90deg,var(--accent),#60a5fa);
   color:#022;
 }
-
 .message.other{
   align-self:flex-start;
   background:var(--glass);
@@ -133,231 +88,255 @@ button.secondary{
 
 .msg-time{
   font-size:11px;
+  margin-top:5px;
+}
+.message.self .msg-time{
+  color:black;
+}
+.message.other .msg-time{
   color:var(--muted);
-  margin-top:4px;
 }
 
+.copy-btn{
+  margin-left:8px;
+  cursor:pointer;
+  font-size:11px;
+  transition:.2s;
+}
+.copy-btn:hover{
+  transform:scale(1.2);
+  color:var(--accent);
+}
+
+/* REACTIONS */
 .reactions{
-  margin-top:5px;
+  margin-top:4px;
   font-size:14px;
 }
 
+/* REPLY BOX */
 .reply-box{
   font-size:12px;
-  padding:6px;
-  background:rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.1);
+  padding:5px;
   border-left:3px solid var(--accent);
   margin-bottom:6px;
   border-radius:6px;
 }
 
-.input-area{
+/* INPUT BAR */
+.input-wrapper{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#0b1220;
+  padding:10px;
   display:flex;
   gap:8px;
+  align-items:center;
 }
 
-input#msg{
+#msg{
   flex:1;
   padding:10px;
   border-radius:10px;
-  border:1px solid rgba(255,255,255,0.1);
+  border:none;
   background:var(--glass);
   color:white;
 }
 
-/* Emoji Picker */
-.emoji-picker{
-  display:none;
-  position:absolute;
-  bottom:100%;
-  background:#0b1220;
-  padding:6px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.1);
-}
-.emoji-picker span{
+button{
+  background:linear-gradient(90deg,var(--accent),#60a5fa);
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
   cursor:pointer;
-  padding:4px;
-  font-size:18px;
+  font-weight:600;
 }
 
-.copy-btn{
-  font-size:11px;
+.exit-btn{
+  background:#ef4444;
+  color:white;
+}
+
+.typing{
+  font-size:12px;
   color:var(--muted);
+  margin-bottom:5px;
+}
+
+/* IMAGE */
+.chat-image{
+  max-width:200px;
+  border-radius:8px;
+  margin-top:6px;
+}
+.download-btn{
+  font-size:11px;
   cursor:pointer;
-  margin-left:6px;
+  margin-top:3px;
+  display:inline-block;
+  color:var(--accent);
 }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="menu-btn" onclick="openMenu()">☰</div>
-</div>
-
-<div id="menu" class="menu">
-  <div class="close-btn" onclick="closeMenu()">✕</div>
-  <a href="/">Login</a>
-  <a href="/worldchat">World Chat</a>
-</div>
-
-<div class="wrapper">
+<div class="chat-container">
 
 <div class="logo-top">
   <img src="https://ambikashelf.shop/ambikashelf.png">
 </div>
 
-<div class="card" id="login">
-  <h2>Enter Username</h2>
-  <input id="username" placeholder="Your name">
-  <br><br>
-  <button onclick="manualJoin()">Join Chat</button>
-</div>
+<div id="messages"></div>
 
-<div class="card" id="chat" style="display:none;">
-  <h2>World Chat</h2>
-
-  <div id="messages"></div>
-
-  <div id="replyPreview" style="display:none;"></div>
-
-  <div class="input-area">
-    <input id="msg" placeholder="Type message">
-    <button onclick="sendMessage()">Send</button>
-  </div>
-  <br>
-  <button class="secondary" onclick="exitChat()">Exit</button>
-</div>
+<div id="typing" class="typing"></div>
 
 </div>
+
+<div class="input-wrapper">
+  <input type="file" id="imageInput" style="display:none">
+  <button onclick="document.getElementById('imageInput').click()">📷</button>
+  <input id="msg" placeholder="Type message">
+  <button onclick="sendMessage()">Send</button>
+  <button class="exit-btn" onclick="exitChat()">Exit</button>
+</div>
+
+<audio id="sendSound" src="https://ambikashelf.shop/send.mp3"></audio>
+<audio id="receiveSound" src="https://ambikashelf.shop/recieve.mp3"></audio>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
-let joined=false;
+let username = prompt("Enter username");
 let currentReply=null;
 
-function openMenu(){document.getElementById("menu").classList.add("open");}
-function closeMenu(){document.getElementById("menu").classList.remove("open");}
+socket.emit("join", username);
 
-function setCookie(n,v){document.cookie=n+"="+v+";path=/";}
-function getCookie(n){const v=`; ${document.cookie}`;const p=v.split(`; ${n}=`);if(p.length===2)return p.pop().split(';').shift();}
-function deleteCookie(n){document.cookie=n+"=; Max-Age=0; path=/;";}
+const messagesDiv=document.getElementById("messages");
 
-function showChat(){
-  document.getElementById("login").style.display="none";
-  document.getElementById("chat").style.display="block";
-}
-
-function manualJoin(){
-  const u=document.getElementById("username").value.trim();
-  if(!u)return alert("Enter username");
-  setCookie("username",u);
-  joinAfterConnect(u);
-}
-
-function joinAfterConnect(username){
-  if(joined)return;
-  socket.emit("join",username);
-  joined=true;
-  showChat();
-}
-
-function sendMessage(){
-  const input=document.getElementById("msg");
-  const msg=input.value.trim();
-  if(!msg)return;
-
-  socket.emit("sendMessage",{
-    text:msg,
-    reply:currentReply
-  });
-
-  input.value="";
-  clearReply();
-}
-
-function clearReply(){
-  currentReply=null;
-  document.getElementById("replyPreview").style.display="none";
-}
-
-function exitChat(){
-  deleteCookie("username");
-  location.reload();
-}
-
-socket.on("connect",()=>{
-  const saved=getCookie("username");
-  if(saved){joinAfterConnect(saved);}
+socket.on("oldMessages",msgs=>{
+  msgs.forEach(addMessage);
 });
 
 socket.on("message",data=>{
-  if(data.user==="System") data.user="AmbikaShelf";
   addMessage(data);
+  if(data.user===username)
+    document.getElementById("sendSound").play();
+  else
+    document.getElementById("receiveSound").play();
 });
 
-function addMessage(data){
-  const box=document.getElementById("messages");
+socket.on("typing",user=>{
+  document.getElementById("typing").innerText=user+" is typing...";
+});
+socket.on("stopTyping",()=>{
+  document.getElementById("typing").innerText="";
+});
 
+socket.on("reactionUpdate",({id,reactions})=>{
+  const msgDiv=document.getElementById("msg-"+id);
+  if(!msgDiv)return;
+  const reactionDiv=msgDiv.querySelector(".reactions");
+  reactionDiv.innerHTML="";
+  for(let r in reactions){
+    reactionDiv.innerHTML+=`${r} ${reactions[r]} `;
+  }
+});
+
+function sendMessage(){
+  const text=document.getElementById("msg").value.trim();
+  const imageFile=document.getElementById("imageInput").files[0];
+
+  if(!text && !imageFile) return;
+
+  if(imageFile){
+    const reader=new FileReader();
+    reader.onload=function(e){
+      socket.emit("sendMessage",{text,image:e.target.result,reply:currentReply});
+    };
+    reader.readAsDataURL(imageFile);
+    document.getElementById("imageInput").value="";
+  }else{
+    socket.emit("sendMessage",{text,reply:currentReply});
+  }
+
+  document.getElementById("msg").value="";
+  currentReply=null;
+}
+
+function addMessage(data){
   const div=document.createElement("div");
-  div.className="message "+(data.user===getCookie("username")?"self":"other");
+  div.className="message "+(data.user===username?"self":"other");
+  div.id="msg-"+data.id;
 
   let replyHTML="";
   if(data.reply){
     replyHTML=`<div class="reply-box">${data.reply}</div>`;
   }
 
+  let imageHTML="";
+  if(data.image){
+    imageHTML=`
+      <img src="${data.image}" class="chat-image">
+      <div class="download-btn" onclick="downloadImage('${data.image}')">Download</div>
+    `;
+  }
+
   div.innerHTML=`
     ${replyHTML}
-    <b>${data.user}:</b> ${data.text}
-    <div class="msg-time">${data.time}
-      <span class="copy-btn" onclick="copyText('${data.text}')">Copy</span>
+    <b>${data.user}:</b> ${data.text||""}
+    ${imageHTML}
+    <div class="msg-time">
+      ${data.time}
+      <span class="copy-btn" onclick="copyText('${data.text||""}')">📋</span>
     </div>
     <div class="reactions"></div>
-    <div class="emoji-picker">
-      <span onclick="react(this,'👍')">👍</span>
-      <span onclick="react(this,'😂')">😂</span>
-      <span onclick="react(this,'😅')">😅</span>
-      <span onclick="react(this,'🙏')">🙏</span>
-      <span onclick="react(this,'😥')">😥</span>
-    </div>
   `;
 
-  div.ondblclick=()=>toggleEmoji(div);
-
-  div.onmousedown=(e)=>{
-    let startX=e.clientX;
-    div.onmouseup=(ev)=>{
-      if(ev.clientX-startX>80){
-        currentReply=data.text;
-        const rp=document.getElementById("replyPreview");
-        rp.innerHTML=`Replying to: ${data.text}`;
-        rp.style.display="block";
-      }
+  // Double tap reaction
+  div.ondblclick=()=>{
+    const emoji=prompt("React with: 👍 😂 😅 🙏 😥");
+    if(["👍","😂","😅","🙏","😥"].includes(emoji)){
+      socket.emit("react",{id:data.id,emoji});
     }
   };
 
-  box.appendChild(div);
-  box.scrollTop=box.scrollHeight;
-}
+  // Swipe reply
+  let startX;
+  div.addEventListener("touchstart",e=>startX=e.touches[0].clientX);
+  div.addEventListener("touchend",e=>{
+    if(e.changedTouches[0].clientX-startX>80){
+      currentReply=data.text;
+      alert("Replying to: "+data.text);
+    }
+  });
 
-function toggleEmoji(div){
-  const picker=div.querySelector(".emoji-picker");
-  picker.style.display=picker.style.display==="block"?"none":"block";
-}
-
-function react(el,emoji){
-  const container=el.closest(".message").querySelector(".reactions");
-  container.innerText=emoji;
-  el.parentElement.style.display="none";
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop=messagesDiv.scrollHeight;
 }
 
 function copyText(text){
   navigator.clipboard.writeText(text);
-  alert("Copied!");
 }
+
+function downloadImage(src){
+  const a=document.createElement("a");
+  a.href=src;
+  a.download="image.png";
+  a.click();
+}
+
+function exitChat(){
+  location.reload();
+}
+
+document.getElementById("msg").addEventListener("input",()=>{
+  socket.emit("typing");
+  setTimeout(()=>socket.emit("stopTyping"),1500);
+});
 </script>
 
 </body>
-  </html>
+</html>
