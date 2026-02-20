@@ -1,12 +1,15 @@
 module.exports = function(io) {
 
-  let messages = [];
-  let users = {};
+let messages = [];
+let users = {};
+let typingUsers = {};
 
-  function cleanOldMessages() {
-    const now = Date.now();
-    messages = messages.filter(msg => now - msg.createdAt < 24 * 60 * 60 * 1000);
-  }
+function cleanOldMessages() {
+  const now = Date.now();
+  messages = messages.filter(m => now - m.createdAt < 24 * 60 * 60 * 1000);
+}
+
+module.exports = function(io) {
 
   io.on("connection", (socket) => {
 
@@ -14,53 +17,73 @@ module.exports = function(io) {
       if (!username) return;
 
       users[socket.id] = username;
-
       cleanOldMessages();
 
-      const lastMessages = messages.slice(-10);
-      socket.emit("oldMessages", lastMessages);
+      socket.emit("oldMessages", messages.slice(-10));
 
       io.emit("message", {
+        id: Date.now(),
         user: "AmbikaShelf",
         text: `${username} joined the chat`,
-        time: new Date().toLocaleTimeString()
+        time: new Date().toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata"}),
+        createdAt: Date.now()
       });
     });
 
+    socket.on("typing", () => {
+      typingUsers[socket.id] = users[socket.id];
+      socket.broadcast.emit("typing", users[socket.id]);
+    });
+
+    socket.on("stopTyping", () => {
+      delete typingUsers[socket.id];
+      socket.broadcast.emit("stopTyping");
+    });
+
     socket.on("sendMessage", (data) => {
-  const username = users[socket.id];
-  if (!username || !data.text.trim()) return;
+      const username = users[socket.id];
+      if (!username) return;
 
-  cleanOldMessages();
+      cleanOldMessages();
 
-  const messageData = {
-    user: username,
-    text: data.text,
-    reply: data.reply || null,
-    time: new Date().toLocaleTimeString(),
-    createdAt: Date.now()
-  };
+      const messageData = {
+        id: Date.now(),
+        user: username,
+        text: data.text || "",
+        image: data.image || null,
+        reply: data.reply || null,
+        reactions: {},
+        time: new Date().toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata"}),
+        createdAt: Date.now()
+      };
 
-  messages.push(messageData);
-  if (messages.length > 10) messages.shift();
+      messages.push(messageData);
 
-  io.emit("message", messageData);
-});
-    socket.on("clearChat", () => {
-      messages = [];
-      io.emit("chatCleared");
+      if (messages.length > 50) messages.shift();
+
+      io.emit("message", messageData);
+    });
+
+    socket.on("react", ({id, emoji}) => {
+      const msg = messages.find(m => m.id === id);
+      if (!msg) return;
+
+      msg.reactions[emoji] = (msg.reactions[emoji] || 0) + 1;
+      io.emit("reactionUpdate", {id, reactions: msg.reactions});
     });
 
     socket.on("disconnect", () => {
       const username = users[socket.id];
       if (username) {
         io.emit("message", {
-          user: "System",
+          id: Date.now(),
+          user: "AmbikaShelf",
           text: `${username} left the chat`,
-          time: new Date().toLocaleTimeString()
+          time: new Date().toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata"}),
+          createdAt: Date.now()
         });
-        delete users[socket.id];
       }
+      delete users[socket.id];
     });
 
   });
