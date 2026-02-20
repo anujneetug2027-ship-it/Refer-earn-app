@@ -6,8 +6,8 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const cors = require('cors');
 const path = require('path');
-const User = require('./models/User');
-const Referral = require('./models/Referral');
+const User = require('./backend/models/User');
+const Referral = require('./backend/models/Referral');
 const sendWelcomeMail = require('.backend/welcomeMail');
 
 // ✅ NEW: Socket + HTTP
