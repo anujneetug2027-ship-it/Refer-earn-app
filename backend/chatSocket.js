@@ -27,28 +27,25 @@ module.exports = function(io) {
       });
     });
 
-    socket.on("sendMessage", (msg) => {
-      const username = users[socket.id];
-      if (!username || !msg.trim()) return;
+    socket.on("sendMessage", (data) => {
+  const username = users[socket.id];
+  if (!username || !data.text.trim()) return;
 
-      cleanOldMessages();
+  cleanOldMessages();
 
-      const messageData = {
-        user: username,
-        text: msg,
-        time: new Date().toLocaleTimeString(),
-        createdAt: Date.now()
-      };
+  const messageData = {
+    user: username,
+    text: data.text,
+    reply: data.reply || null,
+    time: new Date().toLocaleTimeString(),
+    createdAt: Date.now()
+  };
 
-      messages.push(messageData);
+  messages.push(messageData);
+  if (messages.length > 10) messages.shift();
 
-      if (messages.length > 10) {
-        messages.shift();
-      }
-
-      io.emit("message", messageData);
-    });
-
+  io.emit("message", messageData);
+});
     socket.on("clearChat", () => {
       messages = [];
       io.emit("chatCleared");
