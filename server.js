@@ -8,12 +8,12 @@ const cors = require('cors');
 const path = require('path');
 const User = require('./models/User');
 const Referral = require('./models/Referral');
-const sendWelcomeMail = require('./welcomeMail');
+const sendWelcomeMail = require('.backend/welcomeMail');
 
 // ✅ NEW: Socket + HTTP
 const http = require("http");
 const { Server } = require("socket.io");
-const chatSocket = require("./chatSocket");
+const chatSocket = require(".backend/chatSocket");
 
 const app = express();
 
@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // ---------- FRONTEND ----------
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, '/frontend')));
 
 // ---------- MONGO CONNECTION ----------
 mongoose.connect(process.env.MONGO_URI)
