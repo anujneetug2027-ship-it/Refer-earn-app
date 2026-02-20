@@ -128,12 +128,10 @@ button{
 
 #chat{
   display:none;
-  flex:1;
   flex-direction:column;
-  height:100%;
+  height:calc(100vh - 170px);  /* adjust if needed */
 }
 
-/* Messages box with border */
 #messages{
   flex:1;
   overflow-y:auto;
@@ -145,7 +143,9 @@ button{
   display:flex;
   flex-direction:column;
   gap:10px;
-}
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling: touch;
+  }
 
 /* Message bubble */
 
