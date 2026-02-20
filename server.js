@@ -6,14 +6,14 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const cors = require('cors');
 const path = require('path');
-const User = require('./backend/models/User');
-const Referral = require('./backend/models/Referral');
-const sendWelcomeMail = require('.backend/welcomeMail');
+const User = require('./models/User');
+const Referral = require('./models/Referral');
+const sendWelcomeMail = require('./welcomeMail');
 
 // ✅ NEW: Socket + HTTP
 const http = require("http");
 const { Server } = require("socket.io");
-const chatSocket = require(".backend/chatSocket");
+const chatSocket = require("./chatSocket");
 
 const app = express();
 
