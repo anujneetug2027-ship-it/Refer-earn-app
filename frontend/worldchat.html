@@ -276,7 +276,36 @@ button{
     padding:8px 10px;
   }
 }
+.typing-indicator{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin:5px 15px;
+  font-size:13px;
+  color:var(--muted);
+}
 
+.typing-dots span{
+  width:6px;
+  height:6px;
+  background:var(--muted);
+  border-radius:50%;
+  display:inline-block;
+  animation:blink 1.4s infinite both;
+}
+
+.typing-dots span:nth-child(2){
+  animation-delay:.2s;
+}
+.typing-dots span:nth-child(3){
+  animation-delay:.4s;
+}
+
+@keyframes blink{
+  0%{opacity:.2}
+  20%{opacity:1}
+  100%{opacity:.2}
+    }
 /* ================= FULL IMAGE MODAL ================= */
 
 #imageModal{
@@ -338,7 +367,8 @@ button{
   <input type="file" id="imageInput" style="display:none">
   <button onclick="document.getElementById('imageInput').click()">📷</button>
   <input id="msg" placeholder="Type message">
-  <button onclick="sendMessage()">Send</button>
+  <button onclick="openBot()">Ask AmbikaShelf</button>
+<button onclick="sendMessage()">Send</button>
   <button class="exit-btn" onclick="exitChat()">Exit</button>
 </div>
 
@@ -487,7 +517,13 @@ function addMessage(data){
   const box=document.getElementById("messages");
 
   const div=document.createElement("div");
-  div.className="message "+(data.user===getCookie("username")?"self":"other");
+  const isSelf = data.user===getCookie("username");
+
+div.className = "message " + (isSelf ? "self" : "other");
+
+if(data.image && !data.text){
+  div.style.background = "transparent";
+  }
   div.id="msg-"+data.id;
 
   let replyHTML="";
@@ -619,19 +655,24 @@ document.getElementById("msg").addEventListener("input",()=>{
     socket.emit("stopTyping");
   },1500);
 });
-
 function showTyping(user){
-  let box=document.getElementById("typingBox");
+  let box = document.getElementById("typingBox");
+
   if(!box){
-    box=document.createElement("div");
+    box = document.createElement("div");
     box.id="typingBox";
-    box.style.fontSize="12px";
-    box.style.color="var(--muted)";
-    box.style.margin="0 15px";
-    document.querySelector(".chat-wrapper").appendChild(box);
+    box.className="typing-indicator";
+    document.getElementById("chat").appendChild(box);
   }
-  box.innerText=user+" is typing...";
+
+  box.innerHTML = `
+    ${user} is typing
+    <div class="typing-dots">
+      <span></span><span></span><span></span>
+    </div>
+  `;
 }
+
 
 function hideTyping(){
   const box=document.getElementById("typingBox");
