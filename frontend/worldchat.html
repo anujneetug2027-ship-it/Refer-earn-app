@@ -136,14 +136,17 @@ button{
 #messages{
   flex:1;
   overflow-y:auto;
-  padding:15px;
-  margin:10px;
+
+  padding:15px 15px 100px 15px;   /* LEFT RIGHT TOP BOTTOM */
+
   border-radius:20px;
   border:2px solid rgba(255,255,255,0.08);
-  background:rgba(0,0,0,0.25);
+  background:transparent;
+
   display:flex;
   flex-direction:column;
   gap:10px;
+
   scroll-behavior:smooth;
   -webkit-overflow-scrolling: touch;
 }
@@ -425,9 +428,17 @@ socket.on("oldMessages",msgs=>{
 socket.on("message",data=>{
   addMessage(data);
   if(data.user===getCookie("username")){
-    document.getElementById("sendSound")?.play();
+    const sendAudio = document.getElementById("sendSound");
+if(sendAudio){
+  sendAudio.currentTime = 0;
+  sendAudio.play().catch(()=>{});
+}
   }else{
-    document.getElementById("receiveSound")?.play();
+    const receiveAudio = document.getElementById("receiveSound");
+if(receiveAudio){
+  receiveAudio.currentTime = 0;
+  receiveAudio.play().catch(()=>{});
+}
   }
 });
 
@@ -507,7 +518,19 @@ function addMessage(data){
   addSwipeReply(div,data.text);
 
   box.appendChild(div);
-  box.scrollTop=box.scrollHeight;
+
+/* ===== SMART AUTO SCROLL ===== */
+
+const isNearBottom =
+  box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+
+if(isNearBottom){
+  setTimeout(()=>{
+    box.scrollTo({
+      top: box.scrollHeight,
+      behavior: "smooth"
+    });
+  }, 50);
 }
 
 /* ================= COPY ================= */
@@ -623,5 +646,7 @@ function exitChat(){
 }
 
 </script>
+  <audio id="sendSound" src="https://ambikashelf.shop/send.mp3"></audio>
+<audio id="receiveSound" src="https://ambikashelf.shop/recieve.mp3"></audio>
 </body>
 </html>
