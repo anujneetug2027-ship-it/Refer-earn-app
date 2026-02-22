@@ -455,8 +455,26 @@ socket.on("oldMessages",msgs=>{
   msgs.forEach(addMessage);
 });
 
+  function smartScroll() {
+  const box = document.getElementById("messages");
+  if (!box) return;
+
+  const isNearBottom =
+    box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+
+  if (isNearBottom) {
+    setTimeout(() => {
+      box.scrollTo({
+        top: box.scrollHeight,
+        behavior: "smooth"
+      });
+    }, 50);
+  }
+        }
+  
 socket.on("message",data=>{
   addMessage(data);
+  smartScroll();
   if(data.user===getCookie("username")){
     const sendAudio = document.getElementById("sendSound");
 if(sendAudio){
@@ -567,17 +585,6 @@ function sendMessage(){
   
 /* ===== SMART AUTO SCROLL ===== */
 
-const isNearBottom =
-  box.scrollHeight - box.scrollTop - box.clientHeight < 120;
-
-if(isNearBottom){
-  setTimeout(()=>{
-    box.scrollTo({
-      top: box.scrollHeight,
-      behavior: "smooth"
-    });
-  }, 50);
-}}
 
 /* ================= COPY ================= */
 
