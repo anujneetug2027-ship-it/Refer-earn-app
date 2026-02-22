@@ -20,6 +20,11 @@ const app = express();
 // ---------- MIDDLEWARE ----------
 app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
+
+// 🔥 IMPORTANT for AI image base64 (large payload)
+app.use(express.json({ limit: "10mb" }));
+
+// You can keep bodyParser if you want
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -81,7 +86,47 @@ app.post('/send-otp', async (req, res) => {
     return res.status(500).json({ success: false, msg: "Server error" });
   }
 });
+// ------- Ask Ai-----------
 
+app.post("/ask-ai", async (req, res) => {
+  const { text, image } = req.body;
+
+  try {
+    let parts = [{ text: text || "Describe this image" }];
+
+    if (image) {
+      parts.push({
+        inlineData: {
+          mimeType: image.match(/^data:(.*);base64/)[1],
+          data: image.split(",")[1]
+        }
+      });
+    }
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts }]
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    const reply =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Sorry, I couldn't understand.";
+
+    res.json({ reply });
+
+  } catch (err) {
+    console.error("AI Error:", err);
+    res.json({ reply: "AI Error occurred." });
+  }
+});
 // ---------- VERIFY OTP ----------
 app.post('/verify-otp', async (req, res) => {
   try {
