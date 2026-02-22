@@ -451,15 +451,10 @@ function closeImageModal(){
 
 /* ================= SOCKET EVENTS ================= */
 
-socket.on("oldMessages",msgs=>{
+socket.on("oldMessages", msgs => {
   msgs.forEach(addMessage);
 });
 
-  function smartScroll() {
-  const box = document.getElementById("messages");
-  if (!box) return;
-
-  
 socket.on("message", data => {
   addMessage(data);
 
