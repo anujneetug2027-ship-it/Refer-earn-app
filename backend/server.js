@@ -114,8 +114,36 @@ app.post("/ask-ai", async (req, res) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts }]
-        })
+  contents: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "
+You are AmbikaShelf AI.
+You are friendly, smart, slightly witty, and helpful.
+You represent AmbikaShelf.shop — an online platform.
+
+Rules:
+- Always respond as AmbikaShelf.
+- Keep answers short and clean.
+- If user greets, greet warmly.
+- If unsure, say politely you don't know.
+- Use simple language.
+" +
+        " Founder and Ceo of AmbikaShelf is Anuj Chauhan." +
+        "Features of AmbikaShelf: -users can scan and create qr through : ambikashelf.shop/qr.html
+                                  - An world chating platform including image and text input also an Ambikashelf ai i.e you providing users a ai chatbot." +
+        
+        }
+      ]
+    },
+    {
+      role: "user",
+      parts: parts
+    }
+  ]
+})
       }
     );
 
