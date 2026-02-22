@@ -246,10 +246,40 @@ button{
   left:0;
   right:0;
   background:#0b1220;
-  padding:10px;
+  padding:8px;
   display:flex;
-  gap:8px;
+  gap:6px;
   align-items:center;
+  flex-wrap:wrap;        /* IMPORTANT */
+}
+
+/* Make input take full width on small screens */
+#msg{
+  flex:1 1 auto;
+  min-width:120px;
+}
+
+/* Make buttons shrink nicely */
+.input-area button{
+  flex-shrink:0;
+}
+
+/* On very small screens */
+@media(max-width:600px){
+
+  .input-area{
+    gap:5px;
+  }
+
+  #msg{
+    flex:1 1 100%;
+    order:1;
+  }
+
+  .input-area button{
+    order:2;
+  }
+
 }
 
 #msg{
@@ -367,7 +397,7 @@ button{
   <input type="file" id="imageInput" style="display:none">
   <button onclick="document.getElementById('imageInput').click()">📷</button>
   <input id="msg" placeholder="Type message">
-  <button onclick="askAmbika()">Ask AmbikaShelf</button>
+  <button onclick="askAmbika()">Ask<br> A.S </button>
 <button onclick="sendMessage()">Send</button>
   <button class="exit-btn" onclick="exitChat()">Exit</button>
 </div>
