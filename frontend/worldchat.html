@@ -506,6 +506,57 @@ socket.on("reactionUpdate",({id,reactions})=>{
     reactDiv.innerHTML+=`<span class="react-count">${e} ${reactions[e]}</span> `;
   });
 });
+  /* -----------------------------------*/
+  function addMessage(data){
+
+  const box = document.getElementById("messages");
+
+  const div = document.createElement("div");
+
+  const isSelf = data.user === getCookie("username");
+
+  div.className = "message " + (isSelf ? "self" : "other");
+
+  div.id = "msg-" + data.id;
+
+  let replyHTML = "";
+  if(data.reply){
+    replyHTML = `
+      <div style="
+        background:rgba(255,255,255,0.08);
+        padding:6px;
+        border-left:3px solid var(--accent);
+        border-radius:8px;
+        margin-bottom:6px;
+        font-size:13px;">
+        ${data.reply}
+      </div>
+    `;
+  }
+
+  let imageHTML = "";
+  if(data.image){
+    imageHTML = `
+      <img src="${data.image}" class="chat-image" onclick="openImage('${data.image}')">
+      <div class="download-btn" onclick="downloadImage('${data.image}')">
+        ⬇ Download
+      </div>
+    `;
+  }
+
+  div.innerHTML = `
+    ${replyHTML}
+    <b>${data.user}:</b> ${data.text || ""}
+    ${imageHTML}
+    <div class="msg-time">${data.time}</div>
+    <div class="reactions"></div>
+  `;
+
+  box.appendChild(div);
+
+  addReactionSystem(div, data.id);
+  addSwipeReply(div, data.text);
+  }
 
 /* ================= SEND MESSAGE ================= */
 
