@@ -460,21 +460,35 @@ socket.on("oldMessages",msgs=>{
   if (!box) return;
 
   
-socket.on("message",data=>{
+socket.on("message", data => {
   addMessage(data);
-  smartScroll();
+
+  const box = document.getElementById("messages");
+
+  const isNearBottom =
+    box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+
+  if (isNearBottom) {
+    setTimeout(() => {
+      box.scrollTo({
+        top: box.scrollHeight,
+        behavior: "smooth"
+      });
+    }, 50);
+  }
+
   if(data.user===getCookie("username")){
     const sendAudio = document.getElementById("sendSound");
-if(sendAudio){
-  sendAudio.currentTime = 0;
-  sendAudio.play().catch(()=>{});
-}
-  }else{
+    if(sendAudio){
+      sendAudio.currentTime = 0;
+      sendAudio.play().catch(()=>{});
+    }
+  } else {
     const receiveAudio = document.getElementById("receiveSound");
-if(receiveAudio){
-  receiveAudio.currentTime = 0;
-  receiveAudio.play().catch(()=>{});
-}
+    if(receiveAudio){
+      receiveAudio.currentTime = 0;
+      receiveAudio.play().catch(()=>{});
+    }
   }
 });
 
@@ -573,19 +587,7 @@ function sendMessage(){
   
 /* ===== SMART AUTO SCROLL ===== */
 
-/* ===== SMART AUTO SCROLL ===== */
 
-const isNearBottom =
-  box.scrollHeight - box.scrollTop - box.clientHeight < 120;
-
-if(isNearBottom){
-  setTimeout(()=>{
-    box.scrollTo({
-      top: box.scrollHeight,
-      behavior: "smooth"
-    });
-  }, 50);
-}}
 /* ================= COPY ================= */
 
 function copyText(text){
