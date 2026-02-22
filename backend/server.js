@@ -87,7 +87,7 @@ app.post('/send-otp', async (req, res) => {
   }
 });
 // ------- Ask Ai-----------
-
+console.log("Loaded Gemini Key:", process.env.GEMINI_API_KEY);
 app.post("/ask-ai", async (req, res) => {
   const { text, image } = req.body;
 
