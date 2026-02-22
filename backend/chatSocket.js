@@ -41,9 +41,12 @@ module.exports = function(io) {
     });
 
     socket.on("sendMessage", (data) => {
-      const username = users[socket.id];
-      if (!username) return;
 
+  const username = data.isBot
+    ? "AmbikaShelf"
+    : users[socket.id];
+
+  if (!username) return;
       cleanOldMessages();
 
       const messageData = {
