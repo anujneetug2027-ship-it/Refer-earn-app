@@ -511,14 +511,13 @@ function sendMessage(){
   clearReply();
 }
   /* ------------------------chat bot------------------------ */
-  
   async function askAmbika(){
   const input=document.getElementById("msg");
   const text=input.value.trim();
 
   if(!text && !selectedImage) return;
 
-  const imageCopy = selectedImage; // SAVE BEFORE CLEARING
+  const imageCopy = selectedImage;
 
   socket.emit("sendMessage",{
     text:text,
@@ -533,40 +532,27 @@ function sendMessage(){
   showTyping("AmbikaShelf");
 
   try{
-    let parts=[{text:text || "Describe this image"}];
 
-    if(imageCopy){
-      parts.push({
-        inlineData:{
-          mimeType:"image/png",
-          data:imageCopy.split(",")[1]
-        }
-      });
-  }
+    const response = await fetch("/ask-ai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text: text,
+        image: imageCopy
+      })
+    });
 
-    const response=await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyC0jzGXPrrmV6dUNenxayX3p_2NniUIJOo`,
-      {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          contents:[{parts}]
-        })
-      }
-    );
-
-    const data=await response.json();
+    const data = await response.json();
 
     hideTyping();
 
-    const aiReply =
-      data.candidates?.[0]?.content?.parts?.[0]?.text
-      || "Sorry, I couldn't understand.";
+    const aiReply = data.reply;
 
-    // 3️⃣ Emit AI message to group
     socket.emit("sendMessage",{
       text: aiReply,
-      reply: null
+      isBot: true
     });
 
   }catch(err){
@@ -574,56 +560,11 @@ function sendMessage(){
 
     socket.emit("sendMessage",{
       text:"AmbikaShelf AI error.",
-      reply:null
+      isBot:true
     });
   }
   }
-
-/* ================= MESSAGE RENDER ================= */
-
-function addMessage(data){
-  const box=document.getElementById("messages");
-
-  const div=document.createElement("div");
-  const isSelf = data.user===getCookie("username");
-
-div.className = "message " + (isSelf ? "self" : "other");
-
-if(data.image && !data.text){
-  div.classList.remove("self","other");
-  div.style.background="transparent";
-          }
-  div.id="msg-"+data.id;
-
-  let replyHTML="";
-  if(data.reply){
-    replyHTML=`<div class="reply-box">${data.reply}</div>`;
-  }
-
-  let imageHTML="";
-  if(data.image){
-    imageHTML=`
-      <img src="${data.image}" class="chat-image" onclick="openImage('${data.image}')">
-      <div class="download-btn" onclick="downloadImage('${data.image}')">⬇ Download</div>
-    `;
-  }
-
-  div.innerHTML=`
-    ${replyHTML}
-    <b>${data.user}:</b> ${data.text||""}
-    ${imageHTML}
-    <div class="msg-time">
-      ${data.time}
-      <span class="copy-btn" onclick="copyText('${data.text||""}')">📋</span>
-    </div>
-    <div class="reactions"></div>
-  `;
-
-  addReactionSystem(div,data.id);
-  addSwipeReply(div,data.text);
-
-  box.appendChild(div);
-
+  
 /* ===== SMART AUTO SCROLL ===== */
 
 const isNearBottom =
