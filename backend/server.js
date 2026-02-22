@@ -88,6 +88,8 @@ app.post('/send-otp', async (req, res) => {
 });
 // ------- Ask Ai-----------
 console.log("Loaded Gemini Key:", process.env.GEMINI_API_KEY);
+
+
 app.post("/ask-ai", async (req, res) => {
   const { text, image } = req.body;
 
@@ -95,12 +97,15 @@ app.post("/ask-ai", async (req, res) => {
     let parts = [{ text: text || "Describe this image" }];
 
     if (image) {
-      parts.push({
-        inlineData: {
-          mimeType: image.match(/^data:(.*);base64/)[1],
-          data: image.split(",")[1]
-        }
-      });
+      const match = image.match(/^data:(.*);base64/);
+      if (match) {
+        parts.push({
+          inlineData: {
+            mimeType: match[1],
+            data: image.split(",")[1]
+          }
+        });
+      }
     }
 
     const response = await fetch(
@@ -116,15 +121,21 @@ app.post("/ask-ai", async (req, res) => {
 
     const data = await response.json();
 
+    console.log("Gemini Raw Response:", JSON.stringify(data, null, 2));
+
+    if (data.error) {
+      return res.json({ reply: "Gemini API Error: " + data.error.message });
+    }
+
     const reply =
       data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Sorry, I couldn't understand.";
+      "Gemini returned empty response.";
 
     res.json({ reply });
 
   } catch (err) {
-    console.error("AI Error:", err);
-    res.json({ reply: "AI Error occurred." });
+    console.error("AI Server Error:", err);
+    res.json({ reply: "Server error while calling AI." });
   }
 });
 // ---------- VERIFY OTP ----------
