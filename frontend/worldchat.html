@@ -160,7 +160,33 @@ button{
   position:relative;
   animation:fadeIn .25s ease;
 }
+/* ================= COPY BUTTON ================= */
 
+.copy-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.25s ease;
+  color: #8ab4f8;
+}
+
+.copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.copy-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.copy-btn.copied {
+  color: #00ff9d;
+  }
 @keyframes fadeIn{
   from{opacity:0; transform:translateY(5px);}
   to{opacity:1; transform:translateY(0);}
@@ -575,12 +601,20 @@ socket.on("reactionUpdate",({id,reactions})=>{
   }
 
   div.innerHTML = `
-    ${replyHTML}
-    <b>${data.user}:</b> ${data.text || ""}
-    ${imageHTML}
-    <div class="msg-time">${data.time}</div>
-    <div class="reactions"></div>
-  `;
+  ${replyHTML}
+  <b>${data.user}:</b>
+  <div class="message-text">${data.text || ""}</div>
+  ${imageHTML}
+
+  <div class="msg-time">${data.time}</div>
+  <div class="reactions"></div>
+
+  <button class="copy-btn" onclick="copyMessage(this)">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M16 1H4c-1.1 0-2 .9-2 2v12h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+    </svg>
+  </button>
+`;
 
   box.appendChild(div);
 
@@ -781,6 +815,25 @@ function exitChat(){
   deleteCookie("username");
   location.reload();
 }
+
+  function copyMessage(button) {
+  const message = button.closest(".message")
+                        .querySelector(".message-text")
+                        .innerText;
+
+  navigator.clipboard.writeText(message);
+
+  button.classList.add("copied");
+  button.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 12-12-1.5-1.5z"/></svg>';
+
+  setTimeout(() => {
+    button.classList.remove("copied");
+    button.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v12h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
+  }, 1500);
+  }
+  
 </script>
   <audio id="sendSound" src="https://ambikashelf.shop/send.mp3"></audio>
 <audio id="receiveSound" src="https://ambikashelf.shop/recieve.mp3"></audio>
