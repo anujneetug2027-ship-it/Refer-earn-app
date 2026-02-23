@@ -43,7 +43,8 @@ function generateReferralCode() {
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
-
+// --------------------------
+const userMemory = {};
 // ---------- ROUTES ----------
 app.get('/signup', (req, res) => {
   const refCode = req.query.ref;
@@ -93,6 +94,10 @@ console.log("Loaded Gemini Key:", process.env.GEMINI_API_KEY);
 app.post("/ask-ai", async (req, res) => {
   const { text, image, username } = req.body;
 
+  if (!userMemory[username]) {
+    userMemory[username] = [];
+  }
+
   try {
     let parts = [{ text: text || "Describe this image" }];
 
@@ -107,7 +112,16 @@ app.post("/ask-ai", async (req, res) => {
         });
       }
     }
+// Store user message
+userMemory[username].push({
+  role: "user",
+  parts: [{ text }]
+});
 
+// Keep only last 5
+if (userMemory[username].length > 5) {
+  userMemory[username].shift();
+}
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -142,10 +156,7 @@ Features of AmbikaShelf:
         }
       ]
     },
-    {
-      role: "user",
-      parts: parts
-    }
+    ...userMemory[username]
   ]
 })
       }
@@ -163,6 +174,15 @@ Features of AmbikaShelf:
       data.candidates?.[0]?.content?.parts?.[0]?.text ||
       "Gemini returned empty response.";
 
+    // Store AI reply
+userMemory[username].push({
+  role: "model",
+  parts: [{ text: reply }]
+});
+
+if (userMemory[username].length > 5) {
+  userMemory[username].shift();
+}
     res.json({ reply });
 
   } catch (err) {
