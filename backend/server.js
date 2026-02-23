@@ -91,7 +91,7 @@ console.log("Loaded Gemini Key:", process.env.GEMINI_API_KEY);
 
 
 app.post("/ask-ai", async (req, res) => {
-  const { text, image } = req.body;
+  const { text, image, username } = req.body;
 
   try {
     let parts = [{ text: text || "Describe this image" }];
@@ -121,6 +121,7 @@ app.post("/ask-ai", async (req, res) => {
         {
          text: `
 You are AmbikaShelf AI.
+User name is ${username}.
 You are friendly, smart, slightly witty, and helpful.
 You represent AmbikaShelf.shop — an online platform.
 
