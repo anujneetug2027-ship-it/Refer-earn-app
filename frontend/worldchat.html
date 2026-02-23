@@ -71,7 +71,24 @@ html, body {
   cursor:pointer;
   margin-bottom:10px;
 }
+.username {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+}
 
+.username svg {
+  vertical-align: middle;
+}
+
+.host-tag {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  font-weight: 400;
+  margin-left: 4px;
+    }
 /* ================= WRAPPER ================= */
 
 .chat-wrapper{
@@ -563,6 +580,36 @@ socket.on("reactionUpdate",({id,reactions})=>{
   });
 });
   /* -----------------------------------*/
+  const blueTick = `
+<svg width="14" height="14" viewBox="0 0 24 24">
+  <defs>
+    <linearGradient id="instaBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1DA1F2"/>
+      <stop offset="100%" stop-color="#0095F6"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#instaBlue)"
+        d="M12 0 L15 3 L19 3 L21 7 L24 12 L21 17 L19 21 L15 21 L12 24 L9 21 L5 21 L3 17 L0 12 L3 7 L5 3 L9 3 Z"/>
+  <path fill="white"
+        d="M9.5 13.5L7.5 11.5L6 13L9.5 16.5L18 8L16.5 6.5Z"/>
+</svg>
+`;
+
+const goldTick = `
+<svg width="14" height="14" viewBox="0 0 24 24">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="50%" stop-color="#FFC107"/>
+      <stop offset="100%" stop-color="#FFB300"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#goldGradient)"
+        d="M12 0 L15 3 L19 3 L21 7 L24 12 L21 17 L19 21 L15 21 L12 24 L9 21 L5 21 L3 17 L0 12 L3 7 L5 3 L9 3 Z"/>
+  <path fill="white"
+        d="M9.5 13.5L7.5 11.5L6 13L9.5 16.5L18 8L16.5 6.5Z"/>
+</svg>
+`;
   function addMessage(data){
 
   const box = document.getElementById("messages");
@@ -575,6 +622,19 @@ socket.on("reactionUpdate",({id,reactions})=>{
 
   div.id = "msg-" + data.id;
 
+    let nameHTML = data.user;
+
+if (data.user === "AmbikaShelf") {
+  nameHTML = `AmbikaShelf ${blueTick}`;
+}
+
+if (data.user === "Anuj") {
+  nameHTML = `
+    Anuj ${goldTick}
+    <span class="host-tag">(Host)</span>
+  `;
+  }
+    
   let replyHTML = "";
   if(data.reply){
     replyHTML = `
@@ -602,7 +662,7 @@ socket.on("reactionUpdate",({id,reactions})=>{
 
   div.innerHTML = `
   ${replyHTML}
-  <b>${data.user}:</b>
+  <div class="username">${nameHTML}:</div>
   <div class="message-text">${data.text || ""}</div>
   ${imageHTML}
 
