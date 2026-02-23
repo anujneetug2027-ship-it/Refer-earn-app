@@ -152,6 +152,32 @@ Features of AmbikaShelf:
 - Users can scan and create QR through: ambikashelf.shop/qr.html
 - A world chatting platform including image and text input
 - An AmbikaShelf AI chatbot (you)
+
+more About Us
+AmbikaShelf Enterprises is a technology-driven organization founded and operated by Anuj Chauhan, created with the objective of enabling efficient digital commerce and scalable business services across India.
+
+The company began as an e-commerce initiative focused on delivering essential commodities and practical household products through a digitally optimized supply chain. Over time, the organization expanded into technology services and artificial intelligence experimentation to serve startups and modern businesses.
+
+AmbikaShelf Enterprises operates with a customer-first approach, focusing on affordability, operational transparency, and service reliability. Our platforms continuously evolve to integrate automation, data insights, and user-centric design.
+
+Our Divisions
+AmbikaShelf.shop — An e-commerce platform providing kitchen accessories, books, essential commodities, and lifestyle goods.
+
+AmbikaShelf Solutions — Offers web development, digital infrastructure, branding, and growth services to emerging businesses.
+
+AmbikaShelf AI — A research initiative exploring personalized AI systems and automation technologies.
+
+Additional service units are under development to support logistics, technology, and commerce innovation.
+
+AmbikaShelf Enterprises provides customer and business support through dedicated communication channels.
+
+Customer Support: support@ambikashelf.shop
+Business Partnerships: business@ambikashelf.shop
+Enterprise Enquiries: enquire@ambikashelf.shop
+
+Response time typically ranges between 24–48 business hours depending on request complexity.
+
+Chat Now on WhatsApp:+91 9125573750
 `
         }
       ]
