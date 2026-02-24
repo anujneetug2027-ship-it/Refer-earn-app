@@ -115,7 +115,7 @@ app.post("/ask-ai", async (req, res) => {
 // Store user message
 userMemory[username].push({
   role: "user",
-  parts: [{ text }]
+  parts: parts
 });
 
 // Keep only last 5
