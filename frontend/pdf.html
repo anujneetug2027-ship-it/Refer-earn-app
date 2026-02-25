@@ -554,6 +554,67 @@ editCanvas.onmouseup = function(){
   isDrawing=false;
 };
 
+   /* =============================
+   MOBILE TOUCH SUPPORT
+============================= */
+
+editCanvas.addEventListener("touchstart", function(e){
+  e.preventDefault();
+  const touch = e.touches[0];
+  const rect = editCanvas.getBoundingClientRect();
+
+  const scaleX = editCanvas.width / rect.width;
+  const scaleY = editCanvas.height / rect.height;
+
+  startX = (touch.clientX - rect.left) * scaleX;
+  startY = (touch.clientY - rect.top) * scaleY;
+
+  isDrawing = true;
+
+  if(drawMode){
+    editCtx.beginPath();
+    editCtx.moveTo(startX,startY);
+  }
+});
+
+editCanvas.addEventListener("touchmove", function(e){
+  e.preventDefault();
+  if(!isDrawing) return;
+
+  const touch = e.touches[0];
+  const rect = editCanvas.getBoundingClientRect();
+
+  const scaleX = editCanvas.width / rect.width;
+  const scaleY = editCanvas.height / rect.height;
+
+  const currentX = (touch.clientX - rect.left) * scaleX;
+  const currentY = (touch.clientY - rect.top) * scaleY;
+
+  if(cropMode){
+    const width = currentX - startX;
+    const height = currentY - startY;
+
+    cropRect = {x:startX,y:startY,width,height};
+
+    editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
+    editCtx.drawImage(baseImage,0,0);
+
+    editCtx.strokeStyle="red";
+    editCtx.lineWidth=3;
+    editCtx.strokeRect(startX,startY,width,height);
+  }
+
+  if(drawMode){
+    editCtx.lineWidth=3;
+    editCtx.strokeStyle="yellow";
+    editCtx.lineTo(currentX,currentY);
+    editCtx.stroke();
+  }
+});
+
+editCanvas.addEventListener("touchend", function(){
+  isDrawing=false;
+});
 function saveEdit(){
 
   if(cropMode && cropRect){
@@ -575,6 +636,7 @@ function saveEdit(){
       cropRect.width,
       cropRect.height
     );
+     
 
     images[currentEditIndex] = tempCanvas.toDataURL("image/jpeg");
 
