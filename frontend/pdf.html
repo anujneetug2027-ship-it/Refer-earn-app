@@ -255,10 +255,27 @@ h2{
   <div class="modal-content">
     <canvas id="editCanvas"></canvas>
     <div class="modal-buttons">
-      <button onclick="enableCrop()">Crop Mode</button>
-      <button onclick="enableDraw()">Draw Mode</button>
-      <button onclick="saveEdit()">Save</button>
-      <button onclick="closeModal()">Cancel</button>
+      <button onclick="enableCrop()">Crop</button>
+<button onclick="enableDraw()">Pen</button>
+<button onclick="enableText()">Text</button>
+
+<br><br>
+
+<button onclick="setColor('blue')">Blue</button>
+<button onclick="setColor('red')">Red</button>
+<button onclick="setColor('black')">Black</button>
+<button onclick="setColor('rgba(255,255,0,0.4)')">Highlighter</button>
+
+<br><br>
+
+<button onclick="setSize(2)">Thin</button>
+<button onclick="setSize(5)">Medium</button>
+<button onclick="setSize(10)">Thick</button>
+
+<br><br>
+
+<button onclick="saveEdit()">Apply</button>
+<button onclick="closeModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -455,82 +472,6 @@ async function downloadPDF(){
 /* =============================
    EDITOR
 ============================= */
-/* =============================
-   CLEAN WORKING EDITOR SYSTEM
-============================= */
-
-let baseImage = new Image();
-let isDrawing = false;
-let cropMode = false;
-let drawMode = false;
-let startX = 0;
-let startY = 0;
-let cropRect = null;
-
-function openEditor(index){
-  currentEditIndex = index;
-  editModal.style.display = "flex";
-
-  cropMode = false;
-  drawMode = false;
-  cropRect = null;
-
-  baseImage = new Image();
-  baseImage.src = images[index];
-
-  baseImage.onload = function(){
-    editCanvas.width = baseImage.width;
-    editCanvas.height = baseImage.height;
-
-    editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
-    editCtx.drawImage(baseImage,0,0);
-  }
-}
-
-function enableCrop(){
-  cropMode = true;
-  drawMode = false;
-}
-
-function enableDraw(){
-  drawMode = true;
-  cropMode = false;
-}
-
-function getMousePos(canvas, evt) {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-
-  return {
-    x: (evt.clientX - rect.left) * scaleX,
-    y: (evt.clientY - rect.top) * scaleY
-  };
-}
-
-editCanvas.onmousedown = function(e){
-  const pos = getMousePos(editCanvas, e);
-
-  isDrawing = true;
-  startX = pos.x;
-  startY = pos.y;
-
-  if(drawMode){
-    editCtx.beginPath();
-    editCtx.moveTo(startX,startY);
-  }
-};
-
-editCanvas.onmousemove = function(e){
-  if(!isDrawing) return;
-
-  const pos = getMousePos(editCanvas, e);
-  const currentX = pos.x;
-  const currentY = pos.y;
-
-  if(cropMode){
-    const width = currentX - startX;
-    const height = currentY - startY;
 
     cropRect = {x:startX,y:startY,width,height};
 
@@ -557,21 +498,141 @@ editCanvas.onmouseup = function(){
    /* =============================
    MOBILE TOUCH SUPPORT
 ============================= */
+/* =============================
+   PROFESSIONAL EDITOR SYSTEM
+============================= */
+
+let baseImage = new Image();
+let activeTool = null;
+let isDrawing = false;
+let startX = 0;
+let startY = 0;
+let cropBox = null;
+let penColor = "yellow";
+let penSize = 3;
+
+/* ---------- OPEN EDITOR ---------- */
+
+function openEditor(index){
+  currentEditIndex = index;
+  editModal.style.display = "flex";
+
+  activeTool = null;
+  cropBox = null;
+
+  baseImage = new Image();
+  baseImage.src = images[index];
+
+  baseImage.onload = function(){
+    editCanvas.width = baseImage.width;
+    editCanvas.height = baseImage.height;
+
+    redrawCanvas();
+  }
+}
+
+/* ---------- TOOL SELECTORS ---------- */
+
+function enableCrop(){ activeTool = "crop"; }
+function enableDraw(){ activeTool = "draw"; }
+function enableText(){ activeTool = "text"; }
+
+function setColor(color){
+  penColor = color;
+}
+
+function setSize(size){
+  penSize = size;
+}
+
+/* ---------- CANVAS HELPERS ---------- */
+
+function redrawCanvas(){
+  editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
+  editCtx.drawImage(baseImage,0,0);
+
+  if(cropBox){
+    editCtx.strokeStyle="lime";
+    editCtx.lineWidth=3;
+    editCtx.setLineDash([10]);
+    editCtx.strokeRect(cropBox.x,cropBox.y,cropBox.w,cropBox.h);
+    editCtx.setLineDash([]);
+  }
+}
+
+function getMousePos(canvas, evt) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  return {
+    x: (evt.clientX - rect.left) * scaleX,
+    y: (evt.clientY - rect.top) * scaleY
+  };
+}
+
+/* ---------- MOUSE EVENTS ---------- */
+
+editCanvas.onmousedown = function(e){
+  const pos = getMousePos(editCanvas, e);
+  startX = pos.x;
+  startY = pos.y;
+  isDrawing = true;
+
+  if(activeTool === "draw"){
+    editCtx.beginPath();
+    editCtx.moveTo(startX,startY);
+  }
+
+  if(activeTool === "text"){
+    const text = prompt("Enter text:");
+    if(text){
+      editCtx.fillStyle = penColor;
+      editCtx.font = `${penSize*8}px Arial`;
+      editCtx.fillText(text, startX, startY);
+    }
+  }
+};
+
+editCanvas.onmousemove = function(e){
+  if(!isDrawing) return;
+
+  const pos = getMousePos(editCanvas, e);
+
+  if(activeTool === "draw"){
+    editCtx.lineWidth = penSize;
+    editCtx.strokeStyle = penColor;
+    editCtx.lineTo(pos.x,pos.y);
+    editCtx.stroke();
+  }
+
+  if(activeTool === "crop"){
+    cropBox = {
+      x: startX,
+      y: startY,
+      w: pos.x - startX,
+      h: pos.y - startY
+    };
+    redrawCanvas();
+  }
+};
+
+editCanvas.onmouseup = function(){
+  isDrawing = false;
+};
+
+/* ---------- TOUCH EVENTS ---------- */
 
 editCanvas.addEventListener("touchstart", function(e){
   e.preventDefault();
   const touch = e.touches[0];
-  const rect = editCanvas.getBoundingClientRect();
+  const pos = getMousePos(editCanvas, touch);
 
-  const scaleX = editCanvas.width / rect.width;
-  const scaleY = editCanvas.height / rect.height;
-
-  startX = (touch.clientX - rect.left) * scaleX;
-  startY = (touch.clientY - rect.top) * scaleY;
-
+  startX = pos.x;
+  startY = pos.y;
   isDrawing = true;
 
-  if(drawMode){
+  if(activeTool === "draw"){
     editCtx.beginPath();
     editCtx.moveTo(startX,startY);
   }
@@ -582,64 +643,53 @@ editCanvas.addEventListener("touchmove", function(e){
   if(!isDrawing) return;
 
   const touch = e.touches[0];
-  const rect = editCanvas.getBoundingClientRect();
+  const pos = getMousePos(editCanvas, touch);
 
-  const scaleX = editCanvas.width / rect.width;
-  const scaleY = editCanvas.height / rect.height;
-
-  const currentX = (touch.clientX - rect.left) * scaleX;
-  const currentY = (touch.clientY - rect.top) * scaleY;
-
-  if(cropMode){
-    const width = currentX - startX;
-    const height = currentY - startY;
-
-    cropRect = {x:startX,y:startY,width,height};
-
-    editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
-    editCtx.drawImage(baseImage,0,0);
-
-    editCtx.strokeStyle="red";
-    editCtx.lineWidth=3;
-    editCtx.strokeRect(startX,startY,width,height);
+  if(activeTool === "draw"){
+    editCtx.lineWidth = penSize;
+    editCtx.strokeStyle = penColor;
+    editCtx.lineTo(pos.x,pos.y);
+    editCtx.stroke();
   }
 
-  if(drawMode){
-    editCtx.lineWidth=3;
-    editCtx.strokeStyle="yellow";
-    editCtx.lineTo(currentX,currentY);
-    editCtx.stroke();
+  if(activeTool === "crop"){
+    cropBox = {
+      x: startX,
+      y: startY,
+      w: pos.x - startX,
+      h: pos.y - startY
+    };
+    redrawCanvas();
   }
 });
 
 editCanvas.addEventListener("touchend", function(){
-  isDrawing=false;
+  isDrawing = false;
 });
+
+/* ---------- APPLY CROP ---------- */
+
 function saveEdit(){
 
-  if(cropMode && cropRect){
-
-    const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = Math.abs(cropRect.width);
-    tempCanvas.height = Math.abs(cropRect.height);
-
-    const tctx = tempCanvas.getContext("2d");
+  if(activeTool === "crop" && cropBox){
+    const temp = document.createElement("canvas");
+    temp.width = Math.abs(cropBox.w);
+    temp.height = Math.abs(cropBox.h);
+    const tctx = temp.getContext("2d");
 
     tctx.drawImage(
       editCanvas,
-      cropRect.x,
-      cropRect.y,
-      cropRect.width,
-      cropRect.height,
+      cropBox.x,
+      cropBox.y,
+      cropBox.w,
+      cropBox.h,
       0,
       0,
-      cropRect.width,
-      cropRect.height
+      cropBox.w,
+      cropBox.h
     );
-     
 
-    images[currentEditIndex] = tempCanvas.toDataURL("image/jpeg");
-
+    images[currentEditIndex] = temp.toDataURL("image/jpeg");
   } else {
     images[currentEditIndex] = editCanvas.toDataURL("image/jpeg");
   }
@@ -651,10 +701,10 @@ function saveEdit(){
 
 function closeModal(){
   editModal.style.display = "none";
-  cropRect = null;
-  cropMode = false;
-  drawMode = false;
-  }
+  cropBox = null;
+  activeTool = null;
+   }
+
 </script>
 
 </body>
