@@ -3,82 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AmbikaShelf Pro Image to PDF</title>
+<title>AmbikaShelf Professional Image to PDF Editor</title>
 
-<!-- Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
 <style>
 
-/* ===============================
+/* ===========================
    GLOBAL STYLES
-================================= */
+=========================== */
 
 *{
-  box-sizing:border-box;
   margin:0;
   padding:0;
+  box-sizing:border-box;
 }
 
 body{
   font-family:Segoe UI, sans-serif;
-  background:#0f172a;
+  background:linear-gradient(135deg,#0f172a,#111827);
   color:white;
   min-height:100vh;
 }
 
 header{
-  text-align:center;
-  padding:20px;
   background:#111827;
-  box-shadow:0 2px 10px rgba(0,0,0,0.4);
+  padding:20px;
+  text-align:center;
+  box-shadow:0 5px 20px rgba(0,0,0,0.4);
 }
 
 header img{
-  height:60px;
+  height:65px;
 }
 
 .container{
-  max-width:1100px;
+  max-width:1200px;
   margin:auto;
-  padding:20px;
+  padding:25px;
 }
 
 h2{
   text-align:center;
-  margin-bottom:20px;
   font-weight:500;
-}
-
-/* ===============================
-   PDF PREVIEW
-================================= */
-
-.preview-wrapper{
-  display:flex;
-  justify-content:center;
   margin-bottom:25px;
 }
 
-#pdfPreview{
-  background:white;
-  width:420px;
-  height:600px;
-  border-radius:12px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.5);
+/* ===========================
+   LIVE PREVIEW AREA
+=========================== */
+
+.preview-wrapper{
+  display:none;
+  height:620px;
+  overflow-y:auto;
+  border-radius:15px;
+  background:#1e293b;
+  padding:20px;
+  margin-bottom:25px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* ===============================
-   THUMBNAIL STRIP
-================================= */
+.preview-page{
+  background:white;
+  width:100%;
+  max-width:450px;
+  height:630px;
+  margin:0 auto 20px auto;
+  border-radius:10px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.preview-page img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+/* ===========================
+   THUMBNAILS
+=========================== */
 
 .thumbnail-container{
   display:flex;
   gap:12px;
   overflow-x:auto;
-  padding:10px 0;
-  margin-bottom:20px;
+  padding-bottom:10px;
 }
 
 .thumb{
@@ -87,8 +101,8 @@ h2{
 }
 
 .thumb img{
-  width:110px;
-  height:110px;
+  width:115px;
+  height:115px;
   object-fit:cover;
   border-radius:10px;
   border:2px solid #38bdf8;
@@ -99,18 +113,18 @@ h2{
   top:5px;
   left:6px;
   background:black;
-  padding:2px 6px;
+  padding:3px 7px;
   font-size:12px;
   border-radius:6px;
 }
 
 .thumb button{
   position:absolute;
-  width:22px;
-  height:22px;
+  width:23px;
+  height:23px;
   border:none;
   border-radius:50%;
-  font-size:12px;
+  font-size:13px;
   cursor:pointer;
 }
 
@@ -129,46 +143,47 @@ h2{
 }
 
 .add-thumb{
+  width:115px;
+  height:115px;
+  border-radius:10px;
+  border:2px dashed #38bdf8;
   display:flex;
   align-items:center;
   justify-content:center;
-  width:110px;
-  height:110px;
-  border:2px dashed #38bdf8;
-  border-radius:10px;
-  font-size:30px;
+  font-size:32px;
   cursor:pointer;
 }
 
-/* ===============================
+/* ===========================
    CONTROLS
-================================= */
+=========================== */
 
 .controls{
   text-align:center;
-  margin-top:15px;
-}
-
-.controls button{
-  padding:10px 18px;
-  margin:6px;
-  border:none;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer;
-  background:#38bdf8;
+  margin-top:25px;
 }
 
 .controls input{
-  padding:8px;
-  border-radius:6px;
+  padding:10px;
+  border-radius:8px;
   border:none;
-  margin-top:8px;
+  margin:8px;
+  min-width:220px;
 }
 
-/* ===============================
+.controls button{
+  padding:10px 20px;
+  border:none;
+  border-radius:8px;
+  background:#38bdf8;
+  font-weight:600;
+  cursor:pointer;
+  margin:10px;
+}
+
+/* ===========================
    EDIT MODAL
-================================= */
+=========================== */
 
 .modal{
   position:fixed;
@@ -176,32 +191,34 @@ h2{
   left:0;
   width:100%;
   height:100%;
-  background:rgba(0,0,0,0.8);
+  background:rgba(0,0,0,0.85);
   display:none;
   align-items:center;
   justify-content:center;
+  z-index:1000;
 }
 
 .modal-content{
   background:#111827;
   padding:20px;
   border-radius:12px;
+  text-align:center;
 }
 
 #editCanvas{
   background:white;
-  cursor:crosshair;
   border-radius:8px;
-}
-
-.modal-buttons{
-  text-align:center;
-  margin-top:10px;
+  cursor:crosshair;
+  max-width:90vw;
+  max-height:70vh;
 }
 
 .modal-buttons button{
   padding:8px 15px;
-  margin:5px;
+  margin:8px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
 }
 
 </style>
@@ -216,20 +233,20 @@ h2{
 
 <h2>Professional Image to PDF Editor</h2>
 
-<div class="preview-wrapper">
-  <canvas id="pdfPreview"></canvas>
-</div>
+<div id="previewWrapper" class="preview-wrapper"></div>
 
-<div class="thumbnail-container" id="thumbnailContainer"></div>
+<div id="thumbnailContainer" class="thumbnail-container"></div>
 
 <div class="controls">
-  <input type="file" id="fileInput" accept="image/*" multiple>
-  <br><br>
-  <label>Optional PDF Password:</label><br>
-  <input type="password" id="pdfPassword" placeholder="Leave empty if not needed">
-  <br>
-  <button onclick="generatePreview()">Preview</button>
-  <button onclick="downloadPDF()">Download PDF</button>
+
+<input type="file" id="fileInput" accept="image/*" multiple>
+<br>
+<input type="text" id="pdfName" placeholder="Enter PDF File Name">
+<br>
+<input type="password" id="pdfPassword" placeholder="Optional PDF Password">
+<br>
+<button onclick="downloadPDF()">Download PDF</button>
+
 </div>
 
 </div>
@@ -239,8 +256,8 @@ h2{
   <div class="modal-content">
     <canvas id="editCanvas"></canvas>
     <div class="modal-buttons">
-      <button onclick="applyCrop()">Apply Crop</button>
-      <button onclick="enableDraw()">Draw</button>
+      <button onclick="enableCrop()">Crop Mode</button>
+      <button onclick="enableDraw()">Draw Mode</button>
       <button onclick="saveEdit()">Save</button>
       <button onclick="closeModal()">Cancel</button>
     </div>
@@ -249,14 +266,15 @@ h2{
 
 <script>
 
-/* ===================================
+/* =============================
    GLOBAL STATE
-=================================== */
+============================= */
 
 const fileInput = document.getElementById("fileInput");
 const thumbnailContainer = document.getElementById("thumbnailContainer");
-const previewCanvas = document.getElementById("pdfPreview");
-const previewCtx = previewCanvas.getContext("2d");
+const previewWrapper = document.getElementById("previewWrapper");
+const pdfNameInput = document.getElementById("pdfName");
+const pdfPasswordInput = document.getElementById("pdfPassword");
 
 const editModal = document.getElementById("editModal");
 const editCanvas = document.getElementById("editCanvas");
@@ -264,95 +282,113 @@ const editCtx = editCanvas.getContext("2d");
 
 let images = [];
 let currentEditIndex = null;
+
+let cropMode = false;
+let drawMode = false;
 let isDrawing = false;
 let startX, startY;
 let cropRect = null;
 
-/* ===================================
-   FILE HANDLING
-=================================== */
+/* =============================
+   FILE UPLOAD
+============================= */
 
 fileInput.addEventListener("change", e=>{
   const files = e.target.files;
+
   for(let file of files){
     if(images.length >= 10){
       alert("Maximum 10 images allowed.");
       return;
     }
+
     const reader = new FileReader();
     reader.onload = ev=>{
       images.push(ev.target.result);
       renderThumbnails();
-    }
+      renderPreview();
+    };
     reader.readAsDataURL(file);
   }
 });
 
-/* ===================================
+/* =============================
    THUMBNAILS
-=================================== */
+============================= */
 
 function renderThumbnails(){
   thumbnailContainer.innerHTML = "";
 
   images.forEach((src,index)=>{
     const div = document.createElement("div");
-    div.className="thumb";
+    div.className = "thumb";
+
     div.innerHTML = `
       <img src="${src}">
       <div class="thumb-number">${index+1}</div>
       <button class="remove-btn" onclick="removeImage(${index})">×</button>
       <button class="edit-btn" onclick="openEditor(${index})">✏</button>
     `;
+
     thumbnailContainer.appendChild(div);
   });
 
   const add = document.createElement("div");
   add.className="add-thumb";
   add.innerHTML="+";
-  add.onclick = ()=>fileInput.click();
+  add.onclick=()=>fileInput.click();
   thumbnailContainer.appendChild(add);
 }
 
 function removeImage(index){
   images.splice(index,1);
   renderThumbnails();
+  renderPreview();
 }
 
-/* ===================================
-   DRAG REORDER
-=================================== */
+/* =============================
+   DRAG SORT
+============================= */
 
 new Sortable(thumbnailContainer,{
   animation:150,
-  onEnd: function(evt){
+  onEnd:function(evt){
     const moved = images.splice(evt.oldIndex,1)[0];
     images.splice(evt.newIndex,0,moved);
     renderThumbnails();
+    renderPreview();
   }
 });
 
-/* ===================================
-   PDF PREVIEW
-=================================== */
+/* =============================
+   LIVE PREVIEW
+============================= */
 
-function generatePreview(){
-  if(images.length === 0) return alert("Add images first");
+function renderPreview(){
+  previewWrapper.innerHTML="";
 
-  const img = new Image();
-  img.src = images[0];
-  img.onload = function(){
-    previewCanvas.width = 420;
-    previewCanvas.height = 600;
-    previewCtx.fillStyle="white";
-    previewCtx.fillRect(0,0,420,600);
-    previewCtx.drawImage(img,0,0,420,600);
+  if(images.length === 0){
+    previewWrapper.style.display="none";
+    return;
   }
+
+  previewWrapper.style.display="block";
+
+  images.forEach(src=>{
+    const page = document.createElement("div");
+    page.className="preview-page";
+
+    const img = document.createElement("img");
+    img.src = src;
+
+    page.appendChild(img);
+    previewWrapper.appendChild(page);
+  });
 }
 
-/* ===================================
-   PDF DOWNLOAD
-=================================== */
+/* =============================
+   DOWNLOAD PDF
+============================= */
 
 async function downloadPDF(){
   if(images.length === 0) return alert("Add images first");
@@ -375,21 +411,27 @@ async function downloadPDF(){
     });
   }
 
-  const password = document.getElementById("pdfPassword").value;
+  const password = pdfPasswordInput.value.trim();
   if(password){
-    pdf.setEncryption({
-      userPassword: password,
-      ownerPassword: password,
-      userPermissions: ["print"]
-    });
+    try{
+      pdf.setEncryption({
+        userPassword: password,
+        ownerPassword: password,
+        userPermissions: ["print"]
+      });
+    }catch(e){
+      console.warn("Encryption may not be supported in this browser.");
+    }
   }
 
-  pdf.save("AmbikaShelf.pdf");
+  let fileName = pdfNameInput.value.trim();
+  if(!fileName) fileName = "AmbikaShelf";
+  pdf.save(fileName + ".pdf");
 }
 
-/* ===================================
-   IMAGE EDITOR
-=================================== */
+/* =============================
+   EDITOR
+============================= */
 
 function openEditor(index){
   currentEditIndex = index;
@@ -397,11 +439,23 @@ function openEditor(index){
 
   const img = new Image();
   img.src = images[index];
+
   img.onload = function(){
     editCanvas.width = img.width;
     editCanvas.height = img.height;
+    editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
     editCtx.drawImage(img,0,0);
   }
+}
+
+function enableCrop(){
+  cropMode = true;
+  drawMode = false;
+}
+
+function enableDraw(){
+  drawMode = true;
+  cropMode = false;
 }
 
 editCanvas.addEventListener("mousedown", e=>{
@@ -412,59 +466,54 @@ editCanvas.addEventListener("mousedown", e=>{
 
 editCanvas.addEventListener("mousemove", e=>{
   if(!isDrawing) return;
-  const width = e.offsetX - startX;
-  const height = e.offsetY - startY;
 
-  cropRect = {x:startX,y:startY,width,height};
+  if(cropMode){
+    const width = e.offsetX - startX;
+    const height = e.offsetY - startY;
+    cropRect = {x:startX,y:startY,width,height};
 
-  editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
-  const img = new Image();
-  img.src = images[currentEditIndex];
-  img.onload = ()=>{
-    editCtx.drawImage(img,0,0);
-    editCtx.strokeStyle="red";
-    editCtx.strokeRect(startX,startY,width,height);
+    const img = new Image();
+    img.src = images[currentEditIndex];
+    img.onload = ()=>{
+      editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
+      editCtx.drawImage(img,0,0);
+      editCtx.strokeStyle="red";
+      editCtx.strokeRect(startX,startY,width,height);
+    }
+  }
+
+  if(drawMode){
+    editCtx.lineWidth=2;
+    editCtx.strokeStyle="yellow";
+    editCtx.lineTo(e.offsetX,e.offsetY);
+    editCtx.stroke();
   }
 });
 
 editCanvas.addEventListener("mouseup", ()=>isDrawing=false);
 
-function applyCrop(){
-  if(!cropRect) return alert("Draw crop area first");
-
-  const temp = document.createElement("canvas");
-  temp.width = cropRect.width;
-  temp.height = cropRect.height;
-  const tctx = temp.getContext("2d");
-
-  tctx.drawImage(editCanvas,
-    cropRect.x,cropRect.y,
-    cropRect.width,cropRect.height,
-    0,0,
-    cropRect.width,cropRect.height
-  );
-
-  editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
-  editCanvas.width = cropRect.width;
-  editCanvas.height = cropRect.height;
-  editCtx.drawImage(temp,0,0);
-}
-
-function enableDraw(){
-  editCanvas.onmousemove = function(e){
-    if(isDrawing){
-      editCtx.lineWidth=2;
-      editCtx.strokeStyle="yellow";
-      editCtx.lineTo(e.offsetX,e.offsetY);
-      editCtx.stroke();
-    }
-  };
-}
-
 function saveEdit(){
-  images[currentEditIndex] = editCanvas.toDataURL("image/jpeg");
+  if(cropRect){
+    const temp = document.createElement("canvas");
+    temp.width = cropRect.width;
+    temp.height = cropRect.height;
+    const tctx = temp.getContext("2d");
+
+    tctx.drawImage(editCanvas,
+      cropRect.x,cropRect.y,
+      cropRect.width,cropRect.height,
+      0,0,
+      cropRect.width,cropRect.height
+    );
+
+    images[currentEditIndex] = temp.toDataURL("image/jpeg");
+  }else{
+    images[currentEditIndex] = editCanvas.toDataURL("image/jpeg");
+  }
+
   closeModal();
   renderThumbnails();
+  renderPreview();
 }
 
 function closeModal(){
@@ -475,4 +524,4 @@ function closeModal(){
 </script>
 
 </body>
-  </html>
+</html>
