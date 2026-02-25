@@ -204,12 +204,13 @@ h2{
   border-radius:12px;
   text-align:center;
 }
-
 #editCanvas{
   background:white;
   border-radius:8px;
   cursor:crosshair;
-}
+  max-width:800px;
+  max-height:70vh;
+   }
 
 .modal-buttons button{
   padding:8px 15px;
@@ -496,10 +497,23 @@ function enableDraw(){
   cropMode = false;
 }
 
+function getMousePos(canvas, evt) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  return {
+    x: (evt.clientX - rect.left) * scaleX,
+    y: (evt.clientY - rect.top) * scaleY
+  };
+}
+
 editCanvas.onmousedown = function(e){
+  const pos = getMousePos(editCanvas, e);
+
   isDrawing = true;
-  startX = e.offsetX;
-  startY = e.offsetY;
+  startX = pos.x;
+  startY = pos.y;
 
   if(drawMode){
     editCtx.beginPath();
@@ -510,8 +524,9 @@ editCanvas.onmousedown = function(e){
 editCanvas.onmousemove = function(e){
   if(!isDrawing) return;
 
-  const currentX = e.offsetX;
-  const currentY = e.offsetY;
+  const pos = getMousePos(editCanvas, e);
+  const currentX = pos.x;
+  const currentY = pos.y;
 
   if(cropMode){
     const width = currentX - startX;
@@ -522,21 +537,21 @@ editCanvas.onmousemove = function(e){
     editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
     editCtx.drawImage(baseImage,0,0);
 
-    editCtx.strokeStyle = "red";
-    editCtx.lineWidth = 3;
+    editCtx.strokeStyle="red";
+    editCtx.lineWidth=3;
     editCtx.strokeRect(startX,startY,width,height);
   }
 
   if(drawMode){
-    editCtx.lineWidth = 3;
-    editCtx.strokeStyle = "yellow";
+    editCtx.lineWidth=3;
+    editCtx.strokeStyle="yellow";
     editCtx.lineTo(currentX,currentY);
     editCtx.stroke();
   }
 };
 
 editCanvas.onmouseup = function(){
-  isDrawing = false;
+  isDrawing=false;
 };
 
 function saveEdit(){
