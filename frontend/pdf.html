@@ -472,35 +472,7 @@ async function downloadPDF(){
 /* =============================
    EDITOR
 ============================= */
-/* =============================
-   EDITOR
-============================= */
 
-    cropRect = {x:startX,y:startY,width,height};
-
-    editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
-    editCtx.drawImage(baseImage,0,0);
-
-    editCtx.strokeStyle="red";
-    editCtx.lineWidth=3;
-    editCtx.strokeRect(startX,startY,width,height);
-  }
-
-  if(drawMode){
-    editCtx.lineWidth=3;
-    editCtx.strokeStyle="yellow";
-    editCtx.lineTo(currentX,currentY);
-    editCtx.stroke();
-  }
-};
-
-editCanvas.onmouseup = function(){
-  isDrawing=false;
-};
-    
-   /* =============================
-   MOBILE TOUCH SUPPORT
-============================= */
 /* =============================
    PROFESSIONAL EDITOR SYSTEM
 ============================= */
