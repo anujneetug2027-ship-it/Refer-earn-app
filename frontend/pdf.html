@@ -320,26 +320,51 @@ function renderThumbnails(){
   thumbnailContainer.innerHTML = "";
 
   images.forEach((src,index)=>{
+
     const div = document.createElement("div");
     div.className = "thumb";
+    div.dataset.index = index;
 
-    div.innerHTML = `
-      <img src="${src}">
-      <div class="thumb-number">${index+1}</div>
-      <button class="remove-btn" onclick="removeImage(${index})">×</button>
-      <button class="edit-btn" onclick="openEditor(${index})">✏</button>
-    `;
+    const img = document.createElement("img");
+    img.src = src;
+
+    const number = document.createElement("div");
+    number.className = "thumb-number";
+    number.textContent = index + 1;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "remove-btn";
+    removeBtn.textContent = "×";
+
+    removeBtn.addEventListener("click", function(e){
+      e.stopPropagation();
+      removeImage(index);
+    });
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "edit-btn";
+    editBtn.textContent = "✏";
+
+    editBtn.addEventListener("click", function(e){
+      e.stopPropagation();
+      openEditor(index);
+    });
+
+    div.appendChild(img);
+    div.appendChild(number);
+    div.appendChild(removeBtn);
+    div.appendChild(editBtn);
 
     thumbnailContainer.appendChild(div);
   });
 
   const add = document.createElement("div");
   add.className="add-thumb";
-  add.innerHTML="+";
-  add.onclick=()=>fileInput.click();
-  thumbnailContainer.appendChild(add);
-}
+  add.textContent="+";
+  add.addEventListener("click", ()=>fileInput.click());
 
+  thumbnailContainer.appendChild(add);
+   }
 function removeImage(index){
   images.splice(index,1);
   renderThumbnails();
