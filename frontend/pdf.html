@@ -462,80 +462,110 @@ async function downloadPDF(){
    EDITOR
 ============================= */
 
+
+/* =============================
+   EDITOR SYSTEM (FIXED)
+============================= */
+
+let baseImage = new Image();
+
 function openEditor(index){
   currentEditIndex = index;
   editModal.style.display="flex";
 
-  const img = new Image();
-  img.src = images[index];
+  cropMode = false;
+  drawMode = false;
+  cropRect = null;
 
-  img.onload = function(){
-    editCanvas.width = img.width;
-    editCanvas.height = img.height;
+  baseImage = new Image();
+  baseImage.src = images[index];
+
+  baseImage.onload = function(){
+    editCanvas.width = baseImage.width;
+    editCanvas.height = baseImage.height;
+
     editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
-    editCtx.drawImage(img,0,0);
+    editCtx.drawImage(baseImage,0,0);
   }
 }
 
 function enableCrop(){
   cropMode = true;
   drawMode = false;
+  editCtx.beginPath();
 }
 
 function enableDraw(){
   drawMode = true;
   cropMode = false;
+  editCtx.beginPath();
 }
 
 editCanvas.addEventListener("mousedown", e=>{
   startX = e.offsetX;
   startY = e.offsetY;
   isDrawing = true;
+
+  if(drawMode){
+    editCtx.beginPath();
+    editCtx.moveTo(startX,startY);
+  }
 });
 
 editCanvas.addEventListener("mousemove", e=>{
   if(!isDrawing) return;
 
+  const currentX = e.offsetX;
+  const currentY = e.offsetY;
+
   if(cropMode){
-    const width = e.offsetX - startX;
-    const height = e.offsetY - startY;
+    const width = currentX - startX;
+    const height = currentY - startY;
+
     cropRect = {x:startX,y:startY,width,height};
 
-    const img = new Image();
-    img.src = images[currentEditIndex];
-    img.onload = ()=>{
-      editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
-      editCtx.drawImage(img,0,0);
-      editCtx.strokeStyle="red";
-      editCtx.strokeRect(startX,startY,width,height);
-    }
+    editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
+    editCtx.drawImage(baseImage,0,0);
+
+    editCtx.strokeStyle="red";
+    editCtx.lineWidth=2;
+    editCtx.strokeRect(startX,startY,width,height);
   }
 
   if(drawMode){
-    editCtx.lineWidth=2;
+    editCtx.lineWidth=3;
     editCtx.strokeStyle="yellow";
-    editCtx.lineTo(e.offsetX,e.offsetY);
+    editCtx.lineTo(currentX,currentY);
     editCtx.stroke();
   }
 });
 
-editCanvas.addEventListener("mouseup", ()=>isDrawing=false);
+editCanvas.addEventListener("mouseup", ()=>{
+  isDrawing=false;
+});
 
 function saveEdit(){
-  if(cropRect){
-    const temp = document.createElement("canvas");
-    temp.width = cropRect.width;
-    temp.height = cropRect.height;
-    const tctx = temp.getContext("2d");
 
-    tctx.drawImage(editCanvas,
-      cropRect.x,cropRect.y,
-      cropRect.width,cropRect.height,
-      0,0,
-      cropRect.width,cropRect.height
+  if(cropMode && cropRect){
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = Math.abs(cropRect.width);
+    tempCanvas.height = Math.abs(cropRect.height);
+
+    const tctx = tempCanvas.getContext("2d");
+
+    tctx.drawImage(
+      editCanvas,
+      cropRect.x,
+      cropRect.y,
+      cropRect.width,
+      cropRect.height,
+      0,
+      0,
+      cropRect.width,
+      cropRect.height
     );
 
-    images[currentEditIndex] = temp.toDataURL("image/jpeg");
+    images[currentEditIndex] = tempCanvas.toDataURL("image/jpeg");
   }else{
     images[currentEditIndex] = editCanvas.toDataURL("image/jpeg");
   }
@@ -548,7 +578,10 @@ function saveEdit(){
 function closeModal(){
   editModal.style.display="none";
   cropRect = null;
-}
+  cropMode = false;
+  drawMode = false;
+   }
+
 
 </script>
 
