@@ -374,10 +374,14 @@ function removeImage(index){
 /* =============================
    DRAG SORT
 ============================= */
-
 new Sortable(thumbnailContainer,{
   animation:150,
+  draggable: ".thumb",
+  filter: "button",
+  preventOnFilter: false,
   onEnd:function(evt){
+    if(evt.oldIndex == null || evt.newIndex == null) return;
+
     const moved = images.splice(evt.oldIndex,1)[0];
     images.splice(evt.newIndex,0,moved);
     renderThumbnails();
