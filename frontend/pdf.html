@@ -209,8 +209,6 @@ h2{
   background:white;
   border-radius:8px;
   cursor:crosshair;
-  max-width:90vw;
-  max-height:70vh;
 }
 
 .modal-buttons button{
@@ -463,11 +461,14 @@ async function downloadPDF(){
 ============================= */
 
 
+
 /* =============================
-   EDITOR SYSTEM (FIXED)
+   EDITOR SYSTEM (SCALED FIX)
 ============================= */
 
 let baseImage = new Image();
+let scaleX = 1;
+let scaleY = 1;
 
 function openEditor(index){
   currentEditIndex = index;
@@ -481,29 +482,47 @@ function openEditor(index){
   baseImage.src = images[index];
 
   baseImage.onload = function(){
+
+    // Set actual canvas resolution
     editCanvas.width = baseImage.width;
     editCanvas.height = baseImage.height;
+
+    // Force display size
+    editCanvas.style.width = "800px";
+    editCanvas.style.height = "auto";
+
+    // Calculate scale ratio
+    const rect = editCanvas.getBoundingClientRect();
+    scaleX = editCanvas.width / rect.width;
+    scaleY = editCanvas.height / rect.height;
 
     editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
     editCtx.drawImage(baseImage,0,0);
   }
 }
 
+function getScaledCoords(e){
+  const rect = editCanvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY
+  };
+}
+
 function enableCrop(){
   cropMode = true;
   drawMode = false;
-  editCtx.beginPath();
 }
 
 function enableDraw(){
   drawMode = true;
   cropMode = false;
-  editCtx.beginPath();
 }
 
 editCanvas.addEventListener("mousedown", e=>{
-  startX = e.offsetX;
-  startY = e.offsetY;
+  const coords = getScaledCoords(e);
+  startX = coords.x;
+  startY = coords.y;
   isDrawing = true;
 
   if(drawMode){
@@ -515,10 +534,12 @@ editCanvas.addEventListener("mousedown", e=>{
 editCanvas.addEventListener("mousemove", e=>{
   if(!isDrawing) return;
 
-  const currentX = e.offsetX;
-  const currentY = e.offsetY;
+  const coords = getScaledCoords(e);
+  const currentX = coords.x;
+  const currentY = coords.y;
 
   if(cropMode){
+
     const width = currentX - startX;
     const height = currentY - startY;
 
@@ -528,12 +549,12 @@ editCanvas.addEventListener("mousemove", e=>{
     editCtx.drawImage(baseImage,0,0);
 
     editCtx.strokeStyle="red";
-    editCtx.lineWidth=2;
+    editCtx.lineWidth=3;
     editCtx.strokeRect(startX,startY,width,height);
   }
 
   if(drawMode){
-    editCtx.lineWidth=3;
+    editCtx.lineWidth=4;
     editCtx.strokeStyle="yellow";
     editCtx.lineTo(currentX,currentY);
     editCtx.stroke();
@@ -541,12 +562,13 @@ editCanvas.addEventListener("mousemove", e=>{
 });
 
 editCanvas.addEventListener("mouseup", ()=>{
-  isDrawing=false;
+  isDrawing = false;
 });
 
 function saveEdit(){
 
   if(cropMode && cropRect){
+
     const tempCanvas = document.createElement("canvas");
     tempCanvas.width = Math.abs(cropRect.width);
     tempCanvas.height = Math.abs(cropRect.height);
@@ -566,7 +588,8 @@ function saveEdit(){
     );
 
     images[currentEditIndex] = tempCanvas.toDataURL("image/jpeg");
-  }else{
+
+  } else {
     images[currentEditIndex] = editCanvas.toDataURL("image/jpeg");
   }
 
@@ -580,8 +603,7 @@ function closeModal(){
   cropRect = null;
   cropMode = false;
   drawMode = false;
-   }
-
+     }
 
 </script>
 
