@@ -49,7 +49,66 @@ h2{
   font-weight:500;
   margin-bottom:25px;
 }
+/* ------------------&&&&&------*/
+   .editor-ui{
+  width:95vw;
+  max-width:1000px;
+}
 
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+  margin-bottom:10px;
+}
+
+.toolbar button{
+  background:#1f2937;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.toolbar button:hover{
+  background:#374151;
+}
+
+.divider{
+  width:2px;
+  background:#444;
+  margin:0 5px;
+}
+
+.canvas-wrapper{
+  position:relative;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+#editCanvas{
+  max-width:100%;
+  max-height:70vh;
+  touch-action:none;
+  background:#fff;
+}
+
+.bottom-actions{
+  margin-top:10px;
+  text-align:center;
+}
+
+.bottom-actions button{
+  margin:0 10px;
+  padding:8px 16px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
 /* ===========================
    LIVE PREVIEW AREA
 =========================== */
@@ -251,35 +310,41 @@ h2{
 </div>
 
 <!-- EDIT MODAL -->
+
 <div class="modal" id="editModal">
-  <div class="modal-content">
-    <canvas id="editCanvas"></canvas>
-    <div class="modal-buttons">
-      <button onclick="enableCrop()">Crop</button>
-<button onclick="enableDraw()">Pen</button>
-<button onclick="enableText()">Text</button>
+  <div class="modal-content editor-ui">
 
-<br><br>
+    <div class="toolbar">
+      <button onclick="setTool('crop')">Crop</button>
+      <button onclick="setTool('draw')">Pen</button>
+      <button onclick="setTool('text')">Text</button>
+      <button onclick="undo()">Undo</button>
 
-<button onclick="setColor('blue')">Blue</button>
-<button onclick="setColor('red')">Red</button>
-<button onclick="setColor('black')">Black</button>
-<button onclick="setColor('rgba(255,255,0,0.4)')">Highlighter</button>
+      <div class="divider"></div>
 
-<br><br>
+      <button onclick="setColor('#000000')">Black</button>
+      <button onclick="setColor('#ff0000')">Red</button>
+      <button onclick="setColor('#0066ff')">Blue</button>
+      <button onclick="setColor('rgba(255,255,0,0.4)')">Highlight</button>
 
-<button onclick="setSize(2)">Thin</button>
-<button onclick="setSize(5)">Medium</button>
-<button onclick="setSize(10)">Thick</button>
+      <div class="divider"></div>
 
-<br><br>
-
-<button onclick="saveEdit()">Apply</button>
-<button onclick="closeModal()">Cancel</button>
+      <button onclick="setSize(2)">Thin</button>
+      <button onclick="setSize(6)">Medium</button>
+      <button onclick="setSize(12)">Thick</button>
     </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="editCanvas"></canvas>
+    </div>
+
+    <div class="bottom-actions">
+      <button onclick="applyEdit()">Apply</button>
+      <button onclick="closeModal()">Cancel</button>
+    </div>
+
   </div>
 </div>
-
 <script>
 
 /* =============================
@@ -472,215 +537,175 @@ async function downloadPDF(){
 /* =============================
    EDITOR
 ============================= */
-
 /* =============================
-   PROFESSIONAL EDITOR SYSTEM
+   PROFESSIONAL EDITOR ENGINE
 ============================= */
 
+let tool = null;
 let baseImage = new Image();
-let activeTool = null;
-let isDrawing = false;
-let startX = 0;
-let startY = 0;
-let cropBox = null;
-let penColor = "yellow";
+let history = [];
+let penColor = "#000000";
 let penSize = 3;
-
-/* ---------- OPEN EDITOR ---------- */
+let isDrawing = false;
+let cropArea = null;
+let dragging = false;
 
 function openEditor(index){
   currentEditIndex = index;
   editModal.style.display = "flex";
 
-  activeTool = null;
-  cropBox = null;
-
   baseImage = new Image();
   baseImage.src = images[index];
 
-  baseImage.onload = function(){
+  baseImage.onload = () => {
     editCanvas.width = baseImage.width;
     editCanvas.height = baseImage.height;
-
-    redrawCanvas();
+    redraw();
+    history = [];
   }
 }
 
-/* ---------- TOOL SELECTORS ---------- */
-
-function enableCrop(){ activeTool = "crop"; }
-function enableDraw(){ activeTool = "draw"; }
-function enableText(){ activeTool = "text"; }
-
-function setColor(color){
-  penColor = color;
-}
-
-function setSize(size){
-  penSize = size;
-}
-
-/* ---------- CANVAS HELPERS ---------- */
-
-function redrawCanvas(){
+function redraw(){
   editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
   editCtx.drawImage(baseImage,0,0);
 
-  if(cropBox){
-    editCtx.strokeStyle="lime";
-    editCtx.lineWidth=3;
-    editCtx.setLineDash([10]);
-    editCtx.strokeRect(cropBox.x,cropBox.y,cropBox.w,cropBox.h);
-    editCtx.setLineDash([]);
+  if(cropArea){
+    editCtx.fillStyle="rgba(0,0,0,0.5)";
+    editCtx.fillRect(0,0,editCanvas.width,editCanvas.height);
+    editCtx.clearRect(cropArea.x,cropArea.y,cropArea.w,cropArea.h);
+    editCtx.strokeStyle="#00ff00";
+    editCtx.lineWidth=2;
+    editCtx.strokeRect(cropArea.x,cropArea.y,cropArea.w,cropArea.h);
   }
 }
 
-function getMousePos(canvas, evt) {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
+function setTool(t){ tool = t; }
+function setColor(c){ penColor = c; }
+function setSize(s){ penSize = s; }
+
+function getPos(e){
+  const rect = editCanvas.getBoundingClientRect();
+  const scaleX = editCanvas.width / rect.width;
+  const scaleY = editCanvas.height / rect.height;
+
+  let x,y;
+
+  if(e.touches){
+    x = e.touches[0].clientX;
+    y = e.touches[0].clientY;
+  } else {
+    x = e.clientX;
+    y = e.clientY;
+  }
 
   return {
-    x: (evt.clientX - rect.left) * scaleX,
-    y: (evt.clientY - rect.top) * scaleY
+    x:(x - rect.left)*scaleX,
+    y:(y - rect.top)*scaleY
   };
 }
 
-/* ---------- MOUSE EVENTS ---------- */
+editCanvas.addEventListener("mousedown",startAction);
+editCanvas.addEventListener("mousemove",moveAction);
+editCanvas.addEventListener("mouseup",endAction);
 
-editCanvas.onmousedown = function(e){
-  const pos = getMousePos(editCanvas, e);
-  startX = pos.x;
-  startY = pos.y;
+editCanvas.addEventListener("touchstart",e=>{e.preventDefault();startAction(e)});
+editCanvas.addEventListener("touchmove",e=>{e.preventDefault();moveAction(e)});
+editCanvas.addEventListener("touchend",endAction);
+
+function startAction(e){
+  const pos = getPos(e);
   isDrawing = true;
 
-  if(activeTool === "draw"){
+  if(tool==="draw"){
     editCtx.beginPath();
-    editCtx.moveTo(startX,startY);
+    editCtx.moveTo(pos.x,pos.y);
   }
 
-  if(activeTool === "text"){
-    const text = prompt("Enter text:");
-    if(text){
-      editCtx.fillStyle = penColor;
-      editCtx.font = `${penSize*8}px Arial`;
-      editCtx.fillText(text, startX, startY);
+  if(tool==="crop"){
+    cropArea = {x:pos.x,y:pos.y,w:0,h:0};
+  }
+
+  if(tool==="text"){
+    const txt = prompt("Enter text");
+    if(txt){
+      editCtx.fillStyle=penColor;
+      editCtx.font=`${penSize*8}px Arial`;
+      editCtx.fillText(txt,pos.x,pos.y);
+      saveHistory();
     }
   }
-};
+}
 
-editCanvas.onmousemove = function(e){
+function moveAction(e){
   if(!isDrawing) return;
+  const pos = getPos(e);
 
-  const pos = getMousePos(editCanvas, e);
-
-  if(activeTool === "draw"){
-    editCtx.lineWidth = penSize;
-    editCtx.strokeStyle = penColor;
+  if(tool==="draw"){
+    editCtx.strokeStyle=penColor;
+    editCtx.lineWidth=penSize;
     editCtx.lineTo(pos.x,pos.y);
     editCtx.stroke();
   }
 
-  if(activeTool === "crop"){
-    cropBox = {
-      x: startX,
-      y: startY,
-      w: pos.x - startX,
-      h: pos.y - startY
-    };
-    redrawCanvas();
+  if(tool==="crop"){
+    cropArea.w = pos.x - cropArea.x;
+    cropArea.h = pos.y - cropArea.y;
+    redraw();
   }
-};
+}
 
-editCanvas.onmouseup = function(){
-  isDrawing = false;
-};
+function endAction(){
+  isDrawing=false;
+  if(tool==="draw") saveHistory();
+}
 
-/* ---------- TOUCH EVENTS ---------- */
+function applyEdit(){
+  if(tool==="crop" && cropArea){
+    const temp=document.createElement("canvas");
+    temp.width=Math.abs(cropArea.w);
+    temp.height=Math.abs(cropArea.h);
+    const t=temp.getContext("2d");
 
-editCanvas.addEventListener("touchstart", function(e){
-  e.preventDefault();
-  const touch = e.touches[0];
-  const pos = getMousePos(editCanvas, touch);
-
-  startX = pos.x;
-  startY = pos.y;
-  isDrawing = true;
-
-  if(activeTool === "draw"){
-    editCtx.beginPath();
-    editCtx.moveTo(startX,startY);
-  }
-});
-
-editCanvas.addEventListener("touchmove", function(e){
-  e.preventDefault();
-  if(!isDrawing) return;
-
-  const touch = e.touches[0];
-  const pos = getMousePos(editCanvas, touch);
-
-  if(activeTool === "draw"){
-    editCtx.lineWidth = penSize;
-    editCtx.strokeStyle = penColor;
-    editCtx.lineTo(pos.x,pos.y);
-    editCtx.stroke();
-  }
-
-  if(activeTool === "crop"){
-    cropBox = {
-      x: startX,
-      y: startY,
-      w: pos.x - startX,
-      h: pos.y - startY
-    };
-    redrawCanvas();
-  }
-});
-
-editCanvas.addEventListener("touchend", function(){
-  isDrawing = false;
-});
-
-/* ---------- APPLY CROP ---------- */
-
-function saveEdit(){
-
-  if(activeTool === "crop" && cropBox){
-    const temp = document.createElement("canvas");
-    temp.width = Math.abs(cropBox.w);
-    temp.height = Math.abs(cropBox.h);
-    const tctx = temp.getContext("2d");
-
-    tctx.drawImage(
-      editCanvas,
-      cropBox.x,
-      cropBox.y,
-      cropBox.w,
-      cropBox.h,
+    t.drawImage(
+      baseImage,
+      cropArea.x,
+      cropArea.y,
+      cropArea.w,
+      cropArea.h,
       0,
       0,
-      cropBox.w,
-      cropBox.h
+      cropArea.w,
+      cropArea.h
     );
 
-    images[currentEditIndex] = temp.toDataURL("image/jpeg");
+    images[currentEditIndex]=temp.toDataURL("image/jpeg");
   } else {
-    images[currentEditIndex] = editCanvas.toDataURL("image/jpeg");
+    images[currentEditIndex]=editCanvas.toDataURL("image/jpeg");
   }
 
   closeModal();
-  renderThumbnails();
   renderPreview();
+  renderThumbnails();
+}
+
+function saveHistory(){
+  history.push(editCanvas.toDataURL());
+}
+
+function undo(){
+  if(history.length>0){
+    const img=new Image();
+    img.src=history.pop();
+    img.onload=()=>editCtx.drawImage(img,0,0);
+  }
 }
 
 function closeModal(){
-  editModal.style.display = "none";
-  cropBox = null;
-  activeTool = null;
+  editModal.style.display="none";
+  cropArea=null;
+  tool=null;
    }
-
-</script>
+        </script>
 
 </body>
 </html>
