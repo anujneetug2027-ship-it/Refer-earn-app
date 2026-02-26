@@ -30,7 +30,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // ---------- FRONTEND ----------
 app.use(express.static(path.join(__dirname, '../frontend')));
-
+app.use(express.static(path.join(__dirname, '../public')));
 // ---------- MONGO CONNECTION ----------
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
