@@ -27,7 +27,14 @@ app.use(express.json({ limit: "10mb" }));
 // You can keep bodyParser if you want
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+// ---------- Sitemaps--------
+app.get("/sitemap.xml", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/sitemap.xml"));
+});
 
+app.get("/robots.txt", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/robots.txt"));
+});
 // ---------- FRONTEND ----------
 app.use(express.static(path.join(__dirname, '../frontend')));
 app.use(express.static(path.join(__dirname, '../public')));
@@ -45,14 +52,7 @@ function generateOTP() {
 }
 // --------------------------
 const userMemory = {};
-// ---------- Sitemaps--------
-app.get("/sitemap.xml", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/sitemap.xml"));
-});
 
-app.get("/robots.txt", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/robots.txt"));
-});
 // ---------- ROUTES ----------
 app.get('/signup', (req, res) => {
   const refCode = req.query.ref;
