@@ -9,7 +9,14 @@ body{margin:0;background:#071124;color:#e6eef8;font-family:Inter;}
 .card{background:#0b1220;padding:22px;border-radius:12px;}
 .small{color:#94a3b8;line-height:1.8;}
 h2{color:#06b6d4;}
-footer{text-align:center;margin-top:30px;color:#94a3b8;}
+.site-footer{background:#0a0f1a;border-top:1px solid rgba(255,255,255,0.04);padding:40px 20px 20px;margin-top:40px;color:#94a3b8;font-size:14px;}
+.footer-inner{max-width:1000px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:30px;}
+.footer-inner h4{color:#06b6d4;margin:0 0 12px;font-size:15px;}
+.footer-inner a{display:block;color:#94a3b8;text-decoration:none;padding:4px 0;transition:color .2s;}
+.footer-inner a:hover{color:#e6eef8;}
+.footer-bottom{max-width:1000px;margin:24px auto 0;text-align:center;border-top:1px solid rgba(255,255,255,0.04);padding-top:18px;font-size:13px;color:#64748b;}
+.footer-bottom .tagline{margin-bottom:6px;font-size:14px;color:#94a3b8;}
+@media(max-width:600px){.footer-inner{grid-template-columns:1fr 1fr;gap:20px;}}
 </style>
 </head>
 
@@ -45,8 +52,37 @@ Continued use of services implies acceptance of this privacy policy.
 
 </div>
 
-<footer>
-© AmbikaShelf 2026 — All Rights Reserved
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <h4>Main</h4>
+      <a href="index.html">Home</a>
+      <a href="contact.html">Contact</a>
+      <a href="about.html">About Us</a>
+    </div>
+    <div>
+      <h4>Tools</h4>
+      <a href="worldchat.html">WorldChat</a>
+      <a href="qr.html">QR Scanner</a>
+      <a href="pdf.html">PDF Maker</a>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="privacy.html">Privacy Policy</a>
+    </div>
+    <div>
+      <h4>Social</h4>
+      <a href="#">GitHub</a>
+      <a href="#">YouTube</a>
+      <a href="#">Instagram</a>
+      <a href="#">Facebook</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="tagline">Made with ❤️ &amp; 🤖 in India</div>
+    <div>© AmbikaShelf 2026 — All rights reserved.!</div>
+  </div>
 </footer>
 
 </div>
