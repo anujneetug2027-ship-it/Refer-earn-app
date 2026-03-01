@@ -29,15 +29,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // ---------- Sitemaps--------
 app.get("/sitemap.xml", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/sitemap.xml"));
+  res.sendFile(path.join(__dirname, "../frontend/sitemap.xml"));
 });
 
 app.get("/robots.txt", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/robots.txt"));
+  res.sendFile(path.join(__dirname, "../frontend/robots.txt"));
 });
 // ---------- FRONTEND ----------
 app.use(express.static(path.join(__dirname, '../frontend')));
-app.use(express.static(path.join(__dirname, '../public')));
+
 // ---------- MONGO CONNECTION ----------
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
