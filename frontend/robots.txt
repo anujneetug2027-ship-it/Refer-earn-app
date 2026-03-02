@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ambikashelf.shop/sitemap.xml
+Sitemap: https://ambikashelf.in/sitemap.xml
