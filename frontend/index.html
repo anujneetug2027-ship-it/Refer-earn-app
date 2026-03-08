@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AmbikaShelf — One Stop Solution for Everyday Tools</title>
+  <link rel="icon" href="icons/favicon.ico?v=4" type="image/x-icon">
+  <link rel="shortcut icon" href="icons/favicon.ico">
+  <link rel="apple-touch-icon" href="icons/android-chrome-192x192.png?v=4">
+  <link rel="manifest" href="manifest.json?v=4">
+  <meta name="theme-color" content="#0a1628">
+  <meta name="description" content="AmbikaShelf is one stop solution for all the tools consised at one platform. QR Shelf, PDF Shelf, Shelf Chat and more — free for everyone.">
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5993190774932076" crossorigin="anonymous"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "AmbikaShelf",
+    "url": "https://ambikashelf.in",
+    "logo": "https://ambikashelf.in/icons/android-chrome-512x512.png",
+    "foundingDate": "2025",
+    "founder": { "@type": "Person", "name": "Anuj Chauhan" },
+    "contactPoint": { "@type": "ContactPoint", "contactType": "customer support", "email": "support@ambikashelf.in" },
+    "sameAs": ["https://instagram.com/ambikashelf","https://facebook.com/ambikashelf"]
+  }
+  </script>
+
+  <style>
+    /* ═══════════════════════════════════════════
+       ROOT & RESET
+    ═══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #07111f;
+      --bg2:       #0a1628;
+      --bg3:       #0d1e35;
+      --bg4:       #021326;
+      --card:      #031a33;
+      --accent:    #00c8ff;
+      --accent2:   #0077b6;
+      --text:      #e6eef8;
+      --muted:     rgba(255,255,255,0.4);
+      --border:    rgba(0,200,255,0.15);
+      --radius:    14px;
+    }
+
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ═══════════════════════════════════════════
+       NAVBAR
+    ═══════════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 68px;
+      background: rgba(7,17,31,0.85);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo img {
+      height: 40px;
+      width: 40px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .nav-logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-logo-text span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 8px;
+      color: var(--muted);
+      transition: color 0.25s, background 0.25s;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+
+    .nav-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 14px;
+      transition: border-color 0.3s;
+    }
+
+    .nav-search:focus-within { border-color: var(--accent); }
+
+    .nav-search input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      width: 140px;
+    }
+
+    .nav-search input::placeholder { color: var(--muted); }
+
+    .nav-search svg { color: var(--muted); flex-shrink: 0; }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-login {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-login:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-signup {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      cursor: pointer;
+      transition: opacity 0.25s, transform 0.2s;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-signup:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* Profile icon */
+    .nav-profile {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: border-color 0.25s;
+      color: var(--muted);
+    }
+
+    .nav-profile:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .hamburger:hover { background: rgba(255,255,255,0.05); }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: all 0.3s; }
+
+    /* Mobile menu */
+    .mobile-menu {
+      position: fixed;
+      top: 0; left: -100%;
+      width: 260px;
+      height: 100%;
+      background: #0b1220;
+      z-index: 9999;
+      padding: 24px 20px;
+      transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+      border-right: 1px solid var(--border);
+    }
+
+    .mobile-menu.open { left: 0; }
+
+    .mobile-menu-close {
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--muted);
+      margin-bottom: 24px;
+      display: block;
+      transition: color 0.2s;
+    }
+
+    .mobile-menu-close:hover { color: #fff; }
+
+    .mobile-menu a {
+      display: block;
+      padding: 13px 0;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: color 0.2s, padding-left 0.2s;
+    }
+
+    .mobile-menu a:hover { color: var(--accent); padding-left: 6px; }
+
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 9998;
+    }
+
+    .mobile-overlay.show { display: block; }
+
+    /* Profile dropdown */
+    .profile-dropdown {
+      position: fixed;
+      top: 0; right: -320px;
+      width: 280px;
+      height: 100%;
+      background: #0b1220;
+      z-index: 9999;
+      padding: 24px 20px;
+      transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .profile-dropdown.open { right: 0; }
+
+    .profile-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: grid;
+      place-items: center;
+      margin: 20px auto 14px;
+    }
+
+    .profile-avatar svg { color: #fff; }
+
+    .profile-email {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      word-break: break-all;
+    }
+
+    .profile-balance {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    .profile-divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+      margin-bottom: 20px;
+    }
+
+    .profile-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+      margin-bottom: 10px;
+    }
+
+    .profile-btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: #fff;
+    }
+
+    .profile-btn.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .profile-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* ═══════════════════════════════════════════
+       HERO — WELCOME SECTION
+    ═══════════════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0,200,255,0.06) 0%, transparent 70%),
+                  linear-gradient(180deg, #07111f 0%, #0a1628 100%);
+      padding: 100px 24px 60px;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(0,200,255,0.06) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      animation: pulse-glow 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+      50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.12); }
+    }
+
+    /* grid lines */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 860px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0;
+      animation: fade-up 0.7s ease forwards 0.2s;
+      margin-bottom: 22px;
+    }
+
+    .hero-badge::before, .hero-badge::after {
+      content: '✦';
+      font-size: 8px;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      line-height: 1.08;
+      margin-bottom: 20px;
+    }
+
+    .hero-title .letter {
+      display: inline-block;
+      font-size: clamp(44px, 9vw, 84px);
+      color: #fff;
+      opacity: 0;
+      transform: translateY(32px) scale(0.85);
+      animation: letter-appear 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+      text-shadow: 0 0 40px rgba(0,200,255,0.25);
+    }
+
+    .hero-title .letter.cyan {
+      color: var(--accent);
+      text-shadow: 0 0 30px rgba(0,200,255,0.7), 0 0 70px rgba(0,200,255,0.25);
+    }
+
+    .hero-title .space { display: inline-block; width: 0.25em; }
+
+    @keyframes letter-appear {
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .hero-divider {
+      width: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 18px auto;
+      animation: expand-line 0.9s ease forwards 3.4s;
+    }
+
+    @keyframes expand-line { to { width: 240px; } }
+
+    .hero-desc {
+      font-size: clamp(14px, 1.8vw, 17px);
+      font-weight: 300;
+      line-height: 1.85;
+      color: rgba(255,255,255,0.55);
+      max-width: 600px;
+      margin: 0 auto 36px;
+      opacity: 0;
+      animation: fade-up 0.9s ease forwards 3.6s;
+    }
+
+    .hero-desc strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+    .hero-cta {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fade-up 0.9s ease forwards 3.9s;
+    }
+
+    .cta-primary {
+      padding: 14px 34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s;
+      box-shadow: 0 4px 30px rgba(0,200,255,0.25);
+    }
+
+    .cta-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(0,200,255,0.4); }
+
+    .cta-secondary {
+      padding: 14px 34px;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+
+    .cta-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    /* Particles */
+    .particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0;
+      animation: float-particle linear infinite;
+    }
+
+    @keyframes float-particle {
+      0%   { opacity: 0; transform: translateY(0) scale(0); }
+      10%  { opacity: 0.5; transform: translateY(-12px) scale(1); }
+      90%  { opacity: 0.2; }
+      100% { opacity: 0; transform: translateY(-130px) scale(0.4); }
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════════════════════════════════
+       TOOLS SECTION
+    ═══════════════════════════════════════════ */
+    .tools-section {
+      background: var(--bg2);
+      padding: 100px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tools-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 5vw, 46px);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 14px;
+      line-height: 1.15;
+    }
+
+    .section-title span { color: var(--accent); }
+
+    .section-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 22px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .tool-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: var(--radius);
+      padding: 28px 22px;
+      text-align: center;
+      transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(0,200,255,0.2);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(0,200,255,0.08);
+    }
+
+    .tool-card:hover::before { opacity: 1; }
+
+    .tool-card.coming-soon {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    .tool-card.coming-soon:hover {
+      transform: none;
+      border-color: rgba(255,255,255,0.04);
+      box-shadow: none;
+    }
+
+    .tool-icon-wrap {
+      width: 68px; height: 68px;
+      border-radius: 16px;
+      background: rgba(0,200,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      border: 1px solid rgba(0,200,255,0.12);
+      transition: background 0.3s;
+    }
+
+    .tool-card:hover .tool-icon-wrap {
+      background: rgba(0,200,255,0.14);
+    }
+
+    .tool-icon-wrap svg { color: var(--accent); }
+
+    .tool-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .tool-desc {
+      font-size: 12px;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    .tool-badge {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(0,200,255,0.08);
+      color: var(--accent);
+      border: 1px solid rgba(0,200,255,0.15);
+    }
+
+    .tool-badge.soon {
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      border-color: rgba(255,255,255,0.07);
+    }
+
+    .tools-note {
+      text-align: center;
+      margin-top: 36px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .tools-note strong { color: var(--accent); }
+
+    .tools-explore {
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    .tools-explore-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(22px, 3.5vw, 34px);
+      font-style: italic;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 6px;
+    }
+
+    .tools-explore-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* ═══════════════════════════════════════════
+       REVIEWS SECTION
+    ═══════════════════════════════════════════ */
+    .reviews-section {
+      background: var(--bg4);
+      padding: 100px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .reviews-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    .reviews-wrapper { overflow: hidden; }
+
+    .reviews-track {
+      display: flex;
+      gap: 24px;
+      width: max-content;
+      animation: scrollReviews 36s linear infinite;
+    }
+
+    .reviews-track:hover { animation-play-state: paused; }
+
+    @keyframes scrollReviews {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .review-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: var(--radius);
+      padding: 24px;
+      width: 310px;
+      flex-shrink: 0;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+
+    .review-card:hover {
+      border-color: rgba(0,200,255,0.2);
+      transform: translateY(-3px);
+    }
+
+    .review-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .review-header img {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(0,200,255,0.2);
+    }
+
+    .review-header img[src=""],
+    .review-header img:not([src]) {
+      display: none;
+    }
+
+    .review-avatar-fallback {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+      flex-shrink: 0;
+      border: 2px solid rgba(0,200,255,0.2);
+    }
+
+    .review-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+
+    .review-stars { color: var(--accent); font-size: 13px; letter-spacing: 1px; }
+
+    .review-quote {
+      font-size: 11px;
+      color: var(--accent);
+      opacity: 0.5;
+      margin-bottom: 8px;
+    }
+
+    .review-text {
+      font-size: 13px;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.55);
+    }
+
+    .review-author {
+      margin-top: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(0,200,255,0.6);
+    }
+
+    /* ═══════════════════════════════════════════
+       TRUSTED PARTNERS
+    ═══════════════════════════════════════════ */
+    .partners-section {
+      background: var(--bg3);
+      padding: 100px 40px;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .partners-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    .partners-wrapper { overflow: hidden; margin-top: 50px; }
+
+    .partners-track {
+      display: flex;
+      gap: 60px;
+      align-items: center;
+      width: max-content;
+      animation: partnersScroll 30s linear infinite;
+    }
+
+    .partners-track:hover { animation-play-state: paused; }
+
+    @keyframes partnersScroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .partner {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .partner:hover { color: var(--text); }
+
+    .logo-circle {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: var(--card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 18px rgba(0,150,255,0.12);
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.04);
+      transition: all 0.35s;
+    }
+
+    .partner:hover .logo-circle {
+      transform: scale(1.08);
+      box-shadow: 0 0 28px rgba(0,200,255,0.35), 0 0 60px rgba(0,200,255,0.12);
+      border-color: rgba(0,200,255,0.25);
+      background: rgba(4,32,64,0.9);
+    }
+
+    .logo-circle img { width: 70%; height: 70%; object-fit: contain; }
+
+    /* CTA banner inside partners */
+    .partners-cta-banner {
+      max-width: 600px;
+      margin: 70px auto 0;
+      padding: 40px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .partners-cta-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(0,200,255,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .partners-cta-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(22px, 3.5vw, 32px);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .partners-cta-title span { color: var(--accent); }
+
+    .partners-cta-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 26px;
+    }
+
+    /* ═══════════════════════════════════════════
+       FEEDBACK SECTION
+    ═══════════════════════════════════════════ */
+    .feedback-section {
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+      padding: 100px 40px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feedback-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(0,200,255,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .feedback-section .section-title { margin-bottom: 6px; }
+
+    .feedback-form {
+      max-width: 480px;
+      margin: 36px auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feedback-form input,
+    .feedback-form textarea {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(0,200,255,0.15);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s, background 0.3s;
+      width: 100%;
+    }
+
+    .feedback-form input::placeholder,
+    .feedback-form textarea::placeholder { color: var(--muted); }
+
+    .feedback-form input:focus,
+    .feedback-form textarea:focus {
+      border-color: var(--accent);
+      background: rgba(0,200,255,0.05);
+    }
+
+    .feedback-form textarea { resize: vertical; min-height: 110px; }
+
+    .feedback-form button {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 30px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.3s, transform 0.2s;
+      box-shadow: 0 4px 20px rgba(0,200,255,0.2);
+    }
+
+    .feedback-form button:hover { opacity: 0.88; transform: translateY(-2px); }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════ */
+    footer {
+      background: #060f1c;
+      border-top: 1px solid rgba(0,200,255,0.1);
+      padding: 60px 40px 28px;
+    }
+
+    .footer-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.7fr 1fr 1fr 1fr 1fr;
+      gap: 36px;
+      padding-bottom: 44px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .footer-brand img.logo {
+      height: 120px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 16px;
+      filter: brightness(1.05);
+      display: block;
+    }
+
+    .footer-brand-fallback {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .footer-brand-fallback span { color: var(--accent); }
+
+    .footer-brand p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.85;
+      max-width: 220px;
+      margin-bottom: 18px;
+    }
+
+    .footer-made {
+      font-size: 11px;
+      color: rgba(255,255,255,0.22);
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+
+    .footer-contact-icons {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .footer-contact-icons a img {
+      width: 24px; height: 24px;
+      object-fit: contain;
+      filter: brightness(0) invert(0.45);
+      transition: filter 0.25s, transform 0.25s;
+    }
+
+    .footer-contact-icons a:hover img {
+      filter: brightness(0) saturate(100%) invert(70%) sepia(80%) saturate(400%) hue-rotate(160deg);
+      transform: scale(1.15);
+    }
+
+    .footer-col h4 {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+    .footer-col ul li a {
+      font-size: 13px;
+      color: var(--muted);
+      transition: color 0.25s, padding-left 0.25s;
+      display: inline-block;
+    }
+
+    .footer-col ul li a:hover { color: var(--accent); padding-left: 5px; }
+
+    .social-icons { display: flex; flex-direction: column; gap: 11px; }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      transition: color 0.25s;
+    }
+
+    .social-link img {
+      width: 19px; height: 19px;
+      object-fit: contain;
+      filter: brightness(0) invert(0.45);
+      transition: filter 0.25s;
+    }
+
+    .social-link:hover { color: var(--accent); }
+
+    .social-link:hover img {
+      filter: brightness(0) saturate(100%) invert(70%) sepia(80%) saturate(400%) hue-rotate(160deg);
+    }
+
+    .footer-bottom {
+      max-width: 1100px;
+      margin: 26px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      color: rgba(255,255,255,0.22);
+      letter-spacing: 0.4px;
+    }
+
+    .footer-copy span { color: rgba(0,200,255,0.55); }
+
+    .footer-legal { display: flex; gap: 20px; }
+
+    .footer-legal a {
+      font-size: 11px;
+      color: rgba(255,255,255,0.22);
+      transition: color 0.25s;
+      letter-spacing: 0.4px;
+    }
+
+    .footer-legal a:hover { color: var(--accent); }
+
+    /* ═══════════════════════════════════════════
+       SCROLL REVEAL
+    ═══════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr 1fr; }
+      .footer-brand { grid-column: 1 / -1; }
+      .nav-links { display: none; }
+      .nav-search { display: none; }
+      .hamburger { display: flex; }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .hero { padding: 90px 20px 50px; }
+      .tools-section, .partners-section, .feedback-section { padding: 70px 20px; }
+      .reviews-section { padding: 70px 0; }
+      footer { padding: 50px 20px 24px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    }
+
+    @media (max-width: 480px) {
+      .tools-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero-cta { flex-direction: column; align-items: center; }
+      .cta-primary, .cta-secondary { width: 100%; max-width: 280px; }
+      .partners-cta-banner { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <nav id="navbar">
+    <div class="nav-logo">
+      <img src="https://ambikashelf.in/icons/ambikashelf.png" alt="AmbikaShelf"
+           onerror="this.style.display='none'">
+      <span class="nav-logo-text">Ambika<span>Shelf</span></span>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#tools">Tools</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="terms.html">Terms</a></li>
+    </ul>
+
+    <div class="nav-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" placeholder="Search..." id="navSearch">
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn-login" onclick="window.location.href='login.html'">Login</button>
+      <button class="btn-signup" onclick="window.location.href='login.html'">Sign Up</button>
+      <div class="nav-profile" onclick="toggleProfile()" title="Account">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+      </div>
+      <div class="hamburger" onclick="toggleMenu()" id="hamburgerBtn">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-overlay" id="mobileOverlay" onclick="toggleMenu()"></div>
+  <div class="mobile-menu" id="mobileMenu">
+    <span class="mobile-menu-close" onclick="toggleMenu()">✕</span>
+    <a href="index.html" onclick="toggleMenu()">Home</a>
+    <a href="#tools" onclick="toggleMenu()">Tools</a>
+    <a href="about.html" onclick="toggleMenu()">About Us</a>
+    <a href="contact.html" onclick="toggleMenu()">Contact</a>
+    <a href="terms.html" onclick="toggleMenu()">Terms &amp; Conditions</a>
+    <a href="privacy.html" onclick="toggleMenu()">Privacy Policy</a>
+    <a href="login.html" onclick="toggleMenu()">Login / Register</a>
+    <a href="worldchat.html" onclick="toggleMenu()">Live Chat</a>
+    <a href="pdf.html" onclick="toggleMenu()">PDF Shelf</a>
+    <a href="qr.html" onclick="toggleMenu()">QR Shelf</a>
+  </div>
+
+  <!-- Profile dropdown -->
+  <div class="mobile-overlay" id="profileOverlay" onclick="toggleProfile()"></div>
+  <div class="profile-dropdown" id="profileDropdown">
+    <span class="mobile-menu-close" onclick="toggleProfile()">✕</span>
+    <div class="profile-avatar">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+    </div>
+    <div class="profile-email" id="profileEmail">Not logged in</div>
+    <div class="profile-balance" id="profileBalance">Balance — ₹0.00</div>
+    <div class="profile-divider"></div>
+    <button class="profile-btn primary" onclick="window.location.href='login.html'">Login</button>
+    <button class="profile-btn secondary" onclick="window.location.href='login.html'">Register</button>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       HERO — WELCOME SECTION
+  ════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero-grid"></div>
+    <div class="particles" id="heroParticles"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">Welcome to</div>
+      <h1 class="hero-title" id="heroTitle"></h1>
+      <div class="hero-divider"></div>
+      <p class="hero-desc">
+        <strong>AmbikaShelf</strong> is one stop solution for all the tools consised at one platform.
+        Here we have lots of everyday tools for our loyal customers — initially <strong>at no cost.</strong>
+        AmbikaShelf offers large variety of services including QR codes, PDF tools, anonymous chat &amp; more.
+      </p>
+      <div class="hero-cta">
+        <button class="cta-primary" onclick="document.getElementById('tools').scrollIntoView({behavior:'smooth'})">
+          Explore Tools ↓
+        </button>
+        <button class="cta-secondary" onclick="window.location.href='login.html'">
+          Get Started Free
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       TOOLS SECTION
+  ════════════════════════════════════════ -->
+  <section class="tools-section" id="tools">
+    <div class="section-header reveal">
+      <span class="section-tag">What we offer</span>
+      <h2 class="section-title">Tools<span>,</span></h2>
+      <p class="section-subtitle">No signup needed to use the basic version of these tools 😊</p>
+    </div>
+
+    <div class="tools-grid">
+
+      <div class="tool-card reveal" onclick="window.location.href='qr.html'" style="transition-delay:0.05s">
+        <div class="tool-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <path d="M14 14h.01M18 14h.01M14 18h.01M18 18h.01M21 14v0M21 18v0M14 21v0"/>
+          </svg>
+        </div>
+        <div class="tool-name">QR Shelf</div>
+        <div class="tool-desc">Scan and create customised QR codes hustle free — instantly.</div>
+        <span class="tool-badge">Free</span>
+      </div>
+
+      <div class="tool-card reveal" onclick="window.location.href='pdf.html'" style="transition-delay:0.1s">
+        <div class="tool-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+            <line x1="9" y1="11" x2="15" y2="11"/>
+          </svg>
+        </div>
+        <div class="tool-name">PDF Shelf</div>
+        <div class="tool-desc">Create or decode PDF instantly using our personalisation features.</div>
+        <span class="tool-badge">Free</span>
+      </div>
+
+      <div class="tool-card reveal" onclick="window.location.href='worldchat.html'" style="transition-delay:0.15s">
+        <div class="tool-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div class="tool-name">Shelf Chat</div>
+        <div class="tool-desc">Chat with others without revealing your identity. Just select a username and start. Powered by <strong style="color:var(--accent)">AmbikaShelf.AI</strong></div>
+        <span class="tool-badge">Free</span>
+      </div>
+
+      <div class="tool-card coming-soon reveal" style="transition-delay:0.2s">
+        <div class="tool-icon-wrap">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4M12 16h.01"/>
+          </svg>
+        </div>
+        <div class="tool-name">Coming Soon</div>
+        <div class="tool-desc">Chat Bot Shelf — get your personalised chatbot for your website or social media platforms instantly.</div>
+        <span class="tool-badge soon">Soon...</span>
+      </div>
+
+    </div>
+
+    <p class="tools-note reveal" style="transition-delay:0.25s">
+      ✦ &nbsp; <strong>No signup needed</strong> to use the basic version of these tools &nbsp; ✦
+    </p>
+
+    <div class="tools-explore reveal" style="transition-delay:0.3s">
+      <p class="tools-explore-text">Explore now and Start your Journey</p>
+      <p class="tools-explore-sub">of getting Hustle free experience —</p>
+      <button class="cta-primary" onclick="window.location.href='login.html'">Explore Now →</button>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       REVIEWS SECTION
+  ════════════════════════════════════════ -->
+  <section class="reviews-section" id="reviews">
+    <div class="section-header reveal" style="padding: 0 40px;">
+      <span class="section-tag">What people say</span>
+      <h2 class="section-title">Reviews<span>,</span></h2>
+    </div>
+
+    <div class="reviews-wrapper" style="margin-top: 44px;">
+      <div class="reviews-track" id="reviewsTrack">
+
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar-fallback">A</div>
+            <div>
+              <div class="review-name">Aditya</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-quote">❝</div>
+          <p class="review-text">I loved the "Shelf Chat" tool of Ambikashelf. It made it possible for us to discuss our project seamlessly and AmbikaShelf AI helped clear our confusions in the same chat.</p>
+          <div class="review-author">— Aditya</div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar-fallback">A</div>
+            <div>
+              <div class="review-name">Ansh</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-quote">❝</div>
+          <p class="review-text">The PDF Shelf tool of AmbikaShelf was very helpful for me. Editing and positioning images made it best for me and it generates PDFs instantly.</p>
+          <div class="review-author">— Ansh</div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar-fallback">S</div>
+            <div>
+              <div class="review-name">Simran</div>
+              <div class="review-stars">★★★★☆</div>
+            </div>
+          </div>
+          <div class="review-quote">❝</div>
+          <p class="review-text">AmbikaShelf is the best site for me. All tools are useful in everyday life and saved my time by combining everything in one place.</p>
+          <div class="review-author">— Simran</div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar-fallback">R</div>
+            <div>
+              <div class="review-name">Rohit</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-quote">❝</div>
+          <p class="review-text">QR Shelf made scanning and creating QR codes extremely easy. Shelf Chat also helped me send text or images instantly without login.</p>
+          <div class="review-author">— Rohit</div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar-fallback">R</div>
+            <div>
+              <div class="review-name">Rama</div>
+              <div class="review-stars">★★★★☆</div>
+            </div>
+          </div>
+          <div class="review-quote">❝</div>
+          <p class="review-text">This site lets me use many tools in one place without login, subscription or ads which makes it very convenient.</p>
+          <div class="review-author">— Rama</div>
+        </div>
+
+        <!-- Duplicate for infinite loop -->
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar-fallback">A</div>
+            <div><div class="review-name">Aditya</div><div class="review-stars">★★★★★</div></div>
+          </div>
+          <div class="review-quote">❝</div>
+          <p class="review-text">I loved the "Shelf Chat" tool of Ambikashelf. It made it possible for us to discuss our project seamlessly and AmbikaShelf AI helped clear our confusions in the same chat.</p>
+          <div class="review-author">— Aditya</div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar-fallback">A</div>
+            <div><div class="review-name">Ansh</div><div class="review-stars">★★★★★</div></div>
+          </div>
+          <div class="review-quote">❝</div>
+          <p class="review-text">The PDF Shelf tool of AmbikaShelf was very helpful for me. Editing and positioning images made it best for me and it generates PDFs instantly.</p>
+          <div class="review-author">— Ansh</div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar-fallback">S</div>
+            <div><div class="review-name">Simran</div><div class="review-stars">★★★★☆</div></div>
+          </div>
+          <div class="review-quote">❝</div>
+          <p class="review-text">AmbikaShelf is the best site for me. All tools are useful in everyday life and saved my time by combining everything in one place.</p>
+          <div class="review-author">— Simran</div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar-fallback">R</div>
+            <div><div class="review-name">Rohit</div><div class="review-stars">★★★★★</div></div>
+          </div>
+          <div class="review-quote">❝</div>
+          <p class="review-text">QR Shelf made scanning and creating QR codes extremely easy. Shelf Chat also helped me send text or images instantly without login.</p>
+          <div class="review-author">— Rohit</div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar-fallback">R</div>
+            <div><div class="review-name">Rama</div><div class="review-stars">★★★★☆</div></div>
+          </div>
+          <div class="review-quote">❝</div>
+          <p class="review-text">This site lets me use many tools in one place without login, subscription or ads which makes it very convenient.</p>
+          <div class="review-author">— Rama</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       TRUSTED PARTNERS
+  ════════════════════════════════════════ -->
+  <section class="partners-section" id="partners">
+    <div class="section-header reveal">
+      <span class="section-tag">Powered by the best</span>
+      <h2 class="section-title">Our Trusted Partners<span>,</span></h2>
+    </div>
+
+    <div class="partners-wrapper">
+      <div class="partners-track">
+
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/razorpay.png" alt="Razorpay"></div>
+          <p>Razorpay</p>
+        </div>
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/shiprocket.png" alt="Shiprocket"></div>
+          <p>Shiprocket</p>
+        </div>
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/chatbase.png" alt="Chatbase"></div>
+          <p>Chatbase</p>
+        </div>
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/fast2sms.png" alt="Fast2SMS"></div>
+          <p>Fast2SMS</p>
+        </div>
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/dehlivery.png" alt="Dehlivery"></div>
+          <p>Dehlivery</p>
+        </div>
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/twillo.png" alt="Twilio"></div>
+          <p>Twilio</p>
+        </div>
+
+        <!-- Duplicate for loop -->
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/razorpay.png" alt="Razorpay"></div>
+          <p>Razorpay</p>
+        </div>
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/shiprocket.png" alt="Shiprocket"></div>
+          <p>Shiprocket</p>
+        </div>
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/chatbase.png" alt="Chatbase"></div>
+          <p>Chatbase</p>
+        </div>
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/fast2sms.png" alt="Fast2SMS"></div>
+          <p>Fast2SMS</p>
+        </div>
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/dehlivery.png" alt="Dehlivery"></div>
+          <p>Dehlivery</p>
+        </div>
+        <div class="partner">
+          <div class="logo-circle"><img src="https://ambikashelf.in/icons/twillo.png" alt="Twilio"></div>
+          <p>Twilio</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CTA Banner -->
+    <div class="partners-cta-banner reveal">
+      <h3 class="partners-cta-title">Start Exploring our <span>Seemless Tools</span> ⚡</h3>
+      <p class="partners-cta-sub">Willing to serve you with our best.</p>
+      <button class="cta-primary" onclick="window.location.href='login.html'">Explore Now →</button>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       FEEDBACK SECTION
+  ════════════════════════════════════════ -->
+  <section class="feedback-section" id="feedback">
+    <div class="section-header reveal">
+      <span class="section-tag">We value your opinion</span>
+      <h2 class="section-title">Have a <span>Feedback</span>?</h2>
+      <p class="section-subtitle">We'd love to hear from you</p>
+    </div>
+
+    <div class="feedback-form reveal">
+      <input type="text" id="fbName" placeholder="Name *" />
+      <input type="text" id="fbWhatsapp" placeholder="WhatsApp No. *" />
+      <textarea id="fbText" placeholder="Text *"></textarea>
+      <button type="button" onclick="submitFeedback()">Send Feedback</button>
+      <div id="fbStatus" style="font-size:13px; color:var(--accent); display:none; margin-top:4px;"></div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-grid">
+
+      <!-- Brand -->
+      <div class="footer-brand">
+        <img class="logo" src="https://ambikashelf.in/icons/ambikashelf.png" alt="AmbikaShelf Logo"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <div class="footer-brand-fallback">Ambika<span>Shelf</span></div>
+        <p>One smart solution for your everyday tools — all at no cost.</p>
+        <div class="footer-made">✦ Made with ❤️ in India</div>
+        <div class="footer-contact-icons">
+          <a href="https://wa.me/yourNumber" target="_blank">
+            <img src="https://ambikashelf.in/icons/whatsapp.png" alt="WhatsApp">
+          </a>
+          <a href="mailto:support@ambikashelf.in">
+            <img src="https://ambikashelf.in/icons/email.png" alt="Email">
+          </a>
+        </div>
+      </div>
+
+      <!-- Main -->
+      <div class="footer-col">
+        <h4>Main</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Tools -->
+      <div class="footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="qr.html">QR Shelf</a></li>
+          <li><a href="pdf.html">PDF Shelf</a></li>
+          <li><a href="worldchat.html">Shelf Chat</a></li>
+        </ul>
+      </div>
+
+      <!-- Legal -->
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Social -->
+      <div class="footer-col">
+        <h4>Social</h4>
+        <div class="social-icons">
+          <a href="#" class="social-link">
+            <img src="https://ambikashelf.in/icons/github.png" alt="GitHub"> GitHub
+          </a>
+          <a href="https://instagram.com/ambikashelf" target="_blank" class="social-link">
+            <img src="https://ambikashelf.in/icons/instagram.png" alt="Instagram"> Instagram
+          </a>
+          <a href="https://facebook.com/ambikashelf" target="_blank" class="social-link">
+            <img src="https://ambikashelf.in/icons/facebook.png" alt="Facebook"> Facebook
+          </a>
+          <a href="#" class="social-link">
+            <img src="https://ambikashelf.in/icons/linkedin.png" alt="LinkedIn"> LinkedIn
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 <span>AmbikaShelf</span> — All Rights Reserved</p>
+      <div class="footer-legal">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════════════
+       CHATBASE
+  ════════════════════════════════════════ -->
+  <script>
+    (function(){
+      if(!window.chatbase||window.chatbase("getState")!=="initialized"){
+        window.chatbase=(...arguments)=>{
+          if(!window.chatbase.q){window.chatbase.q=[]}
+          window.chatbase.q.push(arguments)
+        };
+        window.chatbase=new Proxy(window.chatbase,{
+          get(target,prop){
+            if(prop==="q"){return target.q}
+            return(...args)=>target(prop,...args)
+          }
+        })
+      }
+      const onLoad=function(){
+        const script=document.createElement("script");
+        script.src="https://www.chatbase.co/embed.min.js";
+        script.id="AUGcI9djCuTSwBe1VDN8d";
+        script.domain="www.chatbase.co";
+        document.body.appendChild(script)
+      };
+      if(document.readyState==="complete"){onLoad()}
+      else{window.addEventListener("load",onLoad)}
+    })();
+  </script>
+
+  <!-- ════════════════════════════════════════
+       MAIN SCRIPTS
+  ════════════════════════════════════════ -->
+  <script>
+    /* ── Hero letter animation ── */
+    const heroText = "AmbikaShelf";
+    const heroTitleEl = document.getElementById('heroTitle');
+    const baseDelay = 0.5;
+    const letterDelay = 0.1;
+
+    heroText.split('').forEach((char, i) => {
+      const span = document.createElement('span');
+      span.className = 'letter' + (i === 0 ? ' cyan' : '');
+      span.textContent = char;
+      span.style.animationDelay = `${baseDelay + i * letterDelay}s`;
+      heroTitleEl.appendChild(span);
+    });
+
+    /* ── Hero particles ── */
+    const pContainer = document.getElementById('heroParticles');
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.bottom = (Math.random() * 50 + 5) + '%';
+      p.style.animationDuration = (Math.random() * 5 + 3) + 's';
+      p.style.animationDelay = (Math.random() * 6) + 's';
+      const size = (Math.random() * 3 + 1) + 'px';
+      p.style.width = p.style.height = size;
+      pContainer.appendChild(p);
+    }
+
+    /* ── Scroll reveal ── */
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    /* ── Navbar scroll ── */
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('navbar');
+      if (window.scrollY > 40) {
+        nav.style.background = 'rgba(7,17,31,0.97)';
+      } else {
+        nav.style.background = 'rgba(7,17,31,0.85)';
+      }
+    });
+
+    /* ── Mobile menu ── */
+    function toggleMenu() {
+      const menu = document.getElementById('mobileMenu');
+      const overlay = document.getElementById('mobileOverlay');
+      menu.classList.toggle('open');
+      overlay.classList.toggle('show');
+    }
+
+    /* ── Profile dropdown ── */
+    function toggleProfile() {
+      const dropdown = document.getElementById('profileDropdown');
+      const overlay = document.getElementById('profileOverlay');
+      dropdown.classList.toggle('open');
+      overlay.classList.toggle('show');
+    }
+
+    /* ── Load user state if logged in ── */
+    (function() {
+      const ref = localStorage.getItem('referralCode');
+      const bal = localStorage.getItem('rewardBalance');
+      if (ref) {
+        document.getElementById('profileEmail').textContent = localStorage.getItem('userEmail') || 'Logged in';
+        document.getElementById('profileBalance').textContent = 'Balance — ₹' + (bal || '0.00');
+      }
+    })();
+
+    /* ── Review track drag to pause ── */
+    const track = document.getElementById('reviewsTrack');
+    let isDragging = false, startX = 0, currentX = 0;
+
+    track.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      track.style.animationPlayState = 'paused';
+      startX = e.clientX - currentX;
+    });
+
+    track.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      track.style.animationPlayState = 'paused';
+      startX = e.touches[0].clientX - currentX;
+    }, { passive: true });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      currentX = e.clientX - startX;
+      track.style.transform = `translateX(${currentX}px)`;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      currentX = e.touches[0].clientX - startX;
+      track.style.transform = `translateX(${currentX}px)`;
+    }, { passive: true });
+
+    document.addEventListener('mouseup', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      track.style.animationPlayState = 'running';
+    });
+
+    document.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      track.style.animationPlayState = 'running';
+    });
+
+    /* ── Feedback submit ── */
+    function submitFeedback() {
+      const name = document.getElementById('fbName').value.trim();
+      const wa = document.getElementById('fbWhatsapp').value.trim();
+      const text = document.getElementById('fbText').value.trim();
+      const status = document.getElementById('fbStatus');
+
+      if (!name || !wa || !text) {
+        status.style.display = 'block';
+        status.style.color = '#ef4444';
+        status.textContent = '⚠ Please fill all fields.';
+        return;
+      }
+
+      status.style.display = 'block';
+      status.style.color = 'var(--accent)';
+      status.textContent = '✓ Feedback sent! Thank you, ' + name + '.';
+
+      document.getElementById('fbName').value = '';
+      document.getElementById('fbWhatsapp').value = '';
+      document.getElementById('fbText').value = '';
+
+      setTimeout(() => { status.style.display = 'none'; }, 5000);
+    }
+
+    /* ── Nav search ── */
+    document.getElementById('navSearch').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const q = e.target.value.trim().toLowerCase();
+        if (q.includes('qr')) window.location.href = 'qr.html';
+        else if (q.includes('pdf')) window.location.href = 'pdf.html';
+        else if (q.includes('chat')) window.location.href = 'worldchat.html';
+        else if (q.includes('about')) window.location.href = 'about.html';
+        else if (q.includes('contact')) window.location.href = 'contact.html';
+      }
+    });
+  </script>
+
+</body>
+</html>
