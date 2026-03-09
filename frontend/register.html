@@ -9,6 +9,7 @@
   <meta name="theme-color" content="#0a1628">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -430,6 +431,43 @@
       .card-top  { padding: 28px 20px; }
       .otp-input { width: 42px; height: 52px; font-size: 1.2rem; }
     }
+
+    /* ── Google Button ── */
+    .google-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 13px 16px; border-radius: var(--radius);
+      background: #fff; border: none; cursor: pointer;
+      font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600;
+      color: #1f1f1f; transition: all .25s; box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+    .google-btn img  { width: 20px; height: 20px; }
+
+    /* ── Google complete form section ── */
+    #googleFormSection .field label { color: var(--muted); }
+    .locked-badge {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      background: rgba(0,200,255,0.1); color: var(--accent);
+      border: 1px solid rgba(0,200,255,0.2); border-radius: 6px; padding: 2px 7px;
+    }
+    .google-user-pic {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 2px solid rgba(0,200,255,0.3); object-fit: cover;
+    }
+    .google-user-info {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(0,200,255,0.04); border: 1px solid rgba(0,200,255,0.12);
+      border-radius: 12px; padding: 12px 14px; margin-bottom: 20px;
+    }
+    .google-user-info .g-name  { font-size: 14px; font-weight: 700; color: #fff; }
+    .google-user-info .g-email { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .google-verified-tag {
+      margin-left: auto; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      background: rgba(0,229,160,0.1); color: var(--success);
+      border: 1px solid rgba(0,229,160,0.25); border-radius: 6px; padding: 3px 8px;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -486,6 +524,26 @@
 
       <!-- ── SECTION 1: Register form ── -->
       <div class="section" id="registerSection">
+
+        <!-- Google Sign Up Button -->
+        <button class="google-btn" onclick="triggerGoogleSignup()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+          Continue with Google
+        </button>
+
+        <!-- Hidden Google GSI trigger -->
+        <div id="g_id_onload"
+          data-client_id="YOUR_GOOGLE_CLIENT_ID"
+          data-callback="handleGoogleResponse"
+          data-auto_prompt="false"
+          style="display:none">
+        </div>
+        <div class="g_id_signin" id="gsiBtn"
+          data-type="standard" data-size="large"
+          style="display:none">
+        </div>
+
+        <div class="divider">or sign up with email</div>
 
         <div class="field">
           <label>Full Name</label>
@@ -545,6 +603,80 @@
         <div class="login-link">Already have an account? <a href="login.html">Sign In</a></div>
       </div>
 
+      <!-- ── SECTION 1b: Google — complete profile ── -->
+      <div class="section hidden" id="googleFormSection">
+
+        <!-- Google account info pill -->
+        <div class="google-user-info">
+          <img class="google-user-pic" id="gUserPic" src="" alt="">
+          <div>
+            <div class="g-name" id="gUserName">—</div>
+            <div class="g-email" id="gUserEmail">—</div>
+          </div>
+          <span class="google-verified-tag">✓ Google</span>
+        </div>
+
+        <div class="field">
+          <label>Full Name</label>
+          <div class="input-wrap">
+            <input type="text" id="gName" placeholder="Your name" autocomplete="name" />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Email Address</label>
+          <div class="input-wrap" style="position:relative">
+            <input type="email" id="gEmail" readonly
+              style="opacity:.6;cursor:not-allowed;padding-right:70px" />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 8 10-8"/></svg>
+            <span class="locked-badge">Locked</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Create Password</label>
+          <div class="input-wrap">
+            <input type="password" id="gPassword" placeholder="Min 8 characters" autocomplete="new-password" />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <button class="pwd-toggle" type="button" onclick="togglePwd('gPassword', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Referral code -->
+        <div class="ref-toggle" onclick="toggleGRef()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/></svg>
+          Have a referral code?
+        </div>
+        <div class="field hidden" id="gRefField">
+          <label>Referral Code (optional)</label>
+          <div class="input-wrap">
+            <input type="text" id="gRefCode" placeholder="e.g. AB12CD" style="text-transform:uppercase" />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/></svg>
+          </div>
+        </div>
+
+        <label class="check-row">
+          <input type="checkbox" id="gAgreeCheck">
+          <div class="check-box"></div>
+          <span class="check-text">
+            I agree to the <a href="terms.html" target="_blank">Terms of Service</a>
+            and <a href="privacy.html" target="_blank">Privacy Policy</a>
+          </span>
+        </label>
+
+        <button class="submit-btn" id="gSignupBtn" onclick="completeGoogleSignup()">
+          <span class="btn-text">Create Account with Google →</span>
+          <span class="btn-spinner"></span>
+        </button>
+
+        <div style="text-align:center;margin-top:14px">
+          <span style="font-size:12px;color:var(--muted);cursor:pointer" onclick="showSection('registerSection')">← Use a different email</span>
+        </div>
+      </div>
+
       <!-- ── SECTION 2: OTP verify ── -->
       <div class="section hidden" id="otpSection">
         <p style="font-size:13px;color:var(--muted);margin-bottom:20px;text-align:center">
@@ -601,11 +733,123 @@
   emailjs.init("nrRHkmrcj0okGAbI2");
 
   const BASE_URL = "https://refer-earn-app.onrender.com"; // your backend
+  const GOOGLE_CLIENT_ID = "905925380487-q2hdivbo5r2bu4hhcoho240c5me84j5q.apps.googleusercontent.com"; // 🔁 replace
 
   let signupEmail = '';
   let signupName  = '';
   let otpTimer;
   let timerSec = 300;
+  let googleToken = null; // stores decoded Google payload
+
+  /* ── Show/hide sections ── */
+  function showSection(id) {
+    ['registerSection','googleFormSection','otpSection','successSection'].forEach(s => {
+      document.getElementById(s).classList.toggle('hidden', s !== id);
+    });
+    document.getElementById('statusMsg').classList.remove('show');
+  }
+
+  /* ── Trigger Google picker ── */
+  function triggerGoogleSignup() {
+    // Click the hidden GSI button which opens Google account picker
+    const btn = document.querySelector('#gsiBtn div[role="button"]');
+    if (btn) { btn.click(); return; }
+    // Fallback: use One Tap
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleResponse
+    });
+    google.accounts.id.prompt();
+  }
+
+  /* ── Google callback — fires after account selected ── */
+  function handleGoogleResponse(response) {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    googleToken = payload;
+
+    // Pre-fill the Google complete form
+    document.getElementById('gUserPic').src   = payload.picture || '';
+    document.getElementById('gUserName').textContent = payload.name;
+    document.getElementById('gUserEmail').textContent = payload.email;
+    document.getElementById('gName').value  = payload.name;
+    document.getElementById('gEmail').value = payload.email;
+
+    // Auto-fill ref from URL
+    const urlRef = new URLSearchParams(location.search).get('ref');
+    if (urlRef) {
+      document.getElementById('gRefField').classList.remove('hidden');
+      document.getElementById('gRefCode').value = urlRef;
+    }
+
+    // Show complete-profile section
+    document.getElementById('stepsBar').style.display = 'none'; // hide steps for Google flow
+    showSection('googleFormSection');
+    showStatus('Google account connected! Complete your profile below.', 'success');
+  }
+
+  function toggleGRef() {
+    document.getElementById('gRefField').classList.toggle('hidden');
+  }
+
+  /* ── Complete Google signup ── */
+  async function completeGoogleSignup() {
+    const name     = document.getElementById('gName').value.trim();
+    const email    = document.getElementById('gEmail').value.trim();
+    const password = document.getElementById('gPassword').value;
+    const refCode  = document.getElementById('gRefCode').value.trim().toUpperCase()
+                     || new URLSearchParams(location.search).get('ref') || null;
+    const agreed   = document.getElementById('gAgreeCheck').checked;
+
+    if (!name)               return showStatus('Please enter your name', 'error');
+    if (password.length < 8) return showStatus('Password must be at least 8 characters', 'error');
+    if (!agreed)             return showStatus('Please agree to Terms & Privacy Policy', 'error');
+
+    const btn = document.getElementById('gSignupBtn');
+    btn.classList.add('loading'); btn.disabled = true;
+
+    try {
+      const res  = await fetch(`${BASE_URL}/google-auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, email,
+          googleId: googleToken.sub,
+          password,
+          refCode
+        })
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        showStatus(data.msg || 'Registration failed', 'error');
+        btn.classList.remove('loading'); btn.disabled = false;
+        return;
+      }
+
+      // ✅ Set session cookies
+      setCookie('as_user_email', email, 3);
+      setCookie('as_user_name',  name,  3);
+      setCookie('as_ref_code',   data.referralCode, 3);
+      setCookie('as_balance',    data.rewardBalance || '0', 3);
+      localStorage.setItem('userEmail',    email);
+      localStorage.setItem('userName',     name);
+      localStorage.setItem('referralCode', data.referralCode);
+      localStorage.setItem('rewardBalance', data.rewardBalance || 0);
+
+      // Show success
+      document.getElementById('stepsBar').style.display = 'flex';
+      setStep(3);
+      showSection('successSection');
+      document.getElementById('welcomeName').textContent = `Welcome, ${name}! 🎉`;
+      setTimeout(() => { window.location.href = 'index.html'; }, 2800);
+
+    } catch(err) {
+      console.error(err);
+      showStatus('Could not connect. Check your internet.', 'error');
+    }
+
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
 
   /* ── Helpers ── */
   function showStatus(msg, type) {
@@ -822,6 +1066,29 @@
     document.getElementById('regRefCode').value = urlRef;
   }
 
+  /* ── If redirected from login.html via Google (new user) ── */
+  if (new URLSearchParams(location.search).get('google') === '1') {
+    const gName  = sessionStorage.getItem('g_name');
+    const gEmail = sessionStorage.getItem('g_email');
+    const gId    = sessionStorage.getItem('g_id');
+    const gPic   = sessionStorage.getItem('g_pic');
+    if (gName && gEmail && gId) {
+      googleToken = { name: gName, email: gEmail, sub: gId, picture: gPic };
+      // Trigger Google form directly
+      document.getElementById('gUserPic').src            = gPic || '';
+      document.getElementById('gUserName').textContent   = gName;
+      document.getElementById('gUserEmail').textContent  = gEmail;
+      document.getElementById('gName').value  = gName;
+      document.getElementById('gEmail').value = gEmail;
+      document.getElementById('stepsBar').style.display  = 'none';
+      showSection('googleFormSection');
+      sessionStorage.removeItem('g_name');
+      sessionStorage.removeItem('g_email');
+      sessionStorage.removeItem('g_id');
+      sessionStorage.removeItem('g_pic');
+    }
+  }
+
   /* ── Redirect if already logged in ── */
   if (getCookie('as_user_email') || localStorage.getItem('userEmail')) {
     window.location.href = 'index.html';
@@ -840,4 +1107,3 @@
 
 </body>
 </html>
-
