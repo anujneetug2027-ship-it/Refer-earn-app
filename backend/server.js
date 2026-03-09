@@ -73,35 +73,131 @@ app.get('/worldchat', (req, res) => {
 });
 
 // ---------- SEND OTP ----------
+// ═══════════════════════════════════════════════════════════
+// ADD THESE TO YOUR server.js
+// Place them BEFORE your server.listen() line
+// ═══════════════════════════════════════════════════════════
+
+const bcrypt = require('bcryptjs'); // npm install bcryptjs
+
+// ─── UPDATE /send-otp to also accept & hash password ───────
+// REPLACE your existing /send-otp route with this:
+
 app.post('/send-otp', async (req, res) => {
   try {
-    const { name, email, refCode } = req.body;
+    const { name, email, refCode, password } = req.body;
     if (!name || !email)
       return res.json({ success: false, msg: "Name and email required" });
 
     const existing = await User.findOne({ email });
     if (existing) return res.json({ success: false, msg: "Email already registered" });
 
-    const otp = generateOTP();
+    const otp        = generateOTP();
     const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
     const referralCode = generateReferralCode();
 
     let referredBy = null;
-    const cookieRef = req.cookies.ref;
-    const finalRef = refCode || cookieRef;
+    const cookieRef  = req.cookies.ref;
+    const finalRef   = refCode || cookieRef;
     if (finalRef) {
       const referrer = await User.findOne({ referralCode: finalRef });
       if (referrer) referredBy = referrer._id;
     }
 
-    await User.create({ name, email, referralCode, referredBy, otp, otpExpires });
-    
+    // Hash password if provided
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+
+    await User.create({
+      name, email, referralCode, referredBy,
+      otp, otpExpires,
+      password: hashedPassword   // ← NEW
+    });
+
     return res.json({ success: true, msg: "OTP generated", otp });
   } catch (err) {
     console.error('❌ /send-otp:', err.message);
     return res.status(500).json({ success: false, msg: "Server error" });
   }
 });
+
+
+// ─── LOGIN route (NEW) ──────────────────────────────────────
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.json({ success: false, msg: "No account found with this email" });
+
+    if (!user.password)
+      return res.json({ success: false, msg: "This account uses OTP login. Please register again." });
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.json({ success: false, msg: "Incorrect password" });
+
+    res.json({
+      success:       true,
+      name:          user.name,
+      referralCode:  user.referralCode,
+      rewardBalance: user.rewardBalance || 0
+    });
+
+  } catch (err) {
+    console.error('❌ /login:', err.message);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+});
+
+
+// ─── FORGOT PASSWORD — send OTP (NEW) ──────────────────────
+app.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.json({ success: false, msg: "No account found with this email" });
+
+    const otp        = generateOTP();
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    user.otp        = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    res.json({ success: true, otp }); // EmailJS sends it from frontend
+
+  } catch (err) {
+    console.error('❌ /forgot-password:', err.message);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+});
+
+
+// ─── RESET PASSWORD (NEW) ──────────────────────────────────
+app.post('/reset-password', async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user)                          return res.json({ success: false, msg: "User not found" });
+    if (user.otp !== otp)               return res.json({ success: false, msg: "Invalid OTP" });
+    if (user.otpExpires < new Date())   return res.json({ success: false, msg: "OTP expired" });
+
+    user.password   = await bcrypt.hash(newPassword, 10);
+    user.otp        = null;
+    user.otpExpires = null;
+    await user.save();
+
+    res.json({ success: true, msg: "Password reset successfully" });
+
+  } catch (err) {
+    console.error('❌ /reset-password:', err.message);
+    res.status(500).json({ success: false, msg: "Server error" });
+  }
+});
+
+
+
+
 // ------- Ask Ai-----------
 console.log("Loaded Gemini Key:", process.env.GEMINI_API_KEY);
 
