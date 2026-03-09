@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#0a1628">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -163,6 +164,18 @@
     .register-link a { color: var(--accent); font-weight: 600; text-decoration: none; }
     .register-link a:hover { text-decoration: underline; }
 
+    /* ── Google button ── */
+    .google-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 13px 16px; border-radius: var(--radius);
+      background: #fff; border: none; cursor: pointer;
+      font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600;
+      color: #1f1f1f; transition: all .25s; box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      margin-bottom: 4px;
+    }
+    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+    .google-btn img  { width: 20px; height: 20px; }
+
     footer { position: relative; z-index: 1; text-align: center; padding: 20px; font-size: 11px; color: rgba(255,255,255,0.2); border-top: 1px solid rgba(255,255,255,0.04); }
     footer span { color: rgba(0,200,255,0.5); }
   </style>
@@ -198,6 +211,27 @@
 
       <!-- ── LOGIN FORM ── -->
       <div class="section" id="loginSection">
+
+        <!-- Google Login Button -->
+        <button class="google-btn" onclick="triggerGoogleLogin()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+          Continue with Google
+        </button>
+
+        <!-- Hidden GSI trigger -->
+        <div id="g_id_onload"
+          data-client_id="YOUR_GOOGLE_CLIENT_ID"
+          data-callback="handleGoogleLoginResponse"
+          data-auto_prompt="false"
+          style="display:none">
+        </div>
+        <div class="g_id_signin" id="gsiLoginBtn"
+          data-type="standard" data-size="large"
+          style="display:none">
+        </div>
+
+        <div class="divider">or sign in with email</div>
+
         <div class="field">
           <label>Email Address</label>
           <div class="input-wrap">
@@ -287,8 +321,69 @@
 <script>
   emailjs.init("nrRHkmrcj0okGAbI2");
   const BASE_URL = "https://refer-earn-app.onrender.com";
+  const GOOGLE_CLIENT_ID = "905925380487-q2hdivbo5r2bu4hhcoho240c5me84j5q.apps.googleusercontent.com"; // 🔁 replace
   let resetEmail = '';
   let resetTimer;
+
+  /* ── Google login trigger ── */
+  function triggerGoogleLogin() {
+    const btn = document.querySelector('#gsiLoginBtn div[role="button"]');
+    if (btn) { btn.click(); return; }
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleLoginResponse
+    });
+    google.accounts.id.prompt();
+  }
+
+  /* ── Google login callback ── */
+  async function handleGoogleLoginResponse(response) {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    showStatus('Signing you in with Google...', 'success');
+
+    try {
+      const res  = await fetch(`${BASE_URL}/google-auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: payload.name,
+          email: payload.email,
+          googleId: payload.sub
+        })
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        showStatus(data.msg || 'Google login failed', 'error');
+        return;
+      }
+
+      // If new user — redirect to register to set password
+      if (data.isNew) {
+        // Save partial info and redirect to register with pre-fill
+        sessionStorage.setItem('g_name',  payload.name);
+        sessionStorage.setItem('g_email', payload.email);
+        sessionStorage.setItem('g_id',    payload.sub);
+        sessionStorage.setItem('g_pic',   payload.picture || '');
+        window.location.href = 'register.html?google=1';
+        return;
+      }
+
+      // Existing user — log in directly
+      setCookie('as_user_email', payload.email, 3);
+      setCookie('as_user_name',  data.name || payload.name, 3);
+      setCookie('as_ref_code',   data.referralCode, 3);
+      setCookie('as_balance',    data.rewardBalance || '0', 3);
+      localStorage.setItem('userEmail',     payload.email);
+      localStorage.setItem('userName',      data.name || payload.name);
+      localStorage.setItem('referralCode',  data.referralCode);
+      localStorage.setItem('rewardBalance', data.rewardBalance || 0);
+      window.location.href = 'index.html';
+
+    } catch(err) {
+      showStatus('Could not connect. Check your internet.', 'error');
+    }
+  }
 
   function showStatus(msg, type) {
     const el = document.getElementById('statusMsg');
