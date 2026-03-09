@@ -21,7 +21,7 @@ const app = express();
 app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 // --------------------------------
-app.use('/api/wallet',wallet);
+app.use('/api/wallet',walletRoutes);
 ```
 
 **3. Add to your `.env`:**
