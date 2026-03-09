@@ -1775,14 +1775,94 @@
     }
 
     /* ── Load user state if logged in ── */
-    (function() {
-      const ref = localStorage.getItem('referralCode');
-      const bal = localStorage.getItem('rewardBalance');
-      if (ref) {
-        document.getElementById('profileEmail').textContent = localStorage.getItem('userEmail') || 'Logged in';
-        document.getElementById('profileBalance').textContent = 'Balance — ₹' + (bal || '0.00');
-      }
-    })();
+    // ═══════════════════════════════════════════════════════════
+// PASTE THIS SCRIPT into your index.html
+// Replace your existing "Load user state if logged in" block
+// ═══════════════════════════════════════════════════════════
+
+/* ── Cookie helper ── */
+function getCookie(name) {
+  const found = document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith(name + '='));
+  return found ? decodeURIComponent(found.split('=')[1]) : null;
+}
+
+function setCookie(name, value, days) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires};path=/;SameSite=Lax`;
+}
+
+function deleteCookie(name) {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
+}
+
+/* ── Logout ── */
+function logout() {
+  ['as_user_email','as_user_name','as_ref_code','as_balance'].forEach(deleteCookie);
+  localStorage.removeItem('userEmail');
+  localStorage.removeItem('userName');
+  localStorage.removeItem('referralCode');
+  localStorage.removeItem('rewardBalance');
+  window.location.reload();
+}
+
+/* ── Auth state ── */
+(function initAuth() {
+  // Try cookie first, fallback to localStorage
+  const email   = getCookie('as_user_email') || localStorage.getItem('userEmail');
+  const name    = getCookie('as_user_name')  || localStorage.getItem('userName') || email;
+  const ref     = getCookie('as_ref_code')   || localStorage.getItem('referralCode');
+  const balance = getCookie('as_balance')    || localStorage.getItem('rewardBalance') || '0';
+
+  const navActions    = document.querySelector('.nav-actions');
+  const profileDropdown = document.getElementById('profileDropdown');
+
+  if (email) {
+    // ── LOGGED IN STATE ──
+
+    // Hide Login/Signup buttons, show profile only
+    const loginBtn  = navActions.querySelector('.btn-login');
+    const signupBtn = navActions.querySelector('.btn-signup');
+    if (loginBtn)  loginBtn.style.display  = 'none';
+    if (signupBtn) signupBtn.style.display = 'none';
+
+    // Update profile sidebar
+    document.getElementById('profileEmail').textContent   = email;
+    document.getElementById('profileBalance').textContent = 'Balance — ₹' + parseFloat(balance).toFixed(2);
+    if (document.getElementById('profileName'))
+      document.getElementById('profileName').textContent  = name;
+
+    // Swap sidebar buttons: show Add Money + Logout, hide Login/Register
+    profileDropdown.innerHTML = `
+      <span class="mobile-menu-close" onclick="toggleProfile()">✕</span>
+      <div class="profile-avatar">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+      </div>
+      <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px">${name}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:6px;word-break:break-all">${email}</div>
+      <div style="font-size:16px;font-weight:700;color:var(--accent);margin-bottom:24px">
+        Balance — ₹${parseFloat(balance).toFixed(2)}
+      </div>
+      <div style="width:100%;height:1px;background:rgba(255,255,255,0.07);margin-bottom:20px"></div>
+      <button class="profile-btn primary"   onclick="window.location.href='add.html'">💳 Add Money</button>
+      <button class="profile-btn secondary" onclick="copyRef('${ref}')">🔗 Copy Referral Link</button>
+      <button class="profile-btn secondary" style="border-color:rgba(255,77,109,0.3);color:#ff4d6d;margin-top:8px" onclick="logout()">Logout</button>
+    `;
+
+  } else {
+    // ── LOGGED OUT STATE — keep defaults ──
+    document.getElementById('profileEmail').textContent   = 'Not logged in';
+    document.getElementById('profileBalance').textContent = 'Balance — ₹0.00';
+  }
+})();
+
+function copyRef(ref) {
+  if (!ref) return;
+  navigator.clipboard.writeText(`${location.origin}/register.html?ref=${ref}`)
+    .then(() => alert('Referral link copied!'));
+}
+
 
     /* ── Review track drag to pause ── */
     const track = document.getElementById('reviewsTrack');
