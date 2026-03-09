@@ -9,5 +9,11 @@ const userSchema = new mongoose.Schema({
             otp: String,
               otpExpires: Date
               });
-
+walletTransactions: [{
+  paymentId: String,
+  orderId:   String,
+  amount:    Number,
+  date:      { type: Date, default: Date.now },
+  type:      { type: String, default: 'credit' }
+}]
               module.exports = mongoose.model('User', userSchema);
