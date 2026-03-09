@@ -1856,7 +1856,27 @@ function logout() {
     document.getElementById('profileBalance').textContent = 'Balance — ₹0.00';
   }
 })();
+// Sync balance from DB on every page load
+async function syncBalance() {
+  const email = getCookie('as_user_email') || localStorage.getItem('userEmail');
+  if (!email) return;
 
+  try {
+    const res  = await fetch(`https://refer-earn-app.onrender.com/api/wallet/balance?email=${email}`);
+    const data = await res.json();
+    if (data.success) {
+      const bal = parseFloat(data.balance).toFixed(2);
+      localStorage.setItem('rewardBalance', bal);
+      setCookie('as_balance', bal, 3);
+
+      // Update UI live
+      const balEls = document.querySelectorAll('#profileBalance, .profile-balance');
+      balEls.forEach(el => el.textContent = 'Balance — ₹' + bal);
+    }
+  } catch(e) { console.log('Balance sync skipped'); }
+}
+
+syncBalance(); // call on page load
 function copyRef(ref) {
   if (!ref) return;
   navigator.clipboard.writeText(`${location.origin}/register.html?ref=${ref}`)
