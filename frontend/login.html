@@ -1,422 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — AmbikaShelf</title>
+  <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+  <meta name="theme-color" content="#0a1628">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<!DOCTYPE html>  <html lang="en">  
-<head>  
-  <meta charset="UTF-8">  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Ambika Shelf — Official Site</title>  <link rel="icon" href="icons/favicon.ico?v=4" type="image/x-icon">  
-<link rel="shortcut icon" href="icons/favicon.ico">  
-<link rel="apple-touch-icon" href="icons/android-chrome-192x192.png?v=4">  
-<link rel="manifest" href="manifest.json?v=4">    <meta name="theme-color" content="#0f1724">  
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5993190774932076"  
-     crossorigin="anonymous"></script>  
-  <style>  
-    *,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-    :root{  
-      --bg:#0f1724;  
-      --card:#0b1220;  
-      --muted:#94a3b8;  
-      --accent:#06b6d4;  
-      --success:#16a34a;  
-      --danger:#ef4444;  
-      --glass: rgba(255,255,255,0.03);  
-      --radius:12px;  
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;  
-    }  
-    html,body { overflow-x: hidden; height:100%; margin:0; background:linear-gradient(180deg,#071124 0%, #071a2b 100%); color:#e6eef8; }  
-    .wrapper { max-width:920px; margin:40px auto; padding:28px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:16px; box-shadow:0 10px 30px rgba(2,6,23,0.6); }  
-    header { display:flex; align-items:center; gap:16px; margin-bottom:18px; }  
-    .logo { width:56px; height:56px; background:linear-gradient(90deg,var(--accent),#60a5fa); border-radius:12px; display:grid; place-items:center; font-weight:700; color:#052024; }  
-    h1{ margin:0; font-size:20px; letter-spacing:0.2px; }  
-    p.lead{ margin:6px 0 18px; color:var(--muted); font-size:14px; }  
-    .grid { display:grid; grid-template-columns: 1fr 360px; gap:20px; }  
-    .card { background:var(--card); padding:18px; border-radius:var(--radius); border:1px solid rgba(255,255,255,0.03); }  
-    form .row { display:flex; gap:10px; margin-bottom:12px; }  
-    label{ display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }  
-    input[type="text"], input[type="email"], input[type="number"] {  
-      width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:var(--glass); color:inherit; font-size:14px;  
-    }  
-    button { background:linear-gradient(90deg,var(--accent),#60a5fa); border:none; padding:10px 12px; border-radius:10px; color:#022; font-weight:600; cursor:pointer; }  
-    button.secondary { background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); }  
-    .muted-note{ font-size:13px; color:var(--muted); margin-top:8px; }  
-    .hidden{ display:none !important; }  
-    .center { text-align:center; }  
-    .status {  
-      margin-top:12px;  
-      padding:10px 12px;  
-      border-radius:10px;  
-      font-size:14px;  
-      display:none;  
-    }  
-    .status.show { display:block; }  
-    .status.success { background: rgba(22,163,74,0.12); color:var(--success); border:1px solid rgba(22,163,74,0.12); }  
-    .status.error { background: rgba(239,68,68,0.08); color:var(--danger); border:1px solid rgba(239,68,68,0.08); }  
-    .dashboard { display:flex; flex-direction:column; gap:10px; }  
-    .refbox { display:flex; gap:8px; align-items:center; }  
-    .refbox input { font-family:monospace; }  
-    .small { font-size:13px; color:var(--muted); }  
-    .copy-btn { background:transparent; border:1px solid rgba(255,255,255,0.05); padding:8px 10px; border-radius:8px; color:var(--muted); cursor:pointer; }  
-    footer { margin-top:16px; color:var(--muted); font-size:13px; }  
-    @media (max-width:880px){  
-      .grid { grid-template-columns: 1fr; }  
-      .logo{display:none;}  
-    }  
-    /* ===== MENU ===== */
-.topbar{
-  display:flex;
-  justify-content:flex-end;
-  padding:10px 20px;
-}
-
-.menu-btn{
-  font-size:26px;
-  cursor:pointer;
-}
-
-.menu{
-  position:fixed;
-  top:0;
-  right:-280px;
-  width:260px;
-  height:100%;
-  background:#0b1220;
-  padding:20px;
-  transition:.3s;
-  z-index:9999;
-}
-
-.menu.open{ right:0; }
-
-.menu a{
-  display:block;
-  padding:14px 0;
-  color:#e6eef8;
-  text-decoration:none;
-}
-
-.close-btn{
-  font-size:22px;
-  cursor:pointer;
-  margin-bottom:10px;
+    :root {
+      --bg:      #07111f;
+      --card:    #031a33;
+      --accent:  #00c8ff;
+      --accent2: #0077b6;
+      --text:    #e6eef8;
+      --muted:   rgba(255,255,255,0.4);
+      --border:  rgba(0,200,255,0.15);
+      --success: #00e5a0;
+      --danger:  #ff4d6d;
+      --radius:  14px;
     }
-  </style>  
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "AmbikaShelf",
-  "url": "https://ambikashelf.in",
-  "logo": "https://ambikashelf.in/icons/android-chrome-512x512.png",
-  "foundingDate": "2025",
-  "founder": {
-    "@type": "Person",
-    "name": "Anuj Chauhan"
-  },
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "contactType": "customer support",
-    "email": "support@ambikashelf.shop"
-  },
-  "sameAs": [
-    "https://instagram.com/ambikashelf",
-    "https://facebook.com/ambikashelf"
-  ]
-}
-  </script>
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "AmbikaShelf",
-  "url": "https://ambikashelf.shop"
-}
-  </script>
-</head>  
-<body>  
-  <!-- MENU BUTTON -->
-<div class="topbar">
-  <div class="menu-btn" onclick="openMenu()">☰</div>
+
+    html, body { height: 100%; overflow-x: hidden; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 50% at 80% 50%, rgba(0,200,255,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 20% 30%, rgba(0,119,182,0.08) 0%, transparent 60%),
+        linear-gradient(180deg, #07111f 0%, #021326 100%);
+    }
+
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0,200,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,200,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    nav {
+      position: relative; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; height: 64px;
+      background: rgba(7,17,31,0.8); backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { height: 36px; width: 36px; border-radius: 9px; object-fit: contain; }
+    .nav-logo-text { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 900; color: var(--text); }
+    .nav-logo-text span { color: var(--accent); }
+
+    .nav-right { font-size: 13px; color: var(--muted); }
+    .nav-right a { color: var(--accent); font-weight: 600; text-decoration: none; }
+    .nav-right a:hover { text-decoration: underline; }
+
+    .main {
+      flex: 1; position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .card {
+      width: 100%; max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(30px) scale(.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card-top {
+      padding: 34px 34px 26px;
+      background: linear-gradient(135deg, #031a33, #042244);
+      border-bottom: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+
+    .card-top::before {
+      content: ''; position: absolute;
+      top: -60px; left: -60px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(0,200,255,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .card-tag { font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .card-tag::before { content: ''; display: block; width: 16px; height: 1px; background: var(--accent); }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; color: #fff; line-height: 1.15; margin-bottom: 6px; }
+    .card-title span { color: var(--accent); }
+    .card-sub { font-size: 13px; color: var(--muted); }
+
+    .card-body { padding: 30px 34px; }
+
+    .section.hidden { display: none; }
+
+    .field { margin-bottom: 18px; }
+    .field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+
+    .input-wrap { position: relative; }
+    .input-wrap svg.field-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; transition: color .25s; }
+    .input-wrap input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius); padding: 13px 14px 13px 42px; font-family: 'Montserrat', sans-serif; font-size: 14px; color: var(--text); outline: none; transition: all .25s; }
+    .input-wrap input:focus { border-color: var(--accent); background: rgba(0,200,255,0.04); box-shadow: 0 0 0 3px rgba(0,200,255,0.1); }
+    .input-wrap input::placeholder { color: rgba(255,255,255,0.2); }
+
+    .pwd-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--muted); background: none; border: none; padding: 0; transition: color .2s; }
+    .pwd-toggle:hover { color: var(--accent); }
+
+    .forgot-link { text-align: right; margin-top: -10px; margin-bottom: 18px; }
+    .forgot-link a { font-size: 12px; color: var(--accent); text-decoration: none; }
+    .forgot-link a:hover { text-decoration: underline; }
+
+    .submit-btn { width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: var(--radius); padding: 15px; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; cursor: pointer; transition: all .3s; box-shadow: 0 4px 24px rgba(0,200,255,0.2); display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; overflow: hidden; }
+    .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(0,200,255,0.35); }
+    .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+    .submit-btn.loading .btn-spinner { display: block; }
+    .submit-btn.loading .btn-text    { display: none; }
+
+    .status-msg { border-radius: 10px; padding: 11px 14px; font-size: 12px; margin-bottom: 16px; display: none; align-items: center; gap: 8px; }
+    .status-msg.show    { display: flex; }
+    .status-msg.success { background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.2); color: var(--success); }
+    .status-msg.error   { background: rgba(255,77,109,0.08); border: 1px solid rgba(255,77,109,0.2); color: var(--danger); }
+
+    /* OTP boxes for forgot password */
+    .otp-wrap { display: flex; gap: 10px; justify-content: center; margin: 8px 0 20px; }
+    .otp-input { width: 52px; height: 60px; background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.07); border-radius: 12px; text-align: center; font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--text); outline: none; transition: all .25s; caret-color: var(--accent); }
+    .otp-input:focus { border-color: var(--accent); background: rgba(0,200,255,0.05); box-shadow: 0 0 0 3px rgba(0,200,255,0.1); transform: translateY(-2px); }
+    .otp-input.filled { border-color: rgba(0,200,255,0.4); }
+
+    .otp-timer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 12px; }
+    .otp-timer span { color: var(--accent); font-weight: 600; }
+    .resend-btn { background: none; border: none; color: var(--accent); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; padding: 0; text-decoration: underline; display: none; }
+
+    .back-link { text-align: center; margin-top: 14px; font-size: 12px; color: var(--muted); cursor: pointer; }
+    .back-link:hover { color: var(--accent); }
+
+    .divider { display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin: 20px 0; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+
+    .register-link { text-align: center; font-size: 13px; color: var(--muted); margin-top: 18px; }
+    .register-link a { color: var(--accent); font-weight: 600; text-decoration: none; }
+    .register-link a:hover { text-decoration: underline; }
+
+    footer { position: relative; z-index: 1; text-align: center; padding: 20px; font-size: 11px; color: rgba(255,255,255,0.2); border-top: 1px solid rgba(255,255,255,0.04); }
+    footer span { color: rgba(0,200,255,0.5); }
+  </style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="https://ambikashelf.in/icons/ambikashelf.png" alt="AmbikaShelf" onerror="this.style.display='none'">
+    <span class="nav-logo-text">Ambika<span>Shelf</span></span>
+  </a>
+  <div class="nav-right">New here? <a href="register.html">Register Free →</a></div>
+</nav>
+
+<div class="main">
+  <div class="card">
+
+    <div class="card-top">
+      <div class="card-tag">Welcome Back</div>
+      <div class="card-title">Sign in to <span>AmbikaShelf</span></div>
+      <div class="card-sub">Access your wallet, tools, and rewards</div>
+    </div>
+
+    <div class="card-body">
+
+      <div class="status-msg" id="statusMsg">
+        <span id="statusIcon"></span>
+        <span id="statusText"></span>
+      </div>
+
+      <!-- ── LOGIN FORM ── -->
+      <div class="section" id="loginSection">
+        <div class="field">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" />
+            <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 8 10-8"/></svg>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrap">
+            <input type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" />
+            <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <button class="pwd-toggle" type="button" onclick="togglePwd()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="forgot-link"><a href="#" onclick="showForgot()">Forgot password?</a></div>
+
+        <button class="submit-btn" id="loginBtn" onclick="doLogin()">
+          <span class="btn-text">Sign In →</span>
+          <span class="btn-spinner"></span>
+        </button>
+
+        <div class="register-link">Don't have an account? <a href="register.html">Register Free</a></div>
+      </div>
+
+      <!-- ── FORGOT PASSWORD ── -->
+      <div class="section hidden" id="forgotSection">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Enter your email to receive a reset OTP.</p>
+
+        <div class="field">
+          <label>Email Address</label>
+          <div class="input-wrap">
+            <input type="email" id="forgotEmail" placeholder="you@example.com" />
+            <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 8 10-8"/></svg>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="forgotBtn" onclick="sendResetOTP()">
+          <span class="btn-text">Send Reset OTP →</span>
+          <span class="btn-spinner"></span>
+        </button>
+
+        <div class="back-link" onclick="showLogin()">← Back to Login</div>
+      </div>
+
+      <!-- ── RESET OTP ── -->
+      <div class="section hidden" id="resetOtpSection">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;text-align:center">Enter the OTP sent to<br><strong style="color:var(--text)" id="resetToEmail">—</strong></p>
+
+        <div class="otp-wrap" id="resetOtpBoxes">
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+          <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+        </div>
+
+        <div class="otp-timer">OTP expires in <span id="resetTimer">05:00</span> <button class="resend-btn" id="resendReset" onclick="sendResetOTP()">Resend</button></div>
+
+        <div class="field" style="margin-top:18px">
+          <label>New Password</label>
+          <div class="input-wrap">
+            <input type="password" id="newPassword" placeholder="Min 8 characters" />
+            <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="resetBtn" onclick="resetPassword()">
+          <span class="btn-text">Reset Password →</span>
+          <span class="btn-spinner"></span>
+        </button>
+
+        <div class="back-link" onclick="showLogin()">← Back to Login</div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
-<!-- MENU PANEL -->
-<div id="menu" class="menu">
-  <div class="close-btn" onclick="closeMenu()">✕</div>
+<footer>© 2026 <span>AmbikaShelf</span> — All Rights Reserved</footer>
 
-  <a href="index.html" onclick="closeMenu()">Login</a>
-  <a href="qr.html" onclick="closeMenu()">QR Scanner</a>
-  <a href="about.html" onclick="closeMenu()">About Us</a>
-  <a href="contact.html" onclick="closeMenu()">Contact</a>
-  <a href="privacy.html" onclick="closeMenu()">Privacy Policy</a>
-  <a href="terms.html" onclick="closeMenu()">Terms & Conditions</a>
-  <a href="/worldchat.html" onclick="closeMenu()">Live Chat</a>
-  <a href="/pdf.html" onclick="closeMenu()">Create PDF</a>
-  
-  
-</div>
-  <div class="wrapper">  
-    <header>  
-      <div class="logo">RE</div>  
-      <div>  
-        <h1>Ambika Shelf</h1>  
-        <p class="lead">Signup with email OTP, referral tracking, and instant rewards.</p>  
-      </div>  
-    </header>  <div class="grid">  
-  <div class="card">  
-    <section id="signupSection">  
-      <h3>Sign up</h3>  
-      <form id="signupForm" autocomplete="off">  
-        <div class="row">  
-          <div style="flex:1">  
-            <label for="name">Full name</label>  
-            <input id="name" name="name" type="text" placeholder="Your full name" required />  
-          </div>  
-        </div>  
-
-        <div class="row">  
-          <div style="flex:1">  
-            <label for="email">Email</label>  
-            <input id="email" name="email" type="email" placeholder="you@example.com" required />  
-          </div>  
-        </div>  
-
-        <div class="row">  
-          <button id="sendOtpBtn" type="submit">Get OTP</button>  
-          <button id="useCodeBtn" type="button" class="secondary">I have referral code</button>  
-        </div>  
-
-        <div id="manualCodeRow" class="hidden">  
-          <label for="manualCode">Referral code (optional)</label>  
-          <div style="display:flex;gap:8px">  
-            <input id="manualCode" type="text" placeholder="AB12CD" />  
-          </div>  
-        </div>  
-      </form>  
-
-      <div id="signupStatus" class="status"></div>  
-    </section>  
-
-    <section id="verifySection" class="hidden" style="margin-top:10px">  
-      <h3>Verify OTP</h3>  
-      <form id="otpForm" autocomplete="off">  
-        <label for="otp">Enter OTP</label>  
-        <input id="otp" name="otp" type="number" placeholder="6-digit code" required />  
-        <div style="display:flex;gap:8px;margin-top:10px">  
-          <button id="verifyBtn" type="submit">Verify & Continue</button>  
-          <button id="resendBtn" type="button" class="secondary">Resend OTP</button>  
-        </div>  
-        <div id="otpTimer" class="small muted-note">OTP expires in <span id="timer">--:--</span></div>  
-      </form>  
-      <div id="verifyStatus" class="status"></div>  
-    </section>  
-  </div>  
-
-  <aside class="card">  
-    <div id="preAuthBlock">  
-      <h3 class="center">Quick Info</h3>  
-      <p class="small">Base URL:</p>  
-      <p class="small"><code id="baseUrl"></code></p>  
-    </div>  
-
-    <div id="dashboardBlock" class="hidden">  
-      <h3 class="center">Your Dashboard</h3>  
-      <div class="dashboard">  
-        <div>  
-          <label>Your referral link</label>  
-          <div class="refbox">  
-            <input id="refLink" readonly />  
-            <button id="copyRef" class="copy-btn">Copy</button>  
-          </div>  
-        </div>  
-        <div>  
-          <label>Reward balance</label>  
-          <div style="font-size:18px;font-weight:600" id="rewardBalance">0</div>  
-        </div>  
-        <button id="signoutBtn" class="secondary">Sign out</button>  
-      </div>  
-    </div>  
-  </aside>  
-</div>  
-
-<footer class="center">  
-  <small>© AmbikaShelf 2026 — All Rights Reserved.</small>  
-</footer>
-
-  </div>    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>    <script>  
-    emailjs.init("nrRHkmrcj0okGAbI2");  
-  </script>    <script>  
-  const BASE_URL = "https://refer-earn-app.onrender.com";  
-  document.getElementById("baseUrl").innerText = BASE_URL;  
-  
-  const signupForm = document.getElementById("signupForm");  
-  const signupStatus = document.getElementById("signupStatus");  
-  const verifySection = document.getElementById("verifySection");  
-  const verifyStatus = document.getElementById("verifyStatus");  
-  const otpForm = document.getElementById("otpForm");  
-  const timerEl = document.getElementById("timer");  
-  const rewardBalanceEl = document.getElementById("rewardBalance");  
-  const refLink = document.getElementById("refLink");  
-  const copyRefBtn = document.getElementById("copyRef");  
-  const manualCodeRow = document.getElementById("manualCodeRow");  
-  const useCodeBtn = document.getElementById("useCodeBtn");  
-  
-  let signupEmail = "";  
-  let otpTimer;  
-  
-  useCodeBtn.addEventListener("click", ()=> manualCodeRow.classList.toggle("hidden"));  
-  
-  function showStatus(el, msg, type="success") {  
-    el.className = `status show ${type}`;  
-    el.textContent = msg;  
-    setTimeout(()=> el.className="status", 6000);  
-  }  
-  
-  function startTimer(sec) {  
-    clearInterval(otpTimer);  
-    otpTimer = setInterval(()=>{  
-      if(sec <= 0){ clearInterval(otpTimer); timerEl.textContent="00:00"; }  
-      else {  
-        let m = Math.floor(sec/60).toString().padStart(2,"0");  
-        let s = (sec%60).toString().padStart(2,"0");  
-        timerEl.textContent=`${m}:${s}`;  
-        sec--;  
-      }  
-    },1000);  
-  }  
-  
-  signupForm.addEventListener("submit", async (e)=>{  
-    e.preventDefault();  
-    const name = document.getElementById("name").value.trim();  
-    const email = document.getElementById("email").value.trim();  
-    const manualCode = document.getElementById("manualCode").value.trim();  
-    const urlCode = new URLSearchParams(location.search).get("ref");  
-    const refCode = manualCode || urlCode || null;  
-    signupEmail = email;  
-  
-    showStatus(signupStatus,"Generating OTP...");  
-  
-    try {  
-      const res = await fetch(`${BASE_URL}/send-otp`,{  
-        method:"POST",  
-        headers:{ "Content-Type":"application/json" },  
-        body:JSON.stringify({ name,email,refCode })  
-      });  
-      const data = await res.json();  
-  
-      if(!data.success){ showStatus(signupStatus,data.msg,"error"); return; }  
-  
-      await emailjs.send("service_h2opout","template_vepoizn",{  
-        email: email,  
-        passcode: data.otp,  
-        time: new Date().toLocaleTimeString()  
-      });  
-  
-      showStatus(signupStatus,"OTP sent successfully!","success");  
-      verifySection.classList.remove("hidden");  
-      startTimer(300);  
-    } catch(err){  
-      console.error(err);  
-      showStatus(signupStatus,"Error connecting to server or sending email.","error");  
-    }  
-  });  
-  
-  otpForm.addEventListener("submit", async (e)=>{  
-    e.preventDefault();  
-    const otp = document.getElementById("otp").value.trim();  
-    showStatus(verifyStatus,"Verifying OTP...");  
-  
-    try {  
-      const res = await fetch(`${BASE_URL}/verify-otp`,{  
-        method:"POST",  
-        headers:{ "Content-Type":"application/json" },  
-        body:JSON.stringify({ email:signupEmail, otp })  
-      });  
-      const data = await res.json();  
-  
-      if(!data.success){
-  showStatus(verifyStatus,data.msg,"error");
-  return;
-}
-
-localStorage.setItem("referralCode",data.referralCode);
-localStorage.setItem("rewardBalance",data.rewardBalance);
-
-refLink.value = `${location.origin}/signup?ref=${data.referralCode}`;
-rewardBalanceEl.textContent = data.rewardBalance;
-
-document.getElementById("dashboardBlock").classList.remove("hidden");
-
-showStatus(verifyStatus,"OTP verified!","success");
-
-setTimeout(()=>{
-  window.location.href = "dashboard.html";
-}, 800);
-                           }   catch(err){  
-      console.error(err);  
-      showStatus(verifyStatus,"Verification failed.","error");  
-    }  
-  });  
-  
-  copyRefBtn.addEventListener("click", ()=>{  
-    navigator.clipboard.writeText(refLink.value);  
-    showStatus(signupStatus,"Referral link copied!","success");  
-  });  
-  </script>    <!-- ✅ CHATBASE CHATBOT EMBED (ADDED) -->    <script>  
-    (function(){  
-      if(!window.chatbase||window.chatbase("getState")!=="initialized"){  
-        window.chatbase=(...arguments)=>{  
-          if(!window.chatbase.q){window.chatbase.q=[]}  
-          window.chatbase.q.push(arguments)  
-        };  
-        window.chatbase=new Proxy(window.chatbase,{  
-          get(target,prop){  
-            if(prop==="q"){return target.q}  
-            return(...args)=>target(prop,...args)  
-          }  
-        })  
-      }  
-      const onLoad=function(){  
-        const script=document.createElement("script");  
-        script.src="https://www.chatbase.co/embed.min.js";  
-        script.id="AUGcI9djCuTSwBe1VDN8d"; // Your bot ID  
-        script.domain="www.chatbase.co";  
-        document.body.appendChild(script)  
-      };  
-      if(document.readyState==="complete"){onLoad()}  
-      else{window.addEventListener("load",onLoad)}  
-    })();  
-  </script>    <!-- ✅ CHATBASE USER IDENTIFICATION TEST -->    <script src="https://cdn.jsdelivr.net/npm/jsonwebtoken@9.0.2/dist/browser/jsonwebtoken.min.js"></script>    <script>  
-    async function identifyUserForChatbase(){  
-      try {  
-        // ⚠️ TESTING ONLY: using static secret directly (do not use in production)  
-        const secret = "YOUR_CHATBASE_SECRET_KEY";  
-        const payload = {  
-          user_id: localStorage.getItem("referralCode") || "guest_" + Math.random().toString(36).substr(2,6),  
-          email: signupEmail || "guest@example.com"  
-        };  
-        const token = KJUR.jws.JWS.sign(null, {alg:"HS256"}, payload, secret);  
-        window.chatbase('identify', { token });  
-      } catch(err){ console.error("Chatbase identify failed:", err); }  
-    }  
-    // Trigger after OTP verification or after user signup  
-    identifyUserForChatbase();  
-  </script>
 <script>
-function openMenu(){
-  document.getElementById("menu").classList.add("open");
-}
+  emailjs.init("nrRHkmrcj0okGAbI2");
+  const BASE_URL = "https://refer-earn-app.onrender.com";
+  let resetEmail = '';
+  let resetTimer;
 
-function closeMenu(){
-  document.getElementById("menu").classList.remove("open");
-}
-
-document.body.addEventListener("click",function(e){
-  const menu = document.getElementById("menu");
-  if(!menu.contains(e.target) &&
-     !e.target.classList.contains("menu-btn")){
-    closeMenu();
+  function showStatus(msg, type) {
+    const el = document.getElementById('statusMsg');
+    document.getElementById('statusIcon').textContent = type === 'success' ? '✓' : '✕';
+    document.getElementById('statusText').textContent = msg;
+    el.className = `status-msg show ${type}`;
+    if (type === 'success') setTimeout(() => el.classList.remove('show'), 5000);
   }
-});
-</script></body>  
-  </html>
+
+  function setLoading(btnId, state) {
+    const btn = document.getElementById(btnId);
+    btn.classList.toggle('loading', state);
+    btn.disabled = state;
+  }
+
+  function showSection(id) {
+    ['loginSection','forgotSection','resetOtpSection'].forEach(s => {
+      document.getElementById(s).classList.toggle('hidden', s !== id);
+    });
+    document.getElementById('statusMsg').classList.remove('show');
+  }
+
+  function showLogin()  { showSection('loginSection'); }
+  function showForgot() { showSection('forgotSection'); }
+
+  function togglePwd() {
+    const inp = document.getElementById('loginPassword');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  /* ── Cookie helpers ── */
+  function setCookie(name, value, days) {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires};path=/;SameSite=Lax`;
+  }
+
+  function getCookie(name) {
+    const found = document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith(name + '='));
+    return found ? decodeURIComponent(found.split('=')[1]) : null;
+  }
+
+  /* ── Login ── */
+  async function doLogin() {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email)    return showStatus('Please enter your email', 'error');
+    if (!password) return showStatus('Please enter your password', 'error');
+
+    setLoading('loginBtn', true);
+
+    try {
+      const res  = await fetch(`${BASE_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        showStatus(data.msg || 'Invalid email or password', 'error');
+        setLoading('loginBtn', false);
+        return;
+      }
+
+      // ✅ Set cookies for 2-3 days
+      setCookie('as_user_email', email, 3);
+      setCookie('as_user_name',  data.name || '', 3);
+      setCookie('as_ref_code',   data.referralCode || '', 3);
+      setCookie('as_balance',    data.rewardBalance || '0', 3);
+
+      localStorage.setItem('userEmail',    email);
+      localStorage.setItem('userName',     data.name || '');
+      localStorage.setItem('referralCode', data.referralCode || '');
+      localStorage.setItem('rewardBalance', data.rewardBalance || 0);
+
+      window.location.href = 'index.html';
+
+    } catch (err) {
+      console.error(err);
+      showStatus('Could not connect. Check your internet.', 'error');
+    }
+
+    setLoading('loginBtn', false);
+  }
+
+  /* ── Forgot: send reset OTP ── */
+  async function sendResetOTP() {
+    const email = document.getElementById('forgotEmail').value.trim() || resetEmail;
+    if (!email) return showStatus('Please enter your email', 'error');
+    resetEmail = email;
+
+    setLoading('forgotBtn', true);
+
+    try {
+      const res  = await fetch(`${BASE_URL}/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        showStatus(data.msg, 'error');
+        setLoading('forgotBtn', false);
+        return;
+      }
+
+      // Send OTP via EmailJS
+      await emailjs.send('service_h2opout', 'template_vepoizn', {
+        email, passcode: data.otp, time: new Date().toLocaleTimeString()
+      });
+
+      document.getElementById('resetToEmail').textContent = email;
+      showSection('resetOtpSection');
+      startResetTimer();
+      document.querySelectorAll('#resetOtpBoxes .otp-input')[0].focus();
+
+    } catch (err) {
+      showStatus('Failed to send OTP', 'error');
+    }
+
+    setLoading('forgotBtn', false);
+  }
+
+  /* ── Reset timer ── */
+  function startResetTimer() {
+    let sec = 300;
+    document.getElementById('resendReset').style.display = 'none';
+    clearInterval(resetTimer);
+    resetTimer = setInterval(() => {
+      sec--;
+      const m = Math.floor(sec/60).toString().padStart(2,'0');
+      const s = (sec%60).toString().padStart(2,'0');
+      document.getElementById('resetTimer').textContent = `${m}:${s}`;
+      if (sec <= 0) {
+        clearInterval(resetTimer);
+        document.getElementById('resendReset').style.display = 'inline';
+      }
+    }, 1000);
+  }
+
+  /* OTP box auto-advance */
+  document.querySelectorAll('#resetOtpBoxes .otp-input').forEach((inp, i, arr) => {
+    inp.addEventListener('input', e => {
+      e.target.value = e.target.value.replace(/\D/g,'');
+      if (e.target.value) { e.target.classList.add('filled'); if (i < arr.length-1) arr[i+1].focus(); }
+      else e.target.classList.remove('filled');
+    });
+    inp.addEventListener('keydown', e => { if (e.key === 'Backspace' && !e.target.value && i > 0) arr[i-1].focus(); });
+    inp.addEventListener('paste', e => {
+      const paste = (e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+      if (paste.length === 6) { arr.forEach((b,j) => { b.value = paste[j]||''; b.classList.toggle('filled',!!paste[j]); }); e.preventDefault(); }
+    });
+  });
+
+  /* ── Reset password ── */
+  async function resetPassword() {
+    const otp         = [...document.querySelectorAll('#resetOtpBoxes .otp-input')].map(i => i.value).join('');
+    const newPassword = document.getElementById('newPassword').value;
+
+    if (otp.length < 6)        return showStatus('Enter the 6-digit OTP', 'error');
+    if (newPassword.length < 8) return showStatus('Password must be at least 8 characters', 'error');
+
+    setLoading('resetBtn', true);
+
+    try {
+      const res  = await fetch(`${BASE_URL}/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail, otp, newPassword })
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        showStatus(data.msg, 'error');
+        setLoading('resetBtn', false);
+        return;
+      }
+
+      showStatus('Password reset! Please login.', 'success');
+      setTimeout(showLogin, 2000);
+
+    } catch (err) {
+      showStatus('Reset failed. Try again.', 'error');
+    }
+
+    setLoading('resetBtn', false);
+  }
+
+  /* ── Redirect if already logged in ── */
+  if (getCookie('as_user_email') || localStorage.getItem('userEmail')) {
+    window.location.href = 'index.html';
+  }
+</script>
+
+</body>
+</html>
