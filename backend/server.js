@@ -9,7 +9,7 @@ const path = require('path');
 const User = require('./models/User');
 const Referral = require('./models/Referral');
 const sendWelcomeMail = require('./welcomeMail');
-
+const walletRoutes = require('./wallet');
 // ✅ NEW: Socket + HTTP
 const http = require("http");
 const { Server } = require("socket.io");
@@ -20,7 +20,14 @@ const app = express();
 // ---------- MIDDLEWARE ----------
 app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
+// --------------------------------
+app.use('/api/wallet',wallet);
+```
 
+**3. Add to your `.env`:**
+```
+RAZORPAY_KEY_ID=rzp_live_XXXXXXXXXX
+RAZORPAY_KEY_SECRET=your_secret_here
 // 🔥 IMPORTANT for AI image base64 (large payload)
 app.use(express.json({ limit: "10mb" }));
 
