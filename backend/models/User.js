@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   referralCode: { type: String, unique: true },
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   rewardBalance: { type: Number, default: 0 },
+  password: { type: String, default: null },
   otp: String,
   otpExpires: Date,
 
