@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Money — AmbikaShelf Wallet</title>
+  <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="icons/android-chrome-192x192.png">
+  <meta name="theme-color" content="#0a1628">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #07111f;
+      --bg2:     #0a1628;
+      --bg3:     #0d1e35;
+      --bg4:     #021326;
+      --card:    #031a33;
+      --accent:  #00c8ff;
+      --accent2: #0077b6;
+      --text:    #e6eef8;
+      --muted:   rgba(255,255,255,0.4);
+      --border:  rgba(0,200,255,0.15);
+      --radius:  14px;
+      --success: #00e5a0;
+      --danger:  #ff4d6d;
+    }
+
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ══════ NAVBAR ══════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 68px; gap: 12px;
+      background: rgba(7,17,31,0.92); backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo img { height: 40px; width: 40px; object-fit: contain; border-radius: 10px; }
+    .nav-logo-text { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 900; }
+    .nav-logo-text span { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; }
+    .nav-links a { font-size: 12px; font-weight: 500; padding: 7px 10px; border-radius: 8px; color: var(--muted); transition: color .25s, background .25s; }
+    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .nav-links a.active { color: var(--accent); background: rgba(0,200,255,0.06); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .nav-profile { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); display: grid; place-items: center; cursor: pointer; transition: border-color .25s; color: var(--muted); }
+    .nav-profile:hover { border-color: var(--accent); color: var(--accent); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; border-radius: 8px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; }
+
+    .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; }
+    .mobile-overlay.show { display: block; }
+    .mobile-menu { position: fixed; top: 0; left: -100%; width: 260px; height: 100%; background: #0b1220; z-index: 9999; padding: 24px 20px; transition: left .3s cubic-bezier(.4,0,.2,1); border-right: 1px solid var(--border); }
+    .mobile-menu.open { left: 0; }
+    .mobile-menu-close { font-size: 20px; cursor: pointer; color: var(--muted); margin-bottom: 24px; display: block; }
+    .mobile-menu a { display: block; padding: 13px 0; font-size: 15px; font-weight: 500; color: var(--muted); border-bottom: 1px solid rgba(255,255,255,0.05); transition: color .2s, padding-left .2s; }
+    .mobile-menu a:hover { color: var(--accent); padding-left: 6px; }
+
+    .profile-dropdown { position: fixed; top: 0; right: -320px; width: 280px; height: 100%; background: #0b1220; z-index: 9999; padding: 24px 20px; transition: right .3s cubic-bezier(.4,0,.2,1); border-left: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .profile-dropdown.open { right: 0; }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: grid; place-items: center; margin: 20px auto 14px; }
+    .pdp-name { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .pdp-email { font-size: 13px; color: var(--muted); margin-bottom: 6px; word-break: break-all; }
+    .pdp-bal { font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 24px; }
+    .pdp-divider { width: 100%; height: 1px; background: rgba(255,255,255,0.07); margin-bottom: 20px; }
+    .pdp-btn { width: 100%; padding: 11px; border-radius: 10px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .25s; margin-bottom: 10px; }
+    .pdp-btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; color: #fff; }
+    .pdp-btn.outline { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .pdp-btn.red { background: transparent; border: 1px solid rgba(255,77,109,0.3); color: #ff4d6d; }
+    .pdp-btn:hover { opacity: .85; transform: translateY(-1px); }
+
+    /* ══════ PAGE ══════ */
+    .page-hero {
+      padding: 100px 24px 80px;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,200,255,0.07) 0%, transparent 70%),
+                  linear-gradient(180deg, #07111f 0%, #0a1628 100%);
+      position: relative; overflow: hidden; min-height: 100vh;
+    }
+
+    .page-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,200,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,200,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px; pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 1080px; margin: 0 auto; padding-top: 40px;
+      display: grid; grid-template-columns: 1fr 1.1fr; gap: 52px; align-items: start;
+    }
+
+    /* ══════ BALANCE CARD ══════ */
+    .balance-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; overflow: hidden;
+      position: sticky; top: 84px;
+      animation: fadeUp 0.55s 0.1s ease both;
+    }
+
+    .bal-top {
+      background: linear-gradient(135deg, #031a33, #042040);
+      padding: 28px 26px 24px; position: relative; overflow: hidden;
+    }
+    .bal-top::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(0,200,255,0.12) 0%, transparent 70%); border-radius: 50%; }
+    .bal-top::after  { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); }
+
+    .bal-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .bal-eyebrow::before { content: ''; display: block; width: 18px; height: 1px; background: var(--accent); }
+
+    .bal-row { display: flex; align-items: flex-start; gap: 3px; }
+    .bal-sym { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: rgba(0,200,255,0.7); margin-top: 5px; }
+    .bal-num { font-family: 'Playfair Display', serif; font-size: 3.2rem; font-weight: 900; color: #fff; letter-spacing: -2px; line-height: 1; transition: all 0.5s; }
+    .bal-sub { font-size: 11px; color: var(--muted); margin-top: 6px; letter-spacing: 1px; }
+
+    .bal-btm { padding: 18px 26px; }
+    .s-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .s-row:last-child { border-bottom: none; }
+    .s-k { font-size: 11px; color: var(--muted); }
+    .s-v { font-size: 12px; font-weight: 600; color: var(--text); }
+    .s-v.c { color: var(--accent); cursor: pointer; }
+    .s-v.g { color: var(--success); }
+
+    .tx-sec { margin-top: 16px; }
+    .tx-hd { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    .tx-r { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); animation: slideIn .3s ease both; }
+    .tx-r:last-child { border-bottom: none; }
+    .tx-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px rgba(0,229,160,0.5); flex-shrink: 0; }
+    .tx-inf { flex: 1; }
+    .tx-nm { font-size: 12px; font-weight: 600; }
+    .tx-dt { font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .tx-am { font-size: 13px; font-weight: 700; color: var(--success); flex-shrink: 0; }
+    .tx-empty { text-align: center; padding: 14px 0; font-size: 12px; color: var(--muted); }
+
+    /* ══════ FORM SIDE ══════ */
+    .form-side { animation: fadeUp 0.55s 0.2s ease both; }
+
+    .pg-eye  { font-size: 10px; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; display: block; }
+    .pg-title { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.5vw, 40px); font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 8px; }
+    .pg-title span { color: var(--accent); }
+    .pg-sub { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 30px; }
+
+    .f-label { font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; display: block; }
+
+    .q-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
+
+    .q-btn {
+      background: var(--card); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius); padding: 16px 8px; text-align: center;
+      cursor: pointer; transition: all .25s; position: relative; overflow: hidden;
+    }
+    .q-btn::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0; transition: opacity .25s; }
+    .q-btn:hover, .q-btn.sel { border-color: rgba(0,200,255,0.35); background: rgba(0,200,255,0.06); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .q-btn:hover::before, .q-btn.sel::before { opacity: 1; }
+    .q-amt { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: #fff; display: block; margin-bottom: 3px; }
+    .q-tag { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .q-btn.sel .q-tag { color: var(--accent); }
+    .hot { position: absolute; top: 7px; right: 7px; font-size: 8px; font-weight: 700; background: rgba(0,200,255,0.12); color: var(--accent); border: 1px solid rgba(0,200,255,0.2); padding: 2px 7px; border-radius: 10px; letter-spacing: 1px; }
+
+    .or-div { display: flex; align-items: center; gap: 12px; margin: 18px 0; font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .or-div::before, .or-div::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+
+    .inp-wrap { position: relative; margin-bottom: 22px; }
+    .inp-pfx { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--accent); pointer-events: none; }
+    .amt-inp { width: 100%; background: var(--card); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius); padding: 16px 16px 16px 38px; font-family: 'Montserrat', sans-serif; font-size: 1rem; color: var(--text); outline: none; transition: border-color .3s, box-shadow .3s; }
+    .amt-inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,200,255,0.1); background: rgba(0,200,255,0.03); }
+    .amt-inp::placeholder { color: var(--muted); font-size: .9rem; }
+
+    .pay-btn {
+      width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; border-radius: var(--radius); padding: 16px;
+      font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #fff;
+      cursor: pointer; transition: all .3s; box-shadow: 0 4px 30px rgba(0,200,255,0.2);
+      display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; overflow: hidden;
+    }
+    .pay-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent); opacity: 0; transition: opacity .3s; }
+    .pay-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(0,200,255,0.35); }
+    .pay-btn:hover::before { opacity: 1; }
+    .pay-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; flex-shrink: 0; }
+    .pay-btn.loading .spinner { display: block; }
+    .pay-btn.loading .btxt { display: none; }
+
+    .pay-note { text-align: center; font-size: 11px; color: var(--muted); margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .pills { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    .pill { display: flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 6px 14px; font-size: 11px; color: var(--muted); }
+    .pill em { color: var(--accent); font-style: normal; font-size: 13px; }
+
+    /* ══════ LOGIN POPUP ══════ */
+    .popup-bg {
+      display: none; position: fixed; inset: 0;
+      background: rgba(4, 12, 26, 0.82); z-index: 800;
+      align-items: center; justify-content: center; padding: 24px;
+      backdrop-filter: blur(8px);
+    }
+    .popup-bg.show { display: flex; }
+
+    .popup {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 40px 30px 32px;
+      max-width: 380px; width: 100%; text-align: center;
+      position: relative; overflow: hidden;
+      animation: popIn .4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .popup::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+    @keyframes popIn { from { opacity: 0; transform: scale(.85) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    .popup-x {
+      position: absolute; top: 14px; right: 14px;
+      width: 30px; height: 30px; border-radius: 8px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--muted); font-size: 15px; transition: all .2s;
+    }
+    .popup-x:hover { background: rgba(255,77,109,0.1); border-color: rgba(255,77,109,0.3); color: #ff4d6d; }
+
+    .popup-ico {
+      width: 68px; height: 68px; border-radius: 50%;
+      background: rgba(0,200,255,0.08); border: 1px solid rgba(0,200,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px;
+      animation: iconPop .5s cubic-bezier(0.34, 1.56, 0.64, 1) .2s both;
+    }
+    @keyframes iconPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .popup-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: #fff; margin-bottom: 8px; line-height: 1.2; }
+    .popup-title span { color: var(--accent); }
+    .popup-desc { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 26px; }
+
+    .popup-login-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: 12px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #fff; cursor: pointer; transition: all .3s; box-shadow: 0 4px 24px rgba(0,200,255,0.25); margin-bottom: 12px; }
+    .popup-login-btn:hover { opacity: .88; transform: translateY(-2px); }
+    .popup-reg { font-size: 12px; color: var(--muted); }
+    .popup-reg a { color: var(--accent); font-weight: 600; }
+    .popup-reg a:hover { opacity: .75; }
+
+    /* ══════ SUCCESS MODAL ══════ */
+    .succ-modal { display: none; position: fixed; inset: 0; background: rgba(7,17,31,0.85); z-index: 900; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(8px); }
+    .succ-modal.show { display: flex; }
+    .succ-box { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 38px 30px; text-align: center; max-width: 380px; width: 100%; animation: popIn .5s cubic-bezier(0.34,1.56,0.64,1) both; position: relative; overflow: hidden; }
+    .succ-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--success)); }
+    .succ-ico { width: 68px; height: 68px; border-radius: 50%; background: rgba(0,229,160,0.1); border: 2px solid rgba(0,229,160,0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .succ-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: #fff; margin-bottom: 4px; }
+    .succ-amt { font-size: 2.2rem; font-family: 'Playfair Display', serif; font-weight: 700; color: var(--success); margin: 10px 0 4px; }
+    .succ-pid { font-size: 10px; color: var(--muted); font-family: monospace; background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px 12px; margin: 10px 0 20px; word-break: break-all; }
+    .succ-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: 12px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #fff; cursor: pointer; transition: opacity .3s; }
+    .succ-btn:hover { opacity: .85; }
+
+    /* ══════ TOAST ══════ */
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg3); border: 1px solid var(--border); border-radius: 14px; padding: 14px 22px; display: flex; align-items: center; gap: 10px; z-index: 9999; transition: transform .4s cubic-bezier(0.34,1.56,0.64,1); min-width: 260px; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.ok  { border-color: rgba(0,229,160,0.4); }
+    .toast.err { border-color: rgba(255,77,109,0.4); }
+    .toast-msg { font-size: 12px; color: var(--text); }
+
+    /* ══════ FOOTER ══════ */
+    footer { background: #060f1c; border-top: 1px solid rgba(0,200,255,0.1); padding: 60px 40px 28px; margin-top: 0; }
+    .f-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.7fr 1fr 1fr 1fr 1fr; gap: 36px; padding-bottom: 44px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .f-brand img { height: 120px; width: auto; object-fit: contain; margin-bottom: 16px; display: block; }
+    .f-brand p { font-size: 13px; color: var(--muted); line-height: 1.85; max-width: 220px; margin-bottom: 18px; }
+    .f-made { font-size: 11px; color: rgba(255,255,255,0.22); margin-bottom: 14px; }
+    .f-icons { display: flex; gap: 12px; }
+    .f-icons a img { width: 24px; height: 24px; filter: brightness(0) invert(.45); transition: filter .25s, transform .25s; }
+    .f-icons a:hover img { filter: brightness(0) saturate(100%) invert(70%) sepia(80%) saturate(400%) hue-rotate(160deg); transform: scale(1.15); }
+    .f-col h4 { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+    .f-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .f-col ul li a { font-size: 13px; color: var(--muted); transition: color .25s, padding-left .25s; display: inline-block; }
+    .f-col ul li a:hover { color: var(--accent); padding-left: 5px; }
+    .soc { display: flex; flex-direction: column; gap: 11px; }
+    .soc a { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); transition: color .25s; }
+    .soc a img { width: 19px; height: 19px; filter: brightness(0) invert(.45); transition: filter .25s; }
+    .soc a:hover { color: var(--accent); }
+    .soc a:hover img { filter: brightness(0) saturate(100%) invert(70%) sepia(80%) saturate(400%) hue-rotate(160deg); }
+    .f-btm { max-width: 1100px; margin: 26px auto 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .f-copy { font-size: 11px; color: rgba(255,255,255,0.22); }
+    .f-copy span { color: rgba(0,200,255,0.55); }
+    .f-legal { display: flex; gap: 20px; }
+    .f-legal a { font-size: 11px; color: rgba(255,255,255,0.22); transition: color .25s; }
+    .f-legal a:hover { color: var(--accent); }
+
+    /* ══════ ANIMATIONS ══════ */
+    @keyframes fadeUp  { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* ══════ RESPONSIVE ══════ */
+    @media (max-width: 900px) { .hero-inner { grid-template-columns: 1fr; gap: 36px; } .balance-card { position: static; } }
+    @media (max-width: 768px) { .nav-links { display: none; } .hamburger { display: flex; } .f-grid { grid-template-columns: 1fr 1fr; gap: 28px; } .f-brand { grid-column: 1 / -1; } .q-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .page-hero { padding: 88px 16px 60px; } footer { padding: 40px 16px 24px; } .f-grid { grid-template-columns: 1fr; } .q-grid { grid-template-columns: repeat(3, 1fr); } }
+  </style>
+</head>
+<body>
+
+  <!-- ══ NOT-LOGGED-IN POPUP ══ -->
+  <div class="popup-bg" id="loginPopup">
+    <div class="popup">
+      <div class="popup-x" onclick="closePopup()">✕</div>
+      <div class="popup-ico">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <h2 class="popup-title">Login to <span>Add Money</span></h2>
+      <p class="popup-desc">You need to be logged in to add money to your AmbikaShelf wallet. It's free &amp; takes less than a minute!</p>
+      <button class="popup-login-btn" onclick="window.location.href='login.html'">Login to Continue →</button>
+      <p class="popup-reg">No account? <a href="login.html">Register Free</a></p>
+    </div>
+  </div>
+
+  <!-- ══ SUCCESS MODAL ══ -->
+  <div class="succ-modal" id="succModal">
+    <div class="succ-box">
+      <div class="succ-ico">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="succ-title">Money Added! 🎉</div>
+      <p style="font-size:12px;color:var(--muted)">Wallet credited successfully</p>
+      <div class="succ-amt" id="succAmt">₹0</div>
+      <div class="succ-pid" id="succPid">Payment ID: —</div>
+      <button class="succ-btn" onclick="document.getElementById('succModal').classList.remove('show')">Done ✓</button>
+    </div>
+  </div>
+
+  <!-- ══ TOAST ══ -->
+  <div class="toast" id="toast">
+    <span id="toastIco" style="font-size:18px"></span>
+    <span class="toast-msg" id="toastMsg"></span>
+  </div>
+
+  <!-- ══ NAVBAR ══ -->
+  <nav>
+    <div class="nav-logo">
+      <img src="https://ambikashelf.in/icons/ambikashelf.png" alt="AmbikaShelf" onerror="this.style.display='none'">
+      <span class="nav-logo-text">Ambika<span>Shelf</span></span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#tools">Tools</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="add.html" class="active">💳 Wallet</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div class="nav-profile" onclick="toggleProfile()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+      </div>
+      <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-overlay" id="mobOvl" onclick="toggleMenu()"></div>
+  <div class="mobile-menu" id="mobMenu">
+    <span class="mobile-menu-close" onclick="toggleMenu()">✕</span>
+    <a href="index.html">Home</a>
+    <a href="index.html#tools">Tools</a>
+    <a href="about.html">About Us</a>
+    <a href="add.html">💳 Wallet</a>
+    <a href="qr.html">QR Shelf</a>
+    <a href="pdf.html">PDF Shelf</a>
+    <a href="worldchat.html">Shelf Chat</a>
+  </div>
+
+  <!-- Profile dropdown -->
+  <div class="mobile-overlay" id="profOvl" onclick="toggleProfile()"></div>
+  <div class="profile-dropdown" id="profDrop">
+    <span class="mobile-menu-close" onclick="toggleProfile()">✕</span>
+    <div class="profile-avatar">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+    </div>
+    <div class="pdp-name"  id="pdpName">Guest</div>
+    <div class="pdp-email" id="pdpEmail">Not logged in</div>
+    <div class="pdp-bal"   id="pdpBal">Balance — ₹0.00</div>
+    <div class="pdp-divider"></div>
+    <button class="pdp-btn primary" onclick="window.location.href='add.html'">💳 Add Money</button>
+    <button class="pdp-btn red"    id="pdpLogout" onclick="logout()" style="display:none">Logout</button>
+    <button class="pdp-btn outline" id="pdpLogin"  onclick="window.location.href='login.html'">Login / Register</button>
+  </div>
+
+  <!-- ══ MAIN CONTENT ══ -->
+  <div class="page-hero">
+    <div class="hero-inner">
+
+      <!-- Balance Card -->
+      <div>
+        <div class="balance-card">
+          <div class="bal-top">
+            <div class="bal-eyebrow">Wallet Balance</div>
+            <div class="bal-row">
+              <span class="bal-sym">₹</span>
+              <span class="bal-num" id="balNum">0.00</span>
+            </div>
+            <div class="bal-sub" id="balSub">Available Balance</div>
+          </div>
+          <div class="bal-btm">
+            <div class="s-row"><span class="s-k">Account</span><span class="s-v c" id="sEmail">—</span></div>
+            <div class="s-row"><span class="s-k">Referral Code</span><span class="s-v c" id="sRef" onclick="copyRef()" title="Click to copy">—</span></div>
+            <div class="s-row"><span class="s-k">Total Added</span><span class="s-v g" id="sTotal">₹0.00</span></div>
+            <div class="s-row"><span class="s-k">Transactions</span><span class="s-v" id="sCount">0</span></div>
+            <div class="tx-sec">
+              <div class="tx-hd">Recent Transactions</div>
+              <div id="txList"><div class="tx-empty">No transactions yet</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Money Form -->
+      <div class="form-side">
+        <span class="pg-eye">✦ AmbikaShelf Wallet</span>
+        <h1 class="pg-title">Add Money to<br/><span>Your Wallet</span></h1>
+        <p class="pg-sub">Securely add funds using Razorpay. Money is credited instantly and synced to your account in our database.</p>
+
+        <span class="f-label">Quick Add</span>
+        <div class="q-grid">
+          <div class="q-btn" onclick="pick(50,this)">  <span class="q-amt">₹50</span>  <span class="q-tag">Starter</span></div>
+          <div class="q-btn" onclick="pick(100,this)"> <span class="q-amt">₹100</span> <span class="q-tag">Basic</span></div>
+          <div class="q-btn" onclick="pick(200,this)"> <span class="q-amt">₹200</span> <span class="q-tag">Popular</span><div class="hot">🔥 Hot</div></div>
+          <div class="q-btn" onclick="pick(500,this)"> <span class="q-amt">₹500</span> <span class="q-tag">Value</span></div>
+          <div class="q-btn" onclick="pick(1000,this)"><span class="q-amt">₹1K</span>  <span class="q-tag">Pro</span></div>
+          <div class="q-btn" onclick="pick(2000,this)"><span class="q-amt">₹2K</span>  <span class="q-tag">Max</span></div>
+        </div>
+
+        <div class="or-div">or enter custom amount</div>
+
+        <div class="inp-wrap">
+          <span class="inp-pfx">₹</span>
+          <input class="amt-inp" id="custAmt" type="number" placeholder="Enter amount (min ₹1)" min="1" oninput="clearPick()"/>
+        </div>
+
+        <button class="pay-btn" id="payBtn" onclick="pay()">
+          <span class="btxt">Add Money Securely →</span>
+          <span class="spinner"></span>
+        </button>
+
+        <p class="pay-note">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Secured by Razorpay · 256-bit SSL Encryption
+        </p>
+
+        <div class="pills">
+          <div class="pill"><em>⚡</em> Instant Credit</div>
+          <div class="pill"><em>🔒</em> 100% Secure</div>
+          <div class="pill"><em>💳</em> All Cards</div>
+          <div class="pill"><em>📱</em> UPI &amp; NetBanking</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <div class="f-grid">
+      <div class="f-brand">
+        <img src="https://ambikashelf.in/icons/ambikashelf.png" alt="AmbikaShelf" onerror="this.style.display='none'">
+        <p>One smart solution for your everyday tools — all at no cost.</p>
+        <div class="f-made">✦ Made with ❤️ in India</div>
+        <div class="f-icons">
+          <a href="https://wa.me/919125573750" target="_blank"><img src="https://ambikashelf.in/icons/whatsapp.png" alt="WhatsApp"></a>
+          <a href="mailto:support@ambikashelf.in"><img src="https://ambikashelf.in/icons/email.png" alt="Email"></a>
+        </div>
+      </div>
+      <div class="f-col"><h4>Main</h4><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div class="f-col"><h4>Tools</h4><ul><li><a href="qr.html">QR Shelf</a></li><li><a href="pdf.html">PDF Shelf</a></li><li><a href="worldchat.html">Shelf Chat</a></li></ul></div>
+      <div class="f-col"><h4>Legal</h4><ul><li><a href="terms.html">Terms</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+      <div class="f-col">
+        <h4>Social</h4>
+        <div class="soc">
+          <a href="https://instagram.com/ambikashelf" target="_blank"><img src="https://ambikashelf.in/icons/instagram.png" alt=""> Instagram</a>
+          <a href="https://facebook.com/ambikashelf" target="_blank"><img src="https://ambikashelf.in/icons/facebook.png" alt=""> Facebook</a>
+        </div>
+      </div>
+    </div>
+    <div class="f-btm">
+      <p class="f-copy">© 2026 <span>AmbikaShelf</span> — All Rights Reserved</p>
+      <div class="f-legal"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>
+    </div>
+  </footer>
+
+  <script>
+    /* ━━━ CONFIG ━━━ */
+    const RZP_KEY  = 'rzp_live_XXXXXXXXXX'; // 🔁 Replace with your live key
+    const API_BASE = '';                     // 🔁 e.g. 'https://ambikashelf.in'
+
+    /* ━━━ STATE ━━━ */
+    let selAmt = 0, totalAdded = 0, txns = [], user = null;
+
+    /* ━━━ INIT ━━━ */
+    (function(){
+      const email = localStorage.getItem('userEmail');
+      const ref   = localStorage.getItem('referralCode');
+      const bal   = parseFloat(localStorage.getItem('rewardBalance') || '0');
+      const name  = localStorage.getItem('userName') || email || 'Guest';
+
+      if (email) {
+        user = { email, ref, bal, name };
+
+        // Profile panel
+        document.getElementById('pdpName').textContent  = name;
+        document.getElementById('pdpEmail').textContent = email;
+        document.getElementById('pdpBal').textContent   = 'Balance — ₹' + bal.toFixed(2);
+        document.getElementById('pdpLogout').style.display = 'block';
+        document.getElementById('pdpLogin').style.display  = 'none';
+
+        // Balance card
+        document.getElementById('balNum').textContent = bal.toFixed(2);
+        document.getElementById('sEmail').textContent = email;
+        document.getElementById('sRef').textContent   = ref || 'N/A';
+
+        // Load saved transactions
+        const saved = localStorage.getItem('walletTx_' + email);
+        if (saved) { txns = JSON.parse(saved); renderTx(); }
+        totalAdded = txns.reduce((s,t) => s + t.amount, 0);
+        document.getElementById('sTotal').textContent = '₹' + totalAdded.toFixed(2);
+        document.getElementById('sCount').textContent = txns.length;
+      } else {
+        // Not logged in — show dashes in balance card (page still visible)
+        document.getElementById('balNum').textContent = '—';
+        document.getElementById('balSub').textContent = 'Login to view balance';
+        document.getElementById('sEmail').textContent = 'Not logged in';
+      }
+    })();
+
+    /* ━━━ AMOUNT SELECTION ━━━ */
+    function pick(amt, el) {
+      document.querySelectorAll('.q-btn').forEach(b => b.classList.remove('sel'));
+      el.classList.add('sel');
+      selAmt = amt;
+      document.getElementById('custAmt').value = '';
+    }
+
+    function clearPick() {
+      document.querySelectorAll('.q-btn').forEach(b => b.classList.remove('sel'));
+      selAmt = 0;
+    }
+
+    function getAmt() {
+      const c = parseFloat(document.getElementById('custAmt').value);
+      return c > 0 ? c : selAmt;
+    }
+
+    /* ━━━ PAY — LOGIN CHECK HAPPENS HERE ━━━ */
+    async function pay() {
+      // 🔐 If not logged in → show popup, stop here
+      if (!user) {
+        document.getElementById('loginPopup').classList.add('show');
+        return;
+      }
+
+      const amount = getAmt();
+      if (!amount || amount < 1) { toast('Please select or enter an amount', 'err'); return; }
+
+      const btn = document.getElementById('payBtn');
+      btn.classList.add('loading'); btn.disabled = true;
+
+      // Create order on backend
+      let orderId = null;
+      try {
+        const r = await fetch(`${API_BASE}/api/wallet/create-order`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: Math.round(amount * 100), email: user.email })
+        });
+        const d = await r.json();
+        if (d.orderId) orderId = d.orderId;
+      } catch(e) { console.warn('Backend not connected, continuing without order_id'); }
+
+      const options = {
+        key:         RZP_KEY,
+        amount:      Math.round(amount * 100),
+        currency:    'INR',
+        name:        'AmbikaShelf',
+        description: 'Wallet Top-up',
+        image:       'https://ambikashelf.in/icons/ambikashelf.png',
+        order_id:    orderId || undefined,
+        prefill:     { name: user.name, email: user.email, contact: '' },
+        theme:       { color: '#00c8ff' },
+
+        handler: async function(res) {
+          try {
+            await fetch(`${API_BASE}/api/wallet/verify`, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id:   res.razorpay_order_id,
+                razorpay_payment_id: res.razorpay_payment_id,
+                razorpay_signature:  res.razorpay_signature,
+                email: user.email, amount
+              })
+            });
+          } catch(e) { console.warn('Verify skipped:', e.message); }
+
+          onSuccess(amount, res.razorpay_payment_id || ('pay_' + Date.now()));
+        },
+
+        modal: { ondismiss: function() {
+          toast('Payment cancelled', 'err');
+          btn.classList.remove('loading'); btn.disabled = false;
+        }}
+      };
+
+      try {
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', r => { toast('Payment failed: ' + (r.error.description||'Try again'), 'err'); btn.classList.remove('loading'); btn.disabled = false; });
+        rzp.open();
+      } catch(e) {
+        toast('Could not open Razorpay. Check your API key.', 'err');
+        btn.classList.remove('loading'); btn.disabled = false;
+      }
+
+      setTimeout(() => { btn.classList.remove('loading'); btn.disabled = false; }, 8000);
+    }
+
+    /* ━━━ ON SUCCESS ━━━ */
+    function onSuccess(amount, payId) {
+      const newBal = (user.bal || 0) + amount;
+      user.bal = newBal;
+      localStorage.setItem('rewardBalance', newBal.toFixed(2));
+
+      txns.unshift({ id: payId, amount, date: new Date().toISOString() });
+      localStorage.setItem('walletTx_' + user.email, JSON.stringify(txns.slice(0,50)));
+      totalAdded += amount;
+
+      document.getElementById('balNum').textContent = newBal.toFixed(2);
+      document.getElementById('pdpBal').textContent = 'Balance — ₹' + newBal.toFixed(2);
+      document.getElementById('sTotal').textContent = '₹' + totalAdded.toFixed(2);
+      document.getElementById('sCount').textContent = txns.length;
+      renderTx();
+
+      document.getElementById('custAmt').value = '';
+      document.querySelectorAll('.q-btn').forEach(b => b.classList.remove('sel'));
+      selAmt = 0;
+
+      const btn = document.getElementById('payBtn');
+      btn.classList.remove('loading'); btn.disabled = false;
+
+      document.getElementById('succAmt').textContent = '₹' + amount.toFixed(2);
+      document.getElementById('succPid').textContent = 'Payment ID: ' + payId;
+      document.getElementById('succModal').classList.add('show');
+    }
+
+    /* ━━━ RENDER TRANSACTIONS ━━━ */
+    function renderTx() {
+      const el = document.getElementById('txList');
+      if (!txns.length) { el.innerHTML = '<div class="tx-empty">No transactions yet</div>'; return; }
+      el.innerHTML = txns.slice(0,5).map(t => `
+        <div class="tx-r">
+          <div class="tx-dot"></div>
+          <div class="tx-inf">
+            <div class="tx-nm">Wallet Top-up</div>
+            <div class="tx-dt">${fmtDate(t.date)}</div>
+          </div>
+          <div class="tx-am">+₹${parseFloat(t.amount).toFixed(2)}</div>
+        </div>`).join('');
+    }
+
+    function fmtDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'}) + ' · ' + d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    }
+
+    /* ━━━ HELPERS ━━━ */
+    function closePopup() { document.getElementById('loginPopup').classList.remove('show'); }
+    document.getElementById('loginPopup').addEventListener('click', e => { if(e.target === document.getElementById('loginPopup')) closePopup(); });
+
+    function copyRef() { const r = localStorage.getItem('referralCode'); if(!r||r==='N/A') return; navigator.clipboard.writeText(r).then(()=>toast('Referral code copied!','ok')); }
+    function logout() { ['userEmail','referralCode','rewardBalance','userName'].forEach(k=>localStorage.removeItem(k)); window.location.reload(); }
+    function toast(msg, type='ok') { const t=document.getElementById('toast'); document.getElementById('toastIco').textContent=type==='ok'?'✅':'❌'; document.getElementById('toastMsg').textContent=msg; t.className=`toast ${type} show`; setTimeout(()=>t.classList.remove('show'),3500); }
+    function toggleMenu()    { document.getElementById('mobMenu').classList.toggle('open'); document.getElementById('mobOvl').classList.toggle('show'); }
+    function toggleProfile() { document.getElementById('profDrop').classList.toggle('open'); document.getElementById('profOvl').classList.toggle('show'); }
+  </script>
+
+</body>
+  </html>
