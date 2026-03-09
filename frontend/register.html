@@ -531,18 +531,6 @@
           Continue with Google
         </button>
 
-        <!-- Hidden Google GSI trigger -->
-        <div id="g_id_onload"
-          data-client_id="905925380487-q2hdivbo5r2bu4hhcoho240c5me84j5q.apps.googleusercontent.com"
-          data-callback="handleGoogleResponse"
-          data-auto_prompt="false"
-          style="display:none">
-        </div>
-        <div class="g_id_signin" id="gsiBtn"
-          data-type="standard" data-size="large"
-          style="display:none">
-        </div>
-
         <div class="divider">or sign up with email</div>
 
         <div class="field">
@@ -751,15 +739,37 @@
 
   /* ── Trigger Google picker ── */
   function triggerGoogleSignup() {
-    // Click the hidden GSI button which opens Google account picker
-    const btn = document.querySelector('#gsiBtn div[role="button"]');
-    if (btn) { btn.click(); return; }
-    // Fallback: use One Tap
     google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleResponse
+      callback: handleGoogleResponse,
+      ux_mode: 'popup'
     });
-    google.accounts.id.prompt();
+    google.accounts.id.prompt(notification => {
+      // If One Tap is suppressed, fall back to FedCM / redirect popup
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        // Use OAuth2 popup as fallback
+        const params = new URLSearchParams({
+          client_id: GOOGLE_CLIENT_ID,
+          redirect_uri: window.location.origin + '/register.html',
+          response_type: 'id_token',
+          scope: 'openid email profile',
+          nonce: Math.random().toString(36).slice(2),
+          prompt: 'select_account'
+        });
+        const popup = window.open(
+          'https://accounts.google.com/o/oauth2/v2/auth?' + params,
+          'googlelogin', 'width=500,height=600,left=200,top=100'
+        );
+        // Listen for token from popup
+        window.addEventListener('message', function onMsg(e) {
+          if (e.data?.credential) {
+            handleGoogleResponse({ credential: e.data.credential });
+            window.removeEventListener('message', onMsg);
+            popup?.close();
+          }
+        });
+      }
+    });
   }
 
   /* ── Google callback — fires after account selected ── */
