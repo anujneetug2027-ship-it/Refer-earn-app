@@ -400,9 +400,9 @@
             <div class="bal-eyebrow">Wallet Balance</div>
             <div class="bal-row">
               <span class="bal-sym">₹</span>
-              <span class="bal-num" id="balNum">0.00</span>
+              <span class="bal-num" id="balNum">…</span>
             </div>
-            <div class="bal-sub" id="balSub">Available Balance</div>
+            <div class="bal-sub" id="balSub">Fetching from server…</div>
           </div>
           <div class="bal-btm">
             <div class="s-row"><span class="s-k">Account</span><span class="s-v c" id="sEmail">—</span></div>
@@ -493,44 +493,60 @@
   <script>
     /* ━━━ CONFIG ━━━ */
     const RZP_KEY  = 'rzp_test_SOsXnJyaGEW9OG'; // 🔁 Replace with your live key
-    const API_BASE = 'https://refer-earn-app.onrender.com';                     // 🔁 e.g. 'https://ambikashelf.in'
+    const API_BASE = 'https://refer-earn-app.onrender.com';
 
     /* ━━━ STATE ━━━ */
     let selAmt = 0, totalAdded = 0, txns = [], user = null;
 
-    /* ━━━ INIT ━━━ */
-    (function(){
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       CHANGE 1: INIT — balance always fetched from backend
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    (async function(){
       const email = localStorage.getItem('userEmail');
       const ref   = localStorage.getItem('referralCode');
-      const bal   = parseFloat(localStorage.getItem('rewardBalance') || '0');
       const name  = localStorage.getItem('userName') || email || 'Guest';
 
-      if (email) {
-        user = { email, ref, bal, name };
-
-        // Profile panel
-        document.getElementById('pdpName').textContent  = name;
-        document.getElementById('pdpEmail').textContent = email;
-        document.getElementById('pdpBal').textContent   = 'Balance — ₹' + bal.toFixed(2);
-        document.getElementById('pdpLogout').style.display = 'block';
-        document.getElementById('pdpLogin').style.display  = 'none';
-
-        // Balance card
-        document.getElementById('balNum').textContent = bal.toFixed(2);
-        document.getElementById('sEmail').textContent = email;
-        document.getElementById('sRef').textContent   = ref || 'N/A';
-
-        // Load saved transactions
-        const saved = localStorage.getItem('walletTx_' + email);
-        if (saved) { txns = JSON.parse(saved); renderTx(); }
-        totalAdded = txns.reduce((s,t) => s + t.amount, 0);
-        document.getElementById('sTotal').textContent = '₹' + totalAdded.toFixed(2);
-        document.getElementById('sCount').textContent = txns.length;
-      } else {
-        // Not logged in — show dashes in balance card (page still visible)
+      if (!email) {
         document.getElementById('balNum').textContent = '—';
         document.getElementById('balSub').textContent = 'Login to view balance';
         document.getElementById('sEmail').textContent = 'Not logged in';
+        return;
+      }
+
+      user = { email, ref, name };
+
+      // Profile panel
+      document.getElementById('pdpName').textContent  = name;
+      document.getElementById('pdpEmail').textContent = email;
+      document.getElementById('pdpLogout').style.display = 'block';
+      document.getElementById('pdpLogin').style.display  = 'none';
+
+      // Balance card info
+      document.getElementById('sEmail').textContent = email;
+      document.getElementById('sRef').textContent   = ref || 'N/A';
+
+      // Load saved transactions from localStorage (display only)
+      const saved = localStorage.getItem('walletTx_' + email);
+      if (saved) { txns = JSON.parse(saved); renderTx(); }
+      totalAdded = txns.reduce((s,t) => s + t.amount, 0);
+      document.getElementById('sTotal').textContent = '₹' + totalAdded.toFixed(2);
+      document.getElementById('sCount').textContent = txns.length;
+
+      // ✅ Always fetch real balance from MongoDB
+      try {
+        const res  = await fetch(`${API_BASE}/api/wallet/balance?email=${email}`);
+        const data = await res.json();
+        const bal  = parseFloat(data.balance || 0);
+
+        user.bal = bal;
+
+        document.getElementById('balNum').textContent = bal.toFixed(2);
+        document.getElementById('balSub').textContent = 'Available Balance';
+        document.getElementById('pdpBal').textContent = 'Balance — ₹' + bal.toFixed(2);
+      } catch(e) {
+        console.warn('Balance fetch failed:', e.message);
+        document.getElementById('balNum').textContent = '—';
+        document.getElementById('balSub').textContent = 'Could not load balance';
       }
     })();
 
@@ -552,9 +568,8 @@
       return c > 0 ? c : selAmt;
     }
 
-    /* ━━━ PAY — LOGIN CHECK HAPPENS HERE ━━━ */
+    /* ━━━ PAY ━━━ */
     async function pay() {
-      // 🔐 If not logged in → show popup, stop here
       if (!user) {
         document.getElementById('loginPopup').classList.add('show');
         return;
@@ -566,7 +581,6 @@
       const btn = document.getElementById('payBtn');
       btn.classList.add('loading'); btn.disabled = true;
 
-      // Create order on backend
       let orderId = null;
       try {
         const r = await fetch(`${API_BASE}/api/wallet/create-order`, {
@@ -575,7 +589,7 @@
         });
         const d = await r.json();
         if (d.orderId) orderId = d.orderId;
-      } catch(e) { console.warn('Backend not connected, continuing without order_id'); }
+      } catch(e) { console.warn('Order creation failed:', e.message); }
 
       const options = {
         key:         RZP_KEY,
@@ -589,6 +603,7 @@
         theme:       { color: '#00c8ff' },
 
         handler: async function(res) {
+          // Verify payment on backend — backend credits MongoDB
           try {
             await fetch(`${API_BASE}/api/wallet/verify`, {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -599,9 +614,9 @@
                 email: user.email, amount
               })
             });
-          } catch(e) { console.warn('Verify skipped:', e.message); }
+          } catch(e) { console.warn('Verify call failed:', e.message); }
 
-          onSuccess(amount, res.razorpay_payment_id || ('pay_' + Date.now()));
+          await onSuccess(amount, res.razorpay_payment_id || ('pay_' + Date.now()));
         },
 
         modal: { ondismiss: function() {
@@ -612,7 +627,10 @@
 
       try {
         const rzp = new Razorpay(options);
-        rzp.on('payment.failed', r => { toast('Payment failed: ' + (r.error.description||'Try again'), 'err'); btn.classList.remove('loading'); btn.disabled = false; });
+        rzp.on('payment.failed', r => {
+          toast('Payment failed: ' + (r.error.description || 'Try again'), 'err');
+          btn.classList.remove('loading'); btn.disabled = false;
+        });
         rzp.open();
       } catch(e) {
         toast('Could not open Razorpay. Check your API key.', 'err');
@@ -622,18 +640,31 @@
       setTimeout(() => { btn.classList.remove('loading'); btn.disabled = false; }, 8000);
     }
 
-    /* ━━━ ON SUCCESS ━━━ */
-    function onSuccess(amount, payId) {
-      const newBal = (user.bal || 0) + amount;
-      user.bal = newBal;
-      localStorage.setItem('rewardBalance', newBal.toFixed(2));
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       CHANGE 2: onSuccess — re-fetch balance from backend
+       instead of adding locally
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    async function onSuccess(amount, payId) {
 
+      // ✅ Re-fetch real balance from MongoDB (don't trust localStorage)
+      try {
+        const res  = await fetch(`${API_BASE}/api/wallet/balance?email=${user.email}`);
+        const data = await res.json();
+        const bal  = parseFloat(data.balance || 0);
+
+        user.bal = bal;
+
+        document.getElementById('balNum').textContent = bal.toFixed(2);
+        document.getElementById('pdpBal').textContent = 'Balance — ₹' + bal.toFixed(2);
+      } catch(e) {
+        console.warn('Post-payment balance fetch failed:', e.message);
+      }
+
+      // Save transaction locally for history display only
       txns.unshift({ id: payId, amount, date: new Date().toISOString() });
-      localStorage.setItem('walletTx_' + user.email, JSON.stringify(txns.slice(0,50)));
-      totalAdded += amount;
+      localStorage.setItem('walletTx_' + user.email, JSON.stringify(txns.slice(0, 50)));
 
-      document.getElementById('balNum').textContent = newBal.toFixed(2);
-      document.getElementById('pdpBal').textContent = 'Balance — ₹' + newBal.toFixed(2);
+      totalAdded += amount;
       document.getElementById('sTotal').textContent = '₹' + totalAdded.toFixed(2);
       document.getElementById('sCount').textContent = txns.length;
       renderTx();
@@ -675,11 +706,11 @@
     document.getElementById('loginPopup').addEventListener('click', e => { if(e.target === document.getElementById('loginPopup')) closePopup(); });
 
     function copyRef() { const r = localStorage.getItem('referralCode'); if(!r||r==='N/A') return; navigator.clipboard.writeText(r).then(()=>toast('Referral code copied!','ok')); }
-    function logout() { ['userEmail','referralCode','rewardBalance','userName'].forEach(k=>localStorage.removeItem(k)); window.location.reload(); }
+    function logout()  { ['userEmail','referralCode','rewardBalance','userName'].forEach(k=>localStorage.removeItem(k)); window.location.reload(); }
     function toast(msg, type='ok') { const t=document.getElementById('toast'); document.getElementById('toastIco').textContent=type==='ok'?'✅':'❌'; document.getElementById('toastMsg').textContent=msg; t.className=`toast ${type} show`; setTimeout(()=>t.classList.remove('show'),3500); }
     function toggleMenu()    { document.getElementById('mobMenu').classList.toggle('open'); document.getElementById('mobOvl').classList.toggle('show'); }
     function toggleProfile() { document.getElementById('profDrop').classList.toggle('open'); document.getElementById('profOvl').classList.toggle('show'); }
   </script>
 
 </body>
-  </html>
+</html>
