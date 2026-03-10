@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const cors = require('cors');
 const path = require('path');
-const bcrypt = require('bcryptjs'); // ← ADDED
+const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Referral = require('./models/Referral');
 const sendWelcomeMail = require('./welcomeMail');
@@ -18,12 +18,15 @@ const chatSocket = require("./chatSocket");
 const app = express();
 
 // ---------- MIDDLEWARE ----------
+// ✅ Body parsers MUST come before ANY routes
 app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use('/api/wallet', walletRoutes);
-app.use(express.json({ limit: "10mb" }));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" }));        // ← MOVED UP ✅
+app.use(bodyParser.json());                       // ← MOVED UP ✅
+app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
+
+// ✅ Routes come AFTER body parsers
+app.use('/api/wallet', walletRoutes);             // ← MOVED DOWN ✅
 
 // ---------- Sitemaps ----------
 app.get("/sitemap.xml", (req, res) => {
@@ -178,7 +181,6 @@ app.post('/google-auth', async (req, res) => {
 
     let user = await User.findOne({ email });
 
-    // Existing user — just log them in
     if (user) {
       if (!user.googleId) { user.googleId = googleId; await user.save(); }
       return res.json({
@@ -190,12 +192,10 @@ app.post('/google-auth', async (req, res) => {
       });
     }
 
-    // New user but no password yet (first Google tap from login page)
     if (!password) {
       return res.json({ success: true, isNew: true });
     }
 
-    // New user — create account with password
     const hashedPassword = await bcrypt.hash(password, 10);
     const referralCode   = generateReferralCode();
 
@@ -216,7 +216,6 @@ app.post('/google-auth', async (req, res) => {
       otp: null, otpExpires: null
     });
 
-    // Send welcome email
     try {
       await sendWelcomeMail({ email: user.email, username: user.name, name: user.name });
     } catch (e) {
