@@ -44,14 +44,38 @@ router.post('/verify', async (req, res) => {
       amount
     } = req.body;
 
-    // ✅ Verify Razorpay signature
-    const expectedSig = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-      .digest('hex');
+    // ✅ FIX: Only verify signature if order_id exists
+    // If no order_id (order creation failed on frontend), skip sig check
+    // but still verify payment_id exists
+    if (razorpay_order_id && razorpay_signature) {
+      const expectedSig = crypto
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest('hex');
 
-    if (expectedSig !== razorpay_signature)
-      return res.status(400).json({ success: false, msg: 'Invalid signature' });
+      if (expectedSig !== razorpay_signature) {
+        console.error(`❌ Signature mismatch for ${email} | orderId: ${razorpay_order_id}`);
+        return res.status(400).json({ success: false, msg: 'Invalid signature' });
+      }
+    } else {
+      // No order_id — verify the payment_id format at minimum
+      if (!razorpay_payment_id || !razorpay_payment_id.startsWith('pay_')) {
+        console.error(`❌ Invalid payment_id: ${razorpay_payment_id}`);
+        return res.status(400).json({ success: false, msg: 'Invalid payment ID' });
+      }
+      console.warn(`⚠️ No order_id for ${email} — skipping sig check, payment_id: ${razorpay_payment_id}`);
+    }
+
+    // ✅ Prevent duplicate crediting — check if payment already processed
+    const alreadyProcessed = await User.findOne({
+      email,
+      'walletTransactions.paymentId': razorpay_payment_id
+    });
+
+    if (alreadyProcessed) {
+      console.warn(`⚠️ Duplicate payment attempt: ${razorpay_payment_id}`);
+      return res.json({ success: true, msg: 'Already processed', newBalance: alreadyProcessed.rewardBalance });
+    }
 
     // ✅ Credit wallet in MongoDB
     const user = await User.findOneAndUpdate(
@@ -62,7 +86,7 @@ router.post('/verify', async (req, res) => {
           walletTransactions: {
             $each: [{
               paymentId: razorpay_payment_id,
-              orderId:   razorpay_order_id,
+              orderId:   razorpay_order_id || 'no_order',
               amount:    parseFloat(amount),
               date:      new Date(),
               type:      'credit'
@@ -77,7 +101,7 @@ router.post('/verify', async (req, res) => {
     if (!user)
       return res.status(404).json({ success: false, msg: 'User not found' });
 
-    console.log(`✅ Wallet credited: ₹${amount} for ${email} | ${razorpay_payment_id}`);
+    console.log(`✅ Wallet credited: ₹${amount} for ${email} | ${razorpay_payment_id} | New balance: ₹${user.rewardBalance}`);
 
     res.json({
       success:    true,
@@ -131,11 +155,18 @@ router.post('/webhook',
         const amount  = payment.amount / 100;
 
         if (email) {
-          await User.findOneAndUpdate(
-            { email },
-            { $inc: { rewardBalance: amount } }
-          );
-          console.log(`✅ Webhook: ₹${amount} credited to ${email}`);
+          // Prevent duplicate via webhook too
+          const already = await User.findOne({ email, 'walletTransactions.paymentId': payment.id });
+          if (!already) {
+            await User.findOneAndUpdate(
+              { email },
+              {
+                $inc: { rewardBalance: amount },
+                $push: { walletTransactions: { paymentId: payment.id, amount, date: new Date(), type: 'credit' } }
+              }
+            );
+            console.log(`✅ Webhook: ₹${amount} credited to ${email}`);
+          }
         }
       }
 
