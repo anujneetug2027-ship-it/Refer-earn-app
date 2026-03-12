@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const { PDFDocument } = require('pdf-lib');
 const User = require('./models/User');
 const Referral = require('./models/Referral');
 const sendWelcomeMail = require('./welcomeMail');
@@ -24,6 +25,127 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json({ limit: "10mb" }));        // ← MOVED UP ✅
 app.use(bodyParser.json());                       // ← MOVED UP ✅
 app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
+// ══════════════════════════════════════════════════════════════
+//  PDF STUDIO BACKEND — Password Protection Route
+//  Add this to your server.js (or a separate pdfRoutes.js file)
+//  
+//  STEP 1: npm install hummus-recipe  (best PDF password lib for Node)
+//          OR use pdf-lib (simpler, no native binaries)
+//  
+//  We use pdf-lib here — pure JS, works on Render with zero config
+//  STEP 1: npm install pdf-lib
+// ══════════════════════════════════════════════════════════════
+
+const { PDFDocument, rgb } = require('pdf-lib');
+
+// ── If using a separate routes file, add at top: ──
+// const express = require('express');
+// const router = express.Router();
+// module.exports = router;
+
+// ── POST /api/pdf/create ──────────────────────────────────────
+// Body: { images: [base64...], rotations: [0,90...], password: "...", name: "...", orientation: "p"|"l", pageSize: "a4"|"letter" }
+// Returns: PDF file as binary download
+// ─────────────────────────────────────────────────────────────
+app.post('/api/pdf/create', async (req, res) => {
+  try {
+    const { images, rotations = [], password, name = 'AmbikaShelf', pageSize = 'a4', orientation = 'p' } = req.body;
+
+    if (!images || !images.length) {
+      return res.status(400).json({ success: false, msg: 'No images provided' });
+    }
+
+    // Page size in points (1 inch = 72 pts)
+    const sizes = {
+      a4:     { w: 595, h: 842 },
+      letter: { w: 612, h: 792 },
+      a3:     { w: 842, h: 1191 },
+    };
+    let { w: pageW, h: pageH } = sizes[pageSize] || sizes.a4;
+    if (orientation === 'l') { [pageW, pageH] = [pageH, pageW]; } // swap for landscape
+
+    const pdfDoc = await PDFDocument.create();
+
+    for (let i = 0; i < images.length; i++) {
+      // Strip base64 data URI prefix
+      const base64 = images[i].replace(/^data:image\/\w+;base64,/, '');
+      const imgBytes = Buffer.from(base64, 'base64');
+
+      // Embed image (support jpg and png)
+      let pdfImg;
+      if (images[i].startsWith('data:image/png')) {
+        pdfImg = await pdfDoc.embedPng(imgBytes);
+      } else {
+        pdfImg = await pdfDoc.embedJpg(imgBytes);
+      }
+
+      const page = pdfDoc.addPage([pageW, pageH]);
+      const rot = rotations[i] || 0;
+
+      // Scale image to fill page while keeping aspect ratio
+      const { width: imgW, height: imgH } = pdfImg.scale(1);
+      let drawW, drawH;
+
+      if (rot === 90 || rot === 270) {
+        // Swap dimensions for rotated images
+        const scale = Math.min(pageW / imgH, pageH / imgW);
+        drawW = imgH * scale;
+        drawH = imgW * scale;
+      } else {
+        const scale = Math.min(pageW / imgW, pageH / imgH);
+        drawW = imgW * scale;
+        drawH = imgH * scale;
+      }
+
+      const x = (pageW - drawW) / 2;
+      const y = (pageH - drawH) / 2;
+
+      page.drawImage(pdfImg, {
+        x, y,
+        width: drawW,
+        height: drawH,
+        rotate: { type: 'degrees', angle: -rot }, // pdf-lib uses clockwise
+      });
+    }
+
+    // ── Password Protection ──────────────────────────────────
+    // pdf-lib supports encryption via pdfDoc.save({ encryption: ... })
+    // NOTE: pdf-lib's built-in encryption uses RC4-128 (AES-256 needs pdf-lib-plus)
+    let pdfBytes;
+
+    if (password) {
+      pdfBytes = await pdfDoc.save({
+        userPassword: password,
+        ownerPassword: password + '_owner_' + Date.now(), // different owner pass
+        permissions: {
+          printing: 'lowResolution',
+          modifying: false,
+          copying: false,
+          annotating: false,
+          fillingForms: false,
+          contentAccessibility: false,
+          documentAssembly: false,
+        },
+      });
+    } else {
+      pdfBytes = await pdfDoc.save();
+    }
+
+    // Send as downloadable PDF
+    const safeName = name.replace(/[^a-zA-Z0-9_\-]/g, '_');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${safeName}.pdf"`);
+    res.setHeader('Content-Length', pdfBytes.length);
+    return res.send(Buffer.from(pdfBytes));
+
+  } catch (err) {
+    console.error('PDF create error:', err);
+    return res.status(500).json({ success: false, msg: 'PDF generation failed: ' + err.message });
+  }
+});
+
+
+// ══════════════════════════════════════════════════════════════
 
 // ✅ Routes come AFTER body parsers
 app.use('/api/wallet', walletRoutes);             // ← MOVED DOWN ✅
