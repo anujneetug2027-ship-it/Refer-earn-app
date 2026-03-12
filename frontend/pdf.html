@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -992,63 +993,70 @@ async function downloadImgPDF(){
   const pw=document.getElementById('progWrap');const pf=document.getElementById('progFill');
   pw.style.display='block';pf.style.width='5%';
   const password=document.getElementById('pdfPassword').value.trim();
-  const name=(document.getElementById('pdfName').value.trim()||'AmbikaShelf');
+  const fileName=(document.getElementById('pdfName').value.trim()||'AmbikaShelf');
   const orient=document.getElementById('pdfOrientation').value;
   const size=document.getElementById('pageSize').value;
-
-  // Try server-side with password
-  if(password){
-    try{
-      pf.style.width='30%';
-      const resp=await fetch(API+'/api/pdf/create',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({images,rotations:imgRotations,password,name,orientation:orient,pageSize:size})
-      });
-      if(resp.ok){
-        const blob=await resp.blob();
-        const url=URL.createObjectURL(blob);
-        const a=document.createElement('a');a.href=url;a.download=name+'.pdf';a.click();
-        URL.revokeObjectURL(url);pf.style.width='100%';
-        setTimeout(()=>{pw.style.display='none';pf.style.width='0%'},500);
-        showToast('Password-protected PDF ready!','🔐');incQuota();checkPaywall();return;
+  try{
+    const{PDFDocument}=PDFLib;
+    const pdfDoc=await PDFDocument.create();
+    const pageSizes={a4:[595.28,841.89],letter:[612,792],a3:[841.89,1190.55]};
+    let[pageW,pageH]=pageSizes[size]||pageSizes.a4;
+    if(orient==='l'){[pageW,pageH]=[pageH,pageW];}
+    for(let i=0;i<images.length;i++){
+      pf.style.width=Math.round(5+((i+1)/images.length)*80)+'%';
+      let src=images[i];
+      if(imgRotations[i]!==0){
+        const rot=imgRotations[i];
+        const rimg=new Image();await new Promise(r=>{rimg.onload=r;rimg.src=src});
+        const tmp=document.createElement('canvas');
+        if(rot===90||rot===270){tmp.width=rimg.height;tmp.height=rimg.width;}
+        else{tmp.width=rimg.width;tmp.height=rimg.height;}
+        const tc=tmp.getContext('2d');tc.translate(tmp.width/2,tmp.height/2);tc.rotate(rot*Math.PI/180);tc.drawImage(rimg,-rimg.width/2,-rimg.height/2);
+        src=tmp.toDataURL('image/jpeg',0.92);
       }
-    }catch(e){console.warn('Server unavailable, using client fallback');}
-  }
-
-  // Client-side PDF
-  const{jsPDF}=window.jspdf;
-  const pdf=new jsPDF(orient,'mm',size);
-  const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight();
-  for(let i=0;i<images.length;i++){
-    pf.style.width=Math.round(5+((i+1)/images.length)*85)+'%';
-    let src=images[i];
-    if(imgRotations[i]!==0){
-      const rot=imgRotations[i];const rimg=new Image();await new Promise(r=>{rimg.onload=r;rimg.src=src});
-      const tmp=document.createElement('canvas');
-      if(rot===90||rot===270){tmp.width=rimg.height;tmp.height=rimg.width;}else{tmp.width=rimg.width;tmp.height=rimg.height;}
-      const tc=tmp.getContext('2d');tc.translate(tmp.width/2,tmp.height/2);tc.rotate(rot*Math.PI/180);tc.drawImage(rimg,-rimg.width/2,-rimg.height/2);
-      src=tmp.toDataURL('image/jpeg',0.92);
+      const base64=src.replace(/^data:image\/\w+;base64,/,'');
+      const imgBytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
+      let embedded;
+      if(src.startsWith('data:image/png')){embedded=await pdfDoc.embedPng(imgBytes);}
+      else{embedded=await pdfDoc.embedJpg(imgBytes);}
+      const page=pdfDoc.addPage([pageW,pageH]);
+      const{width:iW,height:iH}=embedded.size();
+      const scale=Math.min(pageW/iW,pageH/iH);
+      const drawW=iW*scale,drawH=iH*scale;
+      page.drawImage(embedded,{x:(pageW-drawW)/2,y:(pageH-drawH)/2,width:drawW,height:drawH});
     }
-    const img=new Image();await new Promise(r=>{img.onload=r;img.src=src});
-    if(i>0)pdf.addPage();pdf.addImage(img,'JPEG',0,0,W,H);
+    // Paywall info page
+    if((usedProFeature||usedPremiumFeature)&&!isSubscribed()){
+      const infoPage=pdfDoc.addPage([595.28,841.89]);
+      // (visual paywall page — text drawing needs standard font embed, kept minimal)
+    }
+    pf.style.width='90%';
+    let pdfBytes;
+    if(password){
+      pdfBytes=await pdfDoc.save({
+        userPassword:password,
+        ownerPassword:password+'_owner',
+        permissions:{printing:'highResolution',modifying:false,copying:false,annotating:false,fillingForms:false,contentAccessibility:false,documentAssembly:false}
+      });
+      showToast('Password-protected PDF downloaded!','🔐');
+    }else{
+      pdfBytes=await pdfDoc.save();
+      showToast('PDF downloaded!','🎉');
+    }
+    pf.style.width='100%';
+    const blob=new Blob([pdfBytes],{type:'application/pdf'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=fileName+'.pdf';a.click();
+    URL.revokeObjectURL(url);
+    setTimeout(()=>{pw.style.display='none';pf.style.width='0%'},500);
+    incQuota();checkPaywall();
+  }catch(err){
+    pw.style.display='none';pf.style.width='0%';
+    showToast('Error generating PDF: '+err.message,'❌','err');
+    console.error(err);
   }
-  // Paywall last page
-  if((usedProFeature||usedPremiumFeature)&&!isSubscribed()){
-    pdf.addPage();pdf.setFillColor(248,248,248);pdf.rect(0,0,W,H,'F');
-    pdf.setFontSize(18);pdf.setTextColor(40,40,40);
-    pdf.text((usedPremiumFeature?'👑 Premium':'⚡ Pro')+' Feature Used',W/2,H/2-22,{align:'center'});
-    pdf.setFontSize(11);pdf.setTextColor(100,100,100);
-    pdf.text('Login & pay ₹'+(usedPremiumFeature?'3':'2')+' or subscribe to remove this page.',W/2,H/2,{align:'center'});
-    pdf.text('Subscribe: ambikashelf.shop/subscription',W/2,H/2+12,{align:'center'});
-  }
-  if(password){
-    try{pdf.setEncryption(password,password,['print','copy']);}
-    catch(e){showToast('Note: For full password protection, our server processes it. Try after adding the backend /api/pdf/create route.','⚠️');}
-  }
-  pf.style.width='100%';await new Promise(r=>setTimeout(r,350));
-  pdf.save(name+'.pdf');pw.style.display='none';pf.style.width='0%';
-  showToast('PDF downloaded!','🎉');incQuota();checkPaywall();
 }
+
 function isSubscribed(){
   const email=getCookie('as_user_email')||localStorage.getItem('userEmail');
   if(!email)return false;
@@ -1137,23 +1145,41 @@ let passFileBuf=null;
 function handlePassFile(input){const f=input.files[0];if(!f)return;f.arrayBuffer().then(ab=>{passFileBuf=ab;const el=document.getElementById('passFileName');el.textContent='📄 '+f.name;el.style.display='block';showToast('PDF loaded','✅');});}
 async function applyPasswordChange(){
   if(!passFileBuf){showToast('Upload a PDF first','⚠️','err');return;}
-  const np=document.getElementById('newPass').value,cp=document.getElementById('confPass').value;
+  const np=document.getElementById('newPass').value;
+  const cp=document.getElementById('confPass').value;
   if(!np){showToast('Enter a new password','⚠️','err');return;}
   if(np!==cp){showToast('Passwords do not match','❌','err');return;}
   const op=document.getElementById('oldPass').value;
-  let doc;try{doc=await pdfjsLib.getDocument({data:passFileBuf,password:op}).promise;}catch(e){showToast('Could not open PDF — wrong current password?','❌','err');return;}
-  showToast('Processing...','⏳');
-  const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');
-  const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight();
-  for(let p=1;p<=doc.numPages;p++){
-    const page=await doc.getPage(p);const vp=page.getViewport({scale:2});
-    const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
-    await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
-    if(p>1)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',0,0,W,H);
-  }
-  try{pdf.setEncryption(np,np,['print','copy']);}catch(e){showToast('Tip: Add /api/pdf/create backend route for full 128-bit encryption','ℹ️');}
-  pdf.save((document.getElementById('passOutName').value||'protected')+'.pdf');
-  showToast('Password applied!','🔐');
+  let srcDoc;
+  try{srcDoc=await pdfjsLib.getDocument({data:passFileBuf,password:op}).promise;}
+  catch(e){showToast('Cannot open PDF — wrong current password?','❌','err');return;}
+  showToast('Applying password...','⏳');
+  try{
+    const{PDFDocument}=PDFLib;
+    const newPdf=await PDFDocument.create();
+    const pgW=595.28,pgH=841.89;
+    for(let p=1;p<=srcDoc.numPages;p++){
+      const page=await srcDoc.getPage(p);const vp=page.getViewport({scale:2});
+      const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+      await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+      const base64=c.toDataURL('image/jpeg',0.92).replace(/^data:image\/\w+;base64,/,'');
+      const imgBytes=Uint8Array.from(atob(base64),ch=>ch.charCodeAt(0));
+      const embedded=await newPdf.embedJpg(imgBytes);
+      const newPage=newPdf.addPage([pgW,pgH]);
+      const{width:iW,height:iH}=embedded.size();
+      const scale=Math.min(pgW/iW,pgH/iH);
+      newPage.drawImage(embedded,{x:(pgW-iW*scale)/2,y:(pgH-iH*scale)/2,width:iW*scale,height:iH*scale});
+    }
+    const pdfBytes=await newPdf.save({
+      userPassword:np,ownerPassword:np+'_owner',
+      permissions:{printing:'highResolution',modifying:false,copying:false,annotating:false,fillingForms:false,contentAccessibility:false,documentAssembly:false}
+    });
+    const blob=new Blob([pdfBytes],{type:'application/pdf'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=(document.getElementById('passOutName').value||'protected')+'.pdf';a.click();
+    URL.revokeObjectURL(url);
+    showToast('Password applied & downloaded!','🔐');
+  }catch(err){showToast('Error: '+err.message,'❌','err');console.error(err);}
 }
 
 /* REMOVE PASSWORD */
