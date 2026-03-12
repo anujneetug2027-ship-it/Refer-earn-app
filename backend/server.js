@@ -22,9 +22,9 @@ const app = express();
 // ✅ Body parsers MUST come before ANY routes
 app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(express.json({ limit: "50mb" }));          // ✅ 50mb for base64 image payloads
-app.use(bodyParser.json({ limit: "50mb" }));       // ✅ must match express.json limit
-app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" })); // ✅
+app.use(express.json({ limit: "10mb" }));        // ← MOVED UP ✅
+app.use(bodyParser.json());                       // ← MOVED UP ✅
+app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
 // ══════════════════════════════════════════════════════════════
 
 
@@ -34,112 +34,77 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" })); // ✅
 // ── PASTE THIS ROUTE BLOCK into server.js (after your middleware section) ──
 
 app.post('/api/pdf/create', async (req, res) => {
+  const os   = require('os');
+  const fs   = require('fs');
+  const path = require('path');
+  const { execSync } = require('child_process');
+  const { PDFDocument } = require('pdf-lib');
+
   try {
     const {
-      images = [],
-      rotations = [],
-      password = '',
-      name = 'AmbikaShelf',
-      pageSize = 'a4',
-      orientation = 'p'
+      images = [], rotations = [], password = '',
+      name = 'AmbikaShelf', pageSize = 'a4', orientation = 'p'
     } = req.body;
 
-    if (!images.length) {
-      return res.status(400).json({ success: false, msg: 'No images provided' });
-    }
+    if (!images.length) return res.status(400).json({ success:false, msg:'No images' });
 
-    // Page dimensions in PDF points (72pt = 1 inch)
-    const pageSizes = {
-      a4:     [595.28, 841.89],
-      letter: [612,    792   ],
-      a3:     [841.89, 1190.55],
-    };
-    let [pageW, pageH] = pageSizes[pageSize] || pageSizes.a4;
-    if (orientation === 'l') { [pageW, pageH] = [pageH, pageW]; }
+    // ── Step 1: Build PDF with pdf-lib ──────────────────────
+    const sizes = { a4:[595.28,841.89], letter:[612,792], a3:[841.89,1190.55] };
+    let [W, H] = sizes[pageSize] || sizes.a4;
+    if (orientation === 'l') [W, H] = [H, W];
 
     const pdfDoc = await PDFDocument.create();
 
     for (let i = 0; i < images.length; i++) {
-      // Strip the "data:image/jpeg;base64," prefix
       const dataUri = images[i];
-      const base64  = dataUri.replace(/^data:image\/\w+;base64,/, '');
-      const imgBytes = Buffer.from(base64, 'base64');
-
-      // Embed as PNG or JPEG depending on the data URI
-      let embedded;
-      if (dataUri.startsWith('data:image/png')) {
-        embedded = await pdfDoc.embedPng(imgBytes);
-      } else {
-        embedded = await pdfDoc.embedJpg(imgBytes);
-      }
-
-      const page = pdfDoc.addPage([pageW, pageH]);
-      const rot  = rotations[i] || 0;
-
-      // Scale image to fill the page (letterbox — keeps aspect ratio)
-      const { width: iW, height: iH } = embedded.size();
-      let drawW, drawH;
-
-      if (rot === 90 || rot === 270) {
-        // Rotated: swap dimensions for scale calculation
-        const scale = Math.min(pageW / iH, pageH / iW);
-        drawW = iH * scale;
-        drawH = iW * scale;
-      } else {
-        const scale = Math.min(pageW / iW, pageH / iH);
-        drawW = iW * scale;
-        drawH = iH * scale;
-      }
-
-      page.drawImage(embedded, {
-        x:      (pageW - drawW) / 2,
-        y:      (pageH - drawH) / 2,
-        width:  drawW,
-        height: drawH,
-        rotate: { type: 'degrees', angle: -rot },
-      });
+      const b64     = dataUri.replace(/^data:image\/\w+;base64,/, '');
+      const bytes   = Buffer.from(b64, 'base64');
+      const img     = dataUri.startsWith('data:image/png')
+        ? await pdfDoc.embedPng(bytes)
+        : await pdfDoc.embedJpg(bytes);
+      const page = pdfDoc.addPage([W, H]);
+      const { width:iW, height:iH } = img.size();
+      const rot = rotations[i] || 0;
+      const scale = (rot===90||rot===270)
+        ? Math.min(W/iH, H/iW)
+        : Math.min(W/iW, H/iH);
+      const dW = iW*scale, dH = iH*scale;
+      page.drawImage(img, { x:(W-dW)/2, y:(H-dH)/2, width:dW, height:dH });
     }
 
-    // ── Password protection ──
-    let pdfBytes;
+    const pdfBytes = await pdfDoc.save();
+
+    // ── Step 2: Encrypt with qpdf if password given ──────────
+    const tmpDir  = os.tmpdir();
+    const tmpIn   = path.join(tmpDir, `as_in_${Date.now()}.pdf`);
+    const tmpOut  = path.join(tmpDir, `as_out_${Date.now()}.pdf`);
+    fs.writeFileSync(tmpIn, Buffer.from(pdfBytes));
+
+    let finalBytes;
     if (password && password.trim()) {
-      pdfBytes = await pdfDoc.save({
-        userPassword:  password.trim(),
-        ownerPassword: password.trim() + '_as_owner',
-        permissions: {
-          printing:              'highResolution',
-          modifying:             false,
-          copying:               false,
-          annotating:            false,
-          fillingForms:          false,
-          contentAccessibility:  false,
-          documentAssembly:      false,
-        },
-      });
+      const pwd = password.trim().replace(/'/g, ''); // sanitise
+      execSync(`qpdf --encrypt '${pwd}' '${pwd}_owner' 256 -- '${tmpIn}' '${tmpOut}'`);
+      finalBytes = fs.readFileSync(tmpOut);
     } else {
-      pdfBytes = await pdfDoc.save();
+      finalBytes = Buffer.from(pdfBytes);
     }
 
-    // ── Send the PDF as a download ──
-    const safeName = (name || 'AmbikaShelf').replace(/[^\w\-]/g, '_');
+    // ── Step 3: Cleanup & send ───────────────────────────────
+    try { fs.unlinkSync(tmpIn); fs.unlinkSync(tmpOut); } catch(_){}
+
+    const safeName = (name||'AmbikaShelf').replace(/[^\w\-]/g,'_');
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${safeName}.pdf"`);
-    res.setHeader('Content-Length', pdfBytes.length);
+    res.setHeader('Content-Length', finalBytes.length);
     res.setHeader('Access-Control-Allow-Origin', '*');
-    return res.end(Buffer.from(pdfBytes));
+    return res.end(finalBytes);
 
   } catch (err) {
-    console.error('❌ PDF create error:', err.message);
-    return res.status(500).json({ success: false, msg: err.message });
+    console.error('PDF create error:', err.message);
+    return res.status(500).json({ success:false, msg: err.message });
   }
 });
 
-// ── END OF PASTE BLOCK ─────────────────────────────────────────────────────
-
-
-// ══════════════════════════════════════════════════════════════
-
-// ✅ Routes come AFTER body parsers
 app.use('/api/wallet', walletRoutes);             // ← MOVED DOWN ✅
 
 // ---------- Sitemaps ----------
