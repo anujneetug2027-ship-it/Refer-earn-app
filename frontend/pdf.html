@@ -3,735 +3,1311 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AmbikaShelf Professional Image to PDF Editor</title>
-
+<title>PDF Studio — AmbikaShelf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-
-/* ===========================
-   GLOBAL STYLES
-=========================== */
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07101e;--bg2:#0b1628;--bg3:#0f1e38;--card:#0a1830;
+  --accent:#38bdf8;--accent2:#0369a1;--glow:rgba(56,189,248,0.18);
+  --text:#e2eaf5;--muted:rgba(226,234,245,0.45);--border:rgba(56,189,248,0.12);
+  --r:14px;--pro:#a78bfa;--premium:#fbbf24;--danger:#f43f5e;--success:#34d399;
 }
-
-body{
-  font-family:Segoe UI, sans-serif;
-  background:linear-gradient(135deg,#0f172a,#111827);
-  color:white;
-  min-height:100vh;
-}
-
-header{
-  background:#111827;
-  padding:20px;
-  text-align:center;
-  box-shadow:0 5px 20px rgba(0,0,0,0.4);
-}
-
-header img{
-  height:65px;
-}
-
-.container{
-  max-width:1200px;
-  margin:auto;
-  padding:25px;
-}
-
-h2{
-  text-align:center;
-  font-weight:500;
-  margin-bottom:25px;
-}
-/* ------------------&&&&&------*/
-   .editor-ui{
-  width:95vw;
-  max-width:1000px;
-}
-
-.toolbar{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  justify-content:center;
-  margin-bottom:10px;
-}
-
-.toolbar button{
-  background:#1f2937;
-  color:white;
-  border:none;
-  padding:8px 12px;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.toolbar button:hover{
-  background:#374151;
-}
-
-.divider{
-  width:2px;
-  background:#444;
-  margin:0 5px;
-}
-
-.canvas-wrapper{
-  position:relative;
-  background:#000;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-#editCanvas{
-  max-width:100%;
-  max-height:70vh;
-  touch-action:none;
-  background:#fff;
-}
-
-.bottom-actions{
-  margin-top:10px;
-  text-align:center;
-}
-
-.bottom-actions button{
-  margin:0 10px;
-  padding:8px 16px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-/* ===========================
-   LIVE PREVIEW AREA
-=========================== */
-
-.preview-wrapper{
-  display:none;
-  height:620px;
-  overflow-y:auto;
-  border-radius:15px;
-  background:#1e293b;
-  padding:20px;
-  margin-bottom:25px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.5);
-}
-
-.preview-page{
-  background:white;
-  width:100%;
-  max-width:450px;
-  height:630px;
-  margin:0 auto 20px auto;
-  border-radius:10px;
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.preview-page img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
-
-/* ===========================
-   THUMBNAILS
-=========================== */
-
-.thumbnail-container{
-  display:flex;
-  gap:12px;
-  overflow-x:auto;
-  padding-bottom:10px;
-}
-
-.thumb{
-  position:relative;
-  cursor:grab;
-}
-
-.thumb img{
-  width:115px;
-  height:115px;
-  object-fit:cover;
-  border-radius:10px;
-  border:2px solid #38bdf8;
-}
-
-.thumb-number{
-  position:absolute;
-  top:5px;
-  left:6px;
-  background:black;
-  padding:3px 7px;
-  font-size:12px;
-  border-radius:6px;
-}
-
-.thumb button{
-  position:absolute;
-  width:23px;
-  height:23px;
-  border:none;
-  border-radius:50%;
-  font-size:13px;
-  cursor:pointer;
-}
-
-.remove-btn{
-  top:5px;
-  right:5px;
-  background:red;
-  color:white;
-}
-
-.edit-btn{
-  bottom:5px;
-  right:5px;
-  background:#38bdf8;
-  color:black;
-}
-
-.add-thumb{
-  width:115px;
-  height:115px;
-  border-radius:10px;
-  border:2px dashed #38bdf8;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:32px;
-  cursor:pointer;
-}
-
-/* ===========================
-   CONTROLS
-=========================== */
-
-.controls{
-  text-align:center;
-  margin-top:25px;
-}
-
-.controls input{
-  padding:10px;
-  border-radius:8px;
-  border:none;
-  margin:8px;
-  min-width:220px;
-}
-
-.controls button{
-  padding:10px 20px;
-  border:none;
-  border-radius:8px;
-  background:#38bdf8;
-  font-weight:600;
-  cursor:pointer;
-  margin:10px;
-}
-
-/* ===========================
-   EDIT MODAL
-=========================== */
-
-.modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.85);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:1000;
-}
-
-.modal-content{
-  background:#111827;
-  padding:20px;
-  border-radius:12px;
-  text-align:center;
-}
-#editCanvas{
-  background:white;
-  border-radius:8px;
-  cursor:crosshair;
-  max-width:800px;
-  max-height:70vh;
-   }
-
-.modal-buttons button{
-  padding:8px 15px;
-  margin:8px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;position:relative}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.022) 1px,transparent 1px);background-size:64px 64px;pointer-events:none;z-index:0}
+a{color:inherit;text-decoration:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,16,30,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo img{height:38px;width:38px;object-fit:contain;border-radius:8px}
+.nav-brand{font-family:'Cinzel',serif;font-size:18px;font-weight:700;letter-spacing:1px}
+.nav-brand span{color:var(--accent)}
+.nav-links{display:flex;align-items:center;gap:2px;list-style:none}
+.nav-links a{font-size:12px;font-weight:500;padding:8px 12px;border-radius:8px;color:var(--muted);transition:all .2s}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,0.05)}
+.nav-links a.active{color:var(--accent);background:rgba(56,189,248,0.07)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center;transition:all .2s}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:none;border:none}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .3s}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9998}
+.mob-overlay.open{display:block}
+.mob-drawer{position:fixed;top:0;left:-280px;width:260px;height:100%;background:#0a1424;border-right:1px solid var(--border);z-index:9999;padding:24px 20px;transition:left .3s}
+.mob-drawer.open{left:0}
+.mob-x{font-size:14px;cursor:pointer;color:var(--muted);margin-bottom:24px;display:block}
+.mob-drawer a{display:block;padding:13px 0;font-size:14px;font-weight:500;color:var(--muted);border-bottom:1px solid rgba(255,255,255,0.05);transition:all .2s}
+.mob-drawer a:hover{color:var(--accent);padding-left:6px}
+.prof-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9998}
+.prof-overlay.open{display:block}
+.prof-panel{position:fixed;top:0;right:-300px;width:270px;height:100%;background:#0a1424;border-left:1px solid var(--border);z-index:9999;padding:24px 20px;transition:right .3s;display:flex;flex-direction:column;align-items:center;text-align:center}
+.prof-panel.open{right:0}
+.prof-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:28px;margin:20px auto 12px;border:3px solid rgba(56,189,248,0.25)}
+.prof-name{font-size:15px;font-weight:700;color:#fff}
+.prof-email{font-size:11px;color:var(--muted);word-break:break-all;margin:4px 0}
+.prof-bal{font-size:18px;font-weight:700;color:var(--accent);margin:8px 0 20px}
+.prof-divider{width:100%;height:1px;background:rgba(255,255,255,0.06);margin-bottom:16px}
+.prof-btn{width:100%;padding:11px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;margin-bottom:9px;border:none}
+.prof-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.prof-btn.outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.prof-btn.red{background:transparent;border:1px solid rgba(244,63,94,0.3);color:var(--danger)}
+.prof-btn:hover{opacity:.85;transform:translateY(-1px)}
+.hero{padding:95px 24px 0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(56,189,248,0.06) 0%,transparent 70%);position:relative;z-index:1}
+.hero-inner{text-align:center;padding:44px 0 32px}
+.hero-eyebrow{display:inline-block;font-size:10px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.hero-title{font-family:'Cinzel',serif;font-size:clamp(2rem,5vw,3.6rem);font-weight:900;color:#fff;line-height:1.1;margin-bottom:10px}
+.hero-title span{color:var(--accent)}
+.hero-sub{font-size:14px;color:var(--muted);line-height:1.9;max-width:500px;margin:0 auto 20px}
+.free-banner{max-width:1280px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+.banner-inner{background:linear-gradient(90deg,rgba(56,189,248,0.06),rgba(56,189,248,0.02));border:1px solid rgba(56,189,248,0.18);border-radius:12px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.banner-inner strong{color:var(--accent)}
+.banner-inner a{color:var(--accent);font-weight:600;text-decoration:underline;cursor:pointer}
+.banner-inner.hide{display:none}
+.studio{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:264px 1fr;gap:24px;padding:20px 24px 80px;position:relative;z-index:1}
+.sidebar{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;position:sticky;top:82px;align-self:start}
+.sb-head{padding:20px;background:linear-gradient(135deg,#091626,#0d1e38);border-bottom:1px solid var(--border)}
+.sb-head h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+.sb-head p{font-size:11px;color:var(--muted)}
+.sb-plan-badge{margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;background:rgba(56,189,248,0.1);color:var(--accent);border:1px solid rgba(56,189,248,0.2)}
+.sb-nav{padding:10px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:3px;border:1px solid transparent}
+.sb-item:hover{background:rgba(255,255,255,0.04);color:#fff}
+.sb-item.active{background:rgba(56,189,248,0.08);color:var(--accent);border-color:rgba(56,189,248,0.14)}
+.sb-item .ico{font-size:17px;width:26px;text-align:center}
+.sb-tag{margin-left:auto;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border-radius:20px}
+.tag-pro{background:rgba(167,139,250,0.12);color:var(--pro);border:1px solid rgba(167,139,250,0.25)}
+.tag-prem{background:rgba(251,191,36,0.12);color:var(--premium);border:1px solid rgba(251,191,36,0.25)}
+.sb-sep{height:1px;background:rgba(255,255,255,0.05);margin:6px 0}
+.sb-quota{padding:12px 14px;border-top:1px solid var(--border)}
+.quota-label{font-size:10px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:5px}
+.quota-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.quota-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s}
+.quota-fill.warn{background:linear-gradient(90deg,#fbbf24,#d97706)}
+.quota-fill.full{background:linear-gradient(90deg,var(--danger),#be123c)}
+.sb-plans{padding:10px;border-top:1px solid var(--border)}
+.plan-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:10px;margin-bottom:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;border:1px solid}
+.plan-row.free{border-color:rgba(56,189,248,0.2);color:var(--accent);background:rgba(56,189,248,0.04)}
+.plan-row.pro{border-color:rgba(167,139,250,0.2);color:var(--pro);background:rgba(167,139,250,0.04)}
+.plan-row.prem{border-color:rgba(251,191,36,0.2);color:var(--premium);background:rgba(251,191,36,0.04)}
+.plan-row:hover{transform:translateX(3px)}
+.plan-price{font-size:10px;opacity:.7}
+.main-panel{min-height:600px}
+.tool-pane{display:none;animation:fadeUp .38s ease both}
+.tool-pane.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:20px}
+.panel-hd{padding:20px 24px;background:linear-gradient(135deg,#091626,#0d1e38);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.panel-hd .p-ico{font-size:22px}
+.panel-hd h2{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:#fff}
+.panel-hd p{font-size:11px;color:var(--muted);margin-top:2px}
+.panel-bd{padding:24px}
+.drop-zone{border:2px dashed rgba(56,189,248,0.25);border-radius:14px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(56,189,248,0.02);position:relative;overflow:hidden}
+.drop-zone::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(56,189,248,0.07) 0%,transparent 65%);opacity:0;transition:opacity .3s}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:rgba(56,189,248,0.05)}
+.drop-zone:hover::after,.drop-zone.drag::after{opacity:1}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2}
+.dz-btn{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:10px 22px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;pointer-events:none;letter-spacing:.5px}
+.drop-zone:hover .dz-btn{opacity:.9}
+.dz-icon{font-size:46px;display:block;margin-bottom:12px;transition:transform .3s}
+.drop-zone:hover .dz-icon{transform:translateY(-5px) scale(1.08)}
+.dz-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:6px}
+.dz-sub{font-size:12px;color:var(--muted)}
+.thumb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:12px;margin-top:20px}
+.thumb-card{position:relative;border-radius:12px;overflow:hidden;background:#0d1e35;border:2px solid rgba(56,189,248,0.1);transition:all .25s;cursor:grab;aspect-ratio:1}
+.thumb-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,0.45)}
+.thumb-card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.thumb-num{position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px}
+.thumb-actions{position:absolute;bottom:0;left:0;right:0;padding:6px 5px;display:flex;gap:4px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);opacity:0;transition:opacity .2s}
+.thumb-card:hover .thumb-actions{opacity:1}
+.t-btn{flex:1;padding:4px;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s}
+.t-btn.edit{background:var(--accent);color:#000}
+.t-btn.del{background:var(--danger);color:#fff}
+.add-card{border-radius:12px;border:2px dashed rgba(56,189,248,0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .2s;aspect-ratio:1;font-size:11px;color:var(--muted);background:rgba(56,189,248,0.02)}
+.add-card:hover{border-color:var(--accent);color:var(--accent);background:rgba(56,189,248,0.05)}
+.add-card span{font-size:26px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.inp-group{display:flex;flex-direction:column;gap:6px}
+.inp-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent)}
+.inp{background:rgba(11,22,40,0.8);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:all .25s;width:100%}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.1);background:rgba(56,189,248,0.03)}
+.inp::placeholder{color:var(--muted)}
+.inp-select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px}
+.inp-select option{background:#0b1628;color:var(--text)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{padding:12px 20px;border:none;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 18px rgba(56,189,248,0.2)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(56,189,248,0.35)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.3);color:var(--danger)}
+.btn-danger:hover{background:rgba(244,63,94,0.2)}
+.btn-pro{background:linear-gradient(135deg,var(--pro),#7c3aed);color:#fff}
+.btn-prem{background:linear-gradient(135deg,var(--premium),#d97706);color:#000}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.preview-strip{display:none;flex-direction:column;gap:16px;max-height:620px;overflow-y:auto;padding:16px;background:#1a2a40;border-radius:14px;border:1px solid var(--border);scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+.preview-strip.show{display:flex}
+.prev-card{width:100%;max-width:460px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.5);position:relative}
+.prev-card img{width:100%;display:block;object-fit:contain}
+.prev-num{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;color:#fff;backdrop-filter:blur(4px)}
+.ed-modal{position:fixed;inset:0;background:rgba(3,9,18,0.92);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(14px)}
+.ed-modal.open{display:flex}
+.ed-shell{background:#0a1424;border:1px solid var(--border);border-radius:20px;width:100%;max-width:920px;max-height:93vh;overflow:hidden;display:flex;flex-direction:column;animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.ed-top{padding:12px 18px;background:linear-gradient(135deg,#091626,#0d1e38);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ed-top h3{font-size:13px;font-weight:700;color:#fff;margin-right:auto}
+.tool-grp{display:flex;gap:3px;background:rgba(0,0,0,.35);border-radius:8px;padding:3px}
+.tool-btn{padding:6px 11px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted)}
+.tool-btn:hover{color:#fff;background:rgba(255,255,255,.1)}
+.tool-btn.on{background:var(--accent);color:#000}
+.swatch{width:26px;height:26px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .2s;flex-shrink:0}
+.swatch.on{border-color:#fff;transform:scale(1.15)}
+.sz-btn{padding:5px 9px;border:1px solid rgba(255,255,255,.1);border-radius:6px;background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}
+.sz-btn.on,.sz-btn:hover{border-color:var(--accent);color:var(--accent)}
+.op-range{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:rgba(255,255,255,.1);outline:none;cursor:pointer;width:70px}
+.op-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer}
+.ed-canvas-wrap{flex:1;overflow:auto;background:#1a2332;display:flex;align-items:center;justify-content:center;min-height:0;padding:20px}
+#editCanvas{background:#fff;cursor:crosshair;max-width:100%;box-shadow:0 10px 50px rgba(0,0,0,.7);touch-action:none}
+.ed-bottom{padding:11px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ed-hint{font-size:11px;color:var(--muted)}
+.rich-wrap{border-radius:12px;overflow:hidden;box-shadow:0 8px 36px rgba(0,0,0,.4)}
+.rich-bar{padding:8px 12px;background:#f1f5f9;display:flex;gap:4px;flex-wrap:wrap;align-items:center;border-bottom:1px solid #e2e8f0}
+.rb-btn{padding:5px 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:#374151;transition:all .15s;font-family:'DM Sans',sans-serif}
+.rb-btn:hover{background:#e0f2fe;border-color:#7dd3fc}
+.rb-sep{width:1px;height:22px;background:#e2e8f0;margin:0 3px}
+.rb-select{padding:5px 8px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:#374151;font-family:'DM Sans',sans-serif;outline:none}
+.pass-card{background:rgba(56,189,248,0.03);border:1px solid rgba(56,189,248,0.1);border-radius:13px;padding:18px;margin-bottom:14px}
+.pass-card h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.sig-canvas-wrap{border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#fff;margin-top:8px}
+#sigCanvas{cursor:crosshair;touch-action:none}
+.rot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:16px}
+.rot-card{border-radius:10px;overflow:hidden;background:rgba(255,255,255,.05);border:1px solid var(--border);padding:10px;text-align:center;cursor:pointer;transition:all .2s}
+.rot-card:hover{border-color:var(--accent)}
+.rot-card img{width:100%;border-radius:6px;margin-bottom:6px;object-fit:cover;aspect-ratio:1;transition:transform .4s}
+.rot-btns{display:flex;gap:4px;justify-content:center;margin-top:6px}
+.rot-btn{padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);font-size:11px;cursor:pointer;transition:all .2s}
+.rot-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pw-modal{position:fixed;inset:0;background:rgba(3,9,18,0.92);z-index:3000;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(16px)}
+.pw-modal.open{display:flex}
+.pw-box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px 32px;max-width:460px;width:100%;text-align:center;position:relative;overflow:hidden;animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both}
+.pw-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--pro),var(--premium))}
+.pw-icon{font-size:52px;margin-bottom:14px;display:block}
+.pw-title{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:900;color:#fff;margin-bottom:8px}
+.pw-desc{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:26px}
+.pw-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.pw-opt{padding:16px;border-radius:13px;cursor:pointer;transition:all .2s;border:2px solid}
+.pw-opt.pro-opt{background:rgba(167,139,250,0.07);border-color:rgba(167,139,250,0.3)}
+.pw-opt.prem-opt{background:rgba(251,191,36,0.07);border-color:rgba(251,191,36,0.3)}
+.pw-opt:hover{transform:translateY(-3px)}
+.pw-price{font-size:1.5rem;font-weight:900;margin-bottom:4px}
+.pro-opt .pw-price{color:var(--pro)}
+.prem-opt .pw-price{color:var(--premium)}
+.pw-label{font-size:11px;color:var(--muted)}
+.pw-sub{font-size:11px;color:var(--muted);margin-top:10px}
+.pw-sub a{color:var(--accent);cursor:pointer}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:13px 20px;display:flex;align-items:center;gap:9px;z-index:9999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);min-width:240px;max-width:380px;box-shadow:0 16px 48px rgba(0,0,0,.5)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:rgba(52,211,153,.35)}
+.toast.err{border-color:rgba(244,63,94,.35)}
+.toast-msg{font-size:12px;color:var(--text)}
+.prog-wrap{margin-top:10px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;display:none}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s;width:0}
+footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60px 40px 28px;position:relative;z-index:1}
+.f-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr 1fr;gap:36px;padding-bottom:44px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.f-brand img{height:120px;width:auto;object-fit:contain;margin-bottom:16px;display:block}
+.f-brand p{font-size:13px;color:var(--muted);line-height:1.85;max-width:220px;margin-bottom:18px}
+.f-made{font-size:11px;color:rgba(255,255,255,0.2);margin-bottom:14px}
+.f-icons{display:flex;gap:12px}
+.f-icons a img{width:24px;height:24px;filter:brightness(0) invert(.45);transition:all .25s}
+.f-icons a:hover img{filter:brightness(0) saturate(100%) invert(70%) sepia(80%) saturate(400%) hue-rotate(160deg);transform:scale(1.15)}
+.f-col h4{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+.f-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.f-col ul li a{font-size:13px;color:var(--muted);transition:all .25s;display:inline-block}
+.f-col ul li a:hover{color:var(--accent);padding-left:5px}
+.soc a{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);transition:color .25s;margin-bottom:11px}
+.soc a img{width:19px;height:19px;filter:brightness(0) invert(.45);transition:filter .25s}
+.soc a:hover{color:var(--accent)}
+.soc a:hover img{filter:brightness(0) saturate(100%) invert(70%) sepia(80%) saturate(400%) hue-rotate(160deg)}
+.f-btm{max-width:1100px;margin:26px auto 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.f-copy{font-size:11px;color:rgba(255,255,255,0.2)}
+.f-copy span{color:rgba(56,189,248,0.5)}
+.f-legal{display:flex;gap:20px}
+.f-legal a{font-size:11px;color:rgba(255,255,255,0.2);transition:color .25s}
+.f-legal a:hover{color:var(--accent)}
+@media(max-width:960px){.studio{grid-template-columns:1fr}.sidebar{position:static}.settings-grid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr 1fr}.f-brand{grid-column:1/-1}}
+@media(max-width:768px){.nav-links{display:none}.hamburger{display:flex}.pw-opts{grid-template-columns:1fr}}
+@media(max-width:480px){footer{padding:40px 16px 24px}.f-grid{grid-template-columns:1fr}.studio{padding:16px 16px 80px}.panel-bd{padding:16px}}
 </style>
 </head>
 <body>
+<!-- TOAST -->
+<div class="toast" id="toast"><span id="toastIco" style="font-size:17px"></span><span class="toast-msg" id="toastMsg"></span></div>
 
-<header>
-  <img src="https://ambikashelf.shop/ambikashelf.png">
-</header>
-
-<div class="container">
-
-<h2>Professional Image to PDF Editor</h2>
-
-<div id="previewWrapper" class="preview-wrapper"></div>
-
-<div id="thumbnailContainer" class="thumbnail-container"></div>
-
-<div class="controls">
-
-<input type="file" id="fileInput" accept="image/*" multiple>
-<br>
-<input type="text" id="pdfName" placeholder="Enter PDF File Name">
-<br>
-<input type="password" id="pdfPassword" placeholder="Optional PDF Password">
-<br>
-<button onclick="downloadPDF()">Download PDF</button>
-
-</div>
-
-</div>
-
-<!-- EDIT MODAL -->
-
-<div class="modal" id="editModal">
-  <div class="modal-content editor-ui">
-
-    <div class="toolbar">
-      <button onclick="setTool('crop')">Crop</button>
-      <button onclick="setTool('draw')">Pen</button>
-      <button onclick="setTool('text')">Text</button>
-      <button onclick="undo()">Undo</button>
-
-      <div class="divider"></div>
-
-      <button onclick="setColor('#000000')">Black</button>
-      <button onclick="setColor('#ff0000')">Red</button>
-      <button onclick="setColor('#0066ff')">Blue</button>
-      <button onclick="setColor('rgba(255,255,0,0.4)')">Highlight</button>
-
-      <div class="divider"></div>
-
-      <button onclick="setSize(2)">Thin</button>
-      <button onclick="setSize(6)">Medium</button>
-      <button onclick="setSize(12)">Thick</button>
+<!-- PAYWALL MODAL -->
+<div class="pw-modal" id="paywallModal">
+  <div class="pw-box">
+    <span class="pw-icon" id="pwIcon">🔒</span>
+    <div class="pw-title" id="pwTitle">Unlock Your PDF</div>
+    <div class="pw-desc" id="pwDesc">You used Pro/Premium features. Pay once to download a clean copy, or subscribe for unlimited access.</div>
+    <div class="pw-opts">
+      <div class="pw-opt pro-opt" onclick="handlePay('pro')"><div class="pw-price">₹2</div><div class="pw-label">Pro features used<br><small>one-time</small></div></div>
+      <div class="pw-opt prem-opt" onclick="handlePay('premium')"><div class="pw-price">₹3</div><div class="pw-label">Premium features<br><small>one-time</small></div></div>
     </div>
-
-    <div class="canvas-wrapper">
-      <canvas id="editCanvas"></canvas>
-    </div>
-
-    <div class="bottom-actions">
-      <button onclick="applyEdit()">Apply</button>
-      <button onclick="closeModal()">Cancel</button>
-    </div>
-
+    <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="location.href='#subscription'">📦 Subscribe — Unlimited Access</button>
+    <div class="pw-sub"><a onclick="closePW()">✕ Continue without paying</a></div>
   </div>
 </div>
+
+<!-- IMAGE EDITOR MODAL -->
+<div class="ed-modal" id="edModal">
+  <div class="ed-shell">
+    <div class="ed-top">
+      <h3>🎨 Image Editor</h3>
+      <div class="tool-grp">
+        <button class="tool-btn on" id="tb-draw"   onclick="setEdTool('draw')">✏ Pen</button>
+        <button class="tool-btn"    id="tb-marker" onclick="setEdTool('marker')">🖍 Marker</button>
+        <button class="tool-btn"    id="tb-text"   onclick="setEdTool('text')">T Text</button>
+        <button class="tool-btn"    id="tb-crop"   onclick="setEdTool('crop')">✂ Crop</button>
+        <button class="tool-btn"    id="tb-eraser" onclick="setEdTool('eraser')">🧹 Erase</button>
+      </div>
+      <div style="display:flex;gap:5px;align-items:center">
+        <div class="swatch on" style="background:#1a1a1a" onclick="setEdColor('#1a1a1a',this)"></div>
+        <div class="swatch" style="background:#e11d48" onclick="setEdColor('#e11d48',this)"></div>
+        <div class="swatch" style="background:#2563eb" onclick="setEdColor('#2563eb',this)"></div>
+        <div class="swatch" style="background:#16a34a" onclick="setEdColor('#16a34a',this)"></div>
+        <div class="swatch" style="background:rgba(250,204,21,0.55)" onclick="setEdColor('rgba(250,204,21,0.55)',this)"></div>
+        <div class="swatch" style="background:rgba(59,130,246,0.4)" onclick="setEdColor('rgba(59,130,246,0.4)',this)"></div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="sz-btn on" onclick="setEdSize(2,this)">S</button>
+        <button class="sz-btn" onclick="setEdSize(5,this)">M</button>
+        <button class="sz-btn" onclick="setEdSize(11,this)">L</button>
+        <button class="sz-btn" onclick="setEdSize(22,this)">XL</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)">
+        Opacity <input type="range" class="op-range" id="opRange" min="10" max="100" value="100">
+      </div>
+      <button class="tool-btn" onclick="edUndo()" title="Undo">↩ Undo</button>
+    </div>
+    <div class="ed-canvas-wrap"><canvas id="editCanvas"></canvas></div>
+    <div class="ed-bottom">
+      <div class="ed-hint" id="edHint">Click &amp; drag to draw</div>
+      <div style="display:flex;gap:9px">
+        <button class="btn btn-outline" onclick="closeEditor()">Cancel</button>
+        <button class="btn btn-primary" onclick="applyEditor()">✓ Apply Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">
+    <img src="https://ambikashelf.shop/ambikashelf.png" alt="AmbikaShelf" onerror="this.style.display='none'">
+    <span class="nav-brand">Ambika<span>Shelf</span></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#tools">Tools</a></li>
+    <li><a href="about.html">About Us</a></li>
+    <li><a href="pdf.html" class="active">📄 PDF Studio</a></li>
+    <li><a href="add.html">💳 Wallet</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="icon-btn" onclick="toggleProfile()" title="Profile">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </button>
+    <button class="icon-btn hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mob-overlay" id="mobOvl" onclick="toggleMenu()"></div>
+<div class="mob-drawer" id="mobDrawer">
+  <span class="mob-x" onclick="toggleMenu()">✕ Close</span>
+  <a href="index.html">🏠 Home</a>
+  <a href="index.html#tools">🛠 Tools</a>
+  <a href="about.html">ℹ About</a>
+  <a href="pdf.html">📄 PDF Studio</a>
+  <a href="add.html">💳 Wallet</a>
+  <a href="qr.html">📷 QR Shelf</a>
+  <a href="worldchat.html">💬 Shelf Chat</a>
+</div>
+<div class="prof-overlay" id="profOvl" onclick="toggleProfile()"></div>
+<div class="prof-panel" id="profPanel">
+  <span class="mob-x" onclick="toggleProfile()">✕</span>
+  <div class="prof-avatar" id="ppAvatar">👤</div>
+  <div class="prof-name" id="ppName">Guest User</div>
+  <div class="prof-email" id="ppEmail">Not logged in</div>
+  <div class="prof-bal" id="ppBal">₹0.00</div>
+  <div class="prof-divider"></div>
+  <button class="prof-btn primary" onclick="location.href='add.html'">💳 Add Money</button>
+  <button class="prof-btn outline" id="ppLoginBtn" onclick="location.href='login.html'">Login / Register</button>
+  <button class="prof-btn red" id="ppLogoutBtn" onclick="doLogout()" style="display:none">Logout</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <span class="hero-eyebrow">✦ AmbikaShelf Tools</span>
+    <h1 class="hero-title">PDF <span>Studio</span></h1>
+    <p class="hero-sub">Professional PDF creation, editing &amp; management — no software needed. Fast, secure, in your browser.</p>
+  </div>
+</div>
+
+<!-- FREE BANNER -->
+<div class="free-banner">
+  <div class="banner-inner" id="freeBanner">
+    <span>📋 You're on the <strong>Free Plan</strong> — 30 images/PDF · 10 PDFs/day · Basic tools</span>
+    <span><a onclick="location.href='login.html'">Login</a> to unlock Pro &amp; Premium features</span>
+  </div>
+</div>
+
+<!-- STUDIO -->
+<div class="studio">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-head">
+    <h3>🗂 PDF Studio</h3>
+    <p id="sbPlanDesc">Free — 10 PDFs/day</p>
+    <div class="sb-plan-badge" id="sbPlanBadge">FREE PLAN</div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-item active" id="sb-img2pdf"   onclick="showTool('img2pdf')"><span class="ico">🖼️</span>Image to PDF</div>
+    <div class="sb-item"        id="sb-text2pdf"  onclick="showTool('text2pdf')"><span class="ico">📝</span>Text to PDF</div>
+    <div class="sb-sep"></div>
+    <div class="sb-item"        id="sb-pdfeditor" onclick="showTool('pdfeditor')"><span class="ico">✏️</span>PDF Editor<span class="sb-tag tag-pro">PRO</span></div>
+    <div class="sb-item"        id="sb-passchange" onclick="showTool('passchange')"><span class="ico">🔐</span>Password Manager</div>
+    <div class="sb-item"        id="sb-passremove" onclick="showTool('passremove')"><span class="ico">🔓</span>Remove Password<span class="sb-tag tag-prem">PREMIUM</span></div>
+    <div class="sb-sep"></div>
+    <div class="sb-item"        id="sb-watermark" onclick="showTool('watermark')"><span class="ico">💧</span>Watermark<span class="sb-tag tag-prem">PREMIUM</span></div>
+    <div class="sb-item"        id="sb-signature" onclick="showTool('signature')"><span class="ico">✍️</span>Digital Signature<span class="sb-tag tag-pro">PRO</span></div>
+    <div class="sb-item"        id="sb-rotate"    onclick="showTool('rotate')"><span class="ico">🔄</span>Rotate Pages</div>
+  </div>
+  <div class="sb-quota">
+    <div class="quota-label"><span>PDFs today</span><span id="quotaCount">0 / 10</span></div>
+    <div class="quota-bar"><div class="quota-fill" id="quotaFill" style="width:0%"></div></div>
+  </div>
+  <div class="sb-plans">
+    <div class="plan-row free" onclick="location.href='#plans'"><span>✦ Basic (Free)</span><span class="plan-price">30 img · 10/day</span></div>
+    <div class="plan-row pro" onclick="location.href='#subscription'"><span>⚡ Pro</span><span class="plan-price">50 img · 25/day</span></div>
+    <div class="plan-row prem" onclick="location.href='#subscription'"><span>👑 Premium</span><span class="plan-price">100 img · ∞/day</span></div>
+  </div>
+</div>
+
+<!-- MAIN PANEL -->
+<div class="main-panel">
+
+<!-- IMAGE TO PDF -->
+<div class="tool-pane active" id="pane-img2pdf">
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="p-ico">🖼️</span>
+      <div><h2>Image to PDF</h2><p>Convert &amp; reorder images to a high-quality PDF with optional password protection</p></div>
+    </div>
+    <div class="panel-bd">
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="imgFileInput" accept="image/*" multiple style="display:none">
+        <span class="dz-icon">📁</span>
+        <div class="dz-title">Drop images here or click to select</div>
+        <div class="dz-sub">JPG · PNG · WEBP · Max <span id="maxImgLabel">30</span> images</div>
+        <div class="dz-btn">📂 Browse Files</div>
+      </div>
+      <div class="thumb-grid" id="thumbGrid"></div>
+      <div style="margin-top:16px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;display:none" id="previewLabel">PAGE PREVIEW</div>
+        <div class="preview-strip" id="prevStrip"></div>
+      </div>
+      <div class="settings-grid" style="margin-top:20px">
+        <div class="inp-group"><label class="inp-label">PDF Name</label><input class="inp" id="pdfName" type="text" placeholder="AmbikaShelf_Doc"></div>
+        <div class="inp-group"><label class="inp-label">Page Size</label><select class="inp inp-select" id="pageSize"><option value="a4">A4 (Standard)</option><option value="letter">Letter</option><option value="a3">A3</option></select></div>
+        <div class="inp-group"><label class="inp-label">Password (optional)</label><input class="inp" id="pdfPassword" type="password" placeholder="Leave blank for no password"></div>
+        <div class="inp-group"><label class="inp-label">Orientation</label><select class="inp inp-select" id="pdfOrientation"><option value="p">Portrait</option><option value="l">Landscape</option></select></div>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" onclick="downloadImgPDF()">⬇ Download PDF</button>
+        <button class="btn btn-outline" onclick="clearImages()">🗑 Clear All</button>
+      </div>
+      <div class="prog-wrap" id="progWrap"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TEXT TO PDF -->
+<div class="tool-pane" id="pane-text2pdf">
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="p-ico">📝</span>
+      <div><h2>Text to PDF</h2><p>Write &amp; format rich text on a virtual page, export as PDF</p></div>
+    </div>
+    <div class="panel-bd">
+      <div class="rich-wrap">
+        <div class="rich-bar">
+          <button class="rb-btn" onclick="fmt('bold')"><b>B</b></button>
+          <button class="rb-btn" onclick="fmt('italic')"><i>I</i></button>
+          <button class="rb-btn" onclick="fmt('underline')"><u>U</u></button>
+          <button class="rb-btn" onclick="fmt('strikeThrough')"><s>S</s></button>
+          <div class="rb-sep"></div>
+          <select class="rb-select" onchange="fmt('fontSize',false,this.value)" title="Size">
+            <option value="1">XS</option><option value="2">S</option><option value="3" selected>Normal</option>
+            <option value="4">M</option><option value="5">L</option><option value="6">XL</option><option value="7">XXL</option>
+          </select>
+          <select class="rb-select" onchange="fmt('fontName',false,this.value)" title="Font">
+            <option value="Georgia">Georgia</option><option value="Arial">Arial</option>
+            <option value="Courier New">Courier New</option><option value="Times New Roman">Times New</option><option value="Verdana">Verdana</option>
+          </select>
+          <div class="rb-sep"></div>
+          <button class="rb-btn" onclick="fmt('justifyLeft')">⬅</button>
+          <button class="rb-btn" onclick="fmt('justifyCenter')">≡</button>
+          <button class="rb-btn" onclick="fmt('justifyRight')">➡</button>
+          <div class="rb-sep"></div>
+          <button class="rb-btn" onclick="fmt('insertOrderedList')">1.</button>
+          <button class="rb-btn" onclick="fmt('insertUnorderedList')">•</button>
+          <div class="rb-sep"></div>
+          <input type="color" value="#000000" onchange="fmt('foreColor',false,this.value)" title="Text Color" style="width:28px;height:28px;border:none;background:none;cursor:pointer;border-radius:6px">
+          <input type="color" value="#ffff00" onchange="fmt('hiliteColor',false,this.value)" title="Highlight" style="width:28px;height:28px;border:none;background:none;cursor:pointer;border-radius:6px">
+          <div class="rb-sep"></div>
+          <button class="rb-btn" onclick="fmt('undo')">↩</button>
+          <button class="rb-btn" onclick="fmt('redo')">↪</button>
+        </div>
+        <div id="textEditor" contenteditable="true" spellcheck="true"
+          style="min-height:480px;padding:36px 48px;background:#fff;color:#1e293b;font-family:Georgia,serif;font-size:15px;line-height:1.85;outline:none;border-radius:0 0 12px 12px">
+          Start typing your document here...
+        </div>
+      </div>
+      <div class="settings-grid" style="margin-top:16px">
+        <div class="inp-group"><label class="inp-label">PDF Name</label><input class="inp" id="txtPdfName" type="text" placeholder="My Document"></div>
+        <div class="inp-group"><label class="inp-label">Page Size</label><select class="inp inp-select" id="txtPageSize"><option value="a4">A4</option><option value="letter">Letter</option></select></div>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" onclick="downloadTextPDF()">⬇ Download as PDF</button>
+        <button class="btn btn-outline" onclick="document.getElementById('textEditor').innerHTML=''">🗑 Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PDF EDITOR -->
+<div class="tool-pane" id="pane-pdfeditor">
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="p-ico">✏️</span>
+      <div><h2>PDF Editor <span style="font-size:11px;color:var(--pro);background:rgba(167,139,250,.1);padding:2px 8px;border-radius:5px;margin-left:6px">PRO</span></h2><p>Upload a PDF, annotate with pen, marker, text — then download</p></div>
+    </div>
+    <div class="panel-bd">
+      <div class="drop-zone" onclick="document.getElementById('pdfEditInput').click()">
+        <input type="file" id="pdfEditInput" accept="application/pdf" onchange="loadPDFForEdit(this)" style="display:none">
+        <span class="dz-icon">📄</span>
+        <div class="dz-title">Drop your PDF here or click to select</div>
+        <div class="dz-sub">Pages rendered as canvas — draw, annotate, add text</div>
+        <div class="dz-btn">📂 Browse PDF</div>
+      </div>
+      <div id="pdfEditArea" style="display:none;margin-top:20px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+          <button class="btn btn-outline" id="pe-pen"    onclick="setPDFTool('pen',this)">✏ Pen</button>
+          <button class="btn btn-outline" id="pe-mk"     onclick="setPDFTool('marker',this)">🖍 Marker</button>
+          <button class="btn btn-outline" id="pe-txt"    onclick="setPDFTool('text',this)">T Add Text</button>
+          <button class="btn btn-outline" id="pe-er"     onclick="setPDFTool('eraser',this)">🧹 Eraser</button>
+          <select class="inp inp-select" id="peColor" style="width:130px;padding:8px 30px 8px 12px" onchange="pdfEdColor=this.value">
+            <option value="#000">Black</option><option value="#e11d48">Red</option>
+            <option value="#2563eb">Blue</option><option value="rgba(250,204,21,0.45)">Highlight</option><option value="#16a34a">Green</option>
+          </select>
+          <button class="btn btn-danger" onclick="clearPDFAnnotations()">Clear All</button>
+        </div>
+        <div id="pdfCanvasWrap" style="overflow:auto;border-radius:12px;background:#f8fafc;padding:12px"></div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn btn-primary" onclick="downloadEditedPDF()">⬇ Download Edited PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD MANAGER -->
+<div class="tool-pane" id="pane-passchange">
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="p-ico">🔐</span>
+      <div><h2>Password Manager</h2><p>Add, change or protect your PDF with a password</p></div>
+    </div>
+    <div class="panel-bd">
+      <div class="drop-zone" style="margin-bottom:18px" onclick="document.getElementById('passFileInput').click()">
+        <input type="file" id="passFileInput" accept="application/pdf" onchange="handlePassFile(this)" style="display:none">
+        <span class="dz-icon">📄</span>
+        <div class="dz-title">Upload your PDF</div>
+        <div class="dz-sub">Processed client-side for your privacy</div>
+        <div class="dz-btn">📂 Browse PDF</div>
+      </div>
+      <div id="passFileName" style="font-size:12px;color:var(--accent);margin-bottom:16px;display:none"></div>
+      <div class="pass-card">
+        <h4>🔒 Set / Change Password</h4>
+        <div class="settings-grid">
+          <div class="inp-group"><label class="inp-label">Current Password (if any)</label><input class="inp" id="oldPass" type="password" placeholder="Leave blank if no existing password"></div>
+          <div class="inp-group"><label class="inp-label">New Password</label><input class="inp" id="newPass" type="password" placeholder="Enter new password"></div>
+          <div class="inp-group"><label class="inp-label">Confirm Password</label><input class="inp" id="confPass" type="password" placeholder="Re-enter new password"></div>
+          <div class="inp-group"><label class="inp-label">Output File Name</label><input class="inp" id="passOutName" type="text" placeholder="protected_doc"></div>
+        </div>
+        <div class="row"><button class="btn btn-primary" onclick="applyPasswordChange()">🔐 Apply &amp; Download</button></div>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px">⚠️ Best results: add a password to an unlocked PDF. Changing an existing password requires re-rendering via PDF.js.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REMOVE PASSWORD -->
+<div class="tool-pane" id="pane-passremove">
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="p-ico">🔓</span>
+      <div><h2>Remove Password <span style="font-size:11px;color:var(--premium);background:rgba(251,191,36,.1);padding:2px 8px;border-radius:5px;margin-left:6px">PREMIUM</span></h2><p>Unlock a password-protected PDF you own</p></div>
+    </div>
+    <div class="panel-bd">
+      <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.18);border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:12px;color:var(--muted)">
+        👑 Premium feature — use it now, pay ₹3 or subscribe at download if not on Premium plan.
+      </div>
+      <div class="drop-zone" style="margin-bottom:18px" onclick="document.getElementById('remPassInput').click()">
+        <input type="file" id="remPassInput" accept="application/pdf" onchange="handleRemPassFile(this)" style="display:none">
+        <span class="dz-icon">🔒</span>
+        <div class="dz-title">Upload your locked PDF</div>
+        <div class="dz-sub">We'll render it using the password you provide, then save without encryption</div>
+        <div class="dz-btn">📂 Browse PDF</div>
+      </div>
+      <div id="remPassFileName" style="font-size:12px;color:var(--accent);margin-bottom:16px;display:none"></div>
+      <div class="pass-card">
+        <h4>🔓 Enter Current Password</h4>
+        <div class="settings-grid">
+          <div class="inp-group"><label class="inp-label">Current Password</label><input class="inp" id="remOldPass" type="password" placeholder="Password to unlock"></div>
+          <div class="inp-group"><label class="inp-label">Output Name</label><input class="inp" id="remOutName" type="text" placeholder="unlocked_doc"></div>
+        </div>
+        <div class="row"><button class="btn btn-prem" onclick="removePassword()">👑 Remove Password &amp; Download</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WATERMARK -->
+<div class="tool-pane" id="pane-watermark">
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="p-ico">💧</span>
+      <div><h2>Custom Watermark <span style="font-size:11px;color:var(--premium);background:rgba(251,191,36,.1);padding:2px 8px;border-radius:5px;margin-left:6px">PREMIUM</span></h2><p>Apply a text or image watermark across all pages of your PDF</p></div>
+    </div>
+    <div class="panel-bd">
+      <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.18);border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:12px;color:var(--muted)">
+        👑 Premium feature — pay ₹3 or subscribe at download.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:10px">Text Watermark</div>
+          <input class="inp" id="wmText" type="text" placeholder="e.g. AmbikaShelf © 2025" style="margin-bottom:8px">
+          <div class="inp-group" style="margin-bottom:8px"><label class="inp-label">Color</label><input type="color" id="wmColor" value="#000000" class="inp" style="height:42px;cursor:pointer"></div>
+          <div class="inp-group"><label class="inp-label">Opacity (%)</label><input class="inp" id="wmOpacity" type="number" min="5" max="100" value="15"></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:10px">Image Watermark <small style="color:var(--muted)">(overrides text)</small></div>
+          <div class="drop-zone" style="padding:20px" onclick="document.getElementById('wmImgInput').click()">
+            <input type="file" id="wmImgInput" accept="image/*" onchange="loadWMImage(this)" style="display:none">
+            <span style="font-size:28px">🖼️</span>
+            <div class="dz-sub" style="margin-top:6px">PNG with transparency recommended</div>
+            <div class="dz-btn" style="font-size:12px;padding:8px 16px;margin-top:10px">📂 Browse Image</div>
+          </div>
+          <div id="wmImgPreview" style="margin-top:8px;text-align:center"></div>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:8px">Position</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline" onclick="wmPos='center';toast('Position: Center diagonal','✅')">Center (diagonal)</button>
+          <button class="btn btn-outline" onclick="wmPos='br';toast('Position: Bottom Right','✅')">Bottom Right</button>
+          <button class="btn btn-outline" onclick="wmPos='tl';toast('Position: Top Left','✅')">Top Left</button>
+        </div>
+      </div>
+      <div class="row"><button class="btn btn-prem" onclick="applyWatermarkToPDF()">💧 Apply to All Pages</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- DIGITAL SIGNATURE -->
+<div class="tool-pane" id="pane-signature">
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="p-ico">✍️</span>
+      <div><h2>Digital Signature <span style="font-size:11px;color:var(--pro);background:rgba(167,139,250,.1);padding:2px 8px;border-radius:5px;margin-left:6px">PRO</span></h2><p>Draw or type your signature, then embed it in your PDF</p></div>
+    </div>
+    <div class="panel-bd">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <button class="btn btn-outline" onclick="setSigMode('draw')">✍ Draw</button>
+        <button class="btn btn-outline" onclick="setSigMode('type')">T Type</button>
+        <button class="btn btn-outline" onclick="clearSig()">🗑 Clear</button>
+      </div>
+      <div id="sigModeLabel" style="font-size:12px;color:var(--muted);margin-bottom:8px">Draw your signature below</div>
+      <div class="sig-canvas-wrap" id="sigDrawWrap">
+        <canvas id="sigCanvas" width="700" height="180" style="width:100%;max-width:700px;display:block"></canvas>
+      </div>
+      <div id="sigTypeWrap" style="display:none;margin-top:10px">
+        <input class="inp" id="sigTypeInput" type="text" placeholder="Type your name" oninput="renderTypedSig()" style="margin-bottom:8px">
+        <select class="inp inp-select" id="sigFont" onchange="renderTypedSig()" style="margin-bottom:8px">
+          <option value="cursive">Cursive Script</option>
+          <option value="Georgia,serif">Georgia</option>
+          <option value="'Courier New',monospace">Typewriter</option>
+        </select>
+      </div>
+      <div class="settings-grid" style="margin-top:14px">
+        <div class="inp-group"><label class="inp-label">Add to Page #</label><input class="inp" id="sigPage" type="number" min="1" value="1"></div>
+        <div class="inp-group"><label class="inp-label">Size</label><select class="inp inp-select" id="sigSize"><option value="sm">Small</option><option value="md" selected>Medium</option><option value="lg">Large</option></select></div>
+      </div>
+      <div class="row">
+        <button class="btn btn-pro" onclick="addSignatureToPDF()">✍ Add to PDF</button>
+        <button class="btn btn-outline" onclick="downloadSigOnly()">⬇ Download Signature</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROTATE PAGES -->
+<div class="tool-pane" id="pane-rotate">
+  <div class="panel">
+    <div class="panel-hd">
+      <span class="p-ico">🔄</span>
+      <div><h2>Rotate Pages</h2><p>Rotate individual or all pages before generating your PDF</p></div>
+    </div>
+    <div class="panel-bd">
+      <div id="rotEmpty" style="text-align:center;padding:48px;color:var(--muted);font-size:14px">
+        📌 Add images via <strong>Image to PDF</strong> first, then rotate them here.
+      </div>
+      <div class="rot-grid" id="rotGrid"></div>
+      <div class="row" id="rotActions" style="display:none">
+        <button class="btn btn-outline" onclick="rotateAll(90)">↻ All +90°</button>
+        <button class="btn btn-outline" onclick="rotateAll(180)">↻ All 180°</button>
+        <button class="btn btn-outline" onclick="rotateAll(270)">↻ All +270°</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main-panel -->
+</div><!-- /studio -->
+<!-- FOOTER -->
+<footer>
+  <div class="f-grid">
+    <div class="f-brand">
+      <img src="https://ambikashelf.shop/ambikashelf.png" alt="AmbikaShelf" onerror="this.style.height='50px'">
+      <p>AmbikaShelf is your all-in-one platform for smart tools, referral earnings, and seamless digital experiences.</p>
+      <p class="f-made">Made with ❤️ in India</p>
+      <div class="f-icons">
+        <a href="https://www.instagram.com/ambikashelf" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram"></a>
+        <a href="https://www.youtube.com/@ambikashelf" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube"></a>
+        <a href="https://t.me/ambikashelf" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram"></a>
+      </div>
+    </div>
+    <div class="f-col"><h4>Platform</h4><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About Us</a></li><li><a href="index.html#tools">Tools</a></li><li><a href="add.html">Wallet</a></li></ul></div>
+    <div class="f-col"><h4>PDF Tools</h4><ul><li><a href="#" onclick="showTool('img2pdf')">Image to PDF</a></li><li><a href="#" onclick="showTool('text2pdf')">Text to PDF</a></li><li><a href="#" onclick="showTool('pdfeditor')">PDF Editor</a></li><li><a href="#" onclick="showTool('signature')">Digital Signature</a></li></ul></div>
+    <div class="f-col"><h4>Legal</h4><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Use</a></li><li><a href="#">Refund Policy</a></li><li><a href="#">Contact Us</a></li></ul></div>
+    <div class="f-col soc"><h4>Connect</h4>
+      <a href="https://www.instagram.com/ambikashelf" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt=""> Instagram</a>
+      <a href="https://www.youtube.com/@ambikashelf" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt=""> YouTube</a>
+      <a href="https://t.me/ambikashelf" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt=""> Telegram</a>
+    </div>
+  </div>
+  <div class="f-btm">
+    <div class="f-copy">© 2025 <span>AmbikaShelf</span>. All rights reserved.</div>
+    <div class="f-legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Sitemap</a></div>
+  </div>
+</footer>
+
 <script>
+const API='https://refer-earn-app.onrender.com';
+const LIMITS={free:{imgs:30,pdfs:10},pro:{imgs:50,pdfs:25},premium:{imgs:100,pdfs:Infinity}};
+let images=[],imgRotations=[];
+let currentEditIdx=null;
+let usedProFeature=false,usedPremiumFeature=false;
+let wmImageData=null,wmPos='center';
+let sigMode='draw';
+let pdfEdToolActive='pen',pdfEdColor='#000';
+let userPlan='free',pdfsToday=0;
 
-/* =============================
-   GLOBAL STATE
-============================= */
+/* INIT */
+(function(){
+  loadUserSession();loadQuota();
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+})();
 
-const fileInput = document.getElementById("fileInput");
-const thumbnailContainer = document.getElementById("thumbnailContainer");
-const previewWrapper = document.getElementById("previewWrapper");
-const pdfNameInput = document.getElementById("pdfName");
-const pdfPasswordInput = document.getElementById("pdfPassword");
-
-const editModal = document.getElementById("editModal");
-const editCanvas = document.getElementById("editCanvas");
-const editCtx = editCanvas.getContext("2d");
-
-let images = [];
-let currentEditIndex = null;
-
-
-/* =============================
-   FILE UPLOAD
-============================= */
-
-fileInput.addEventListener("change", e=>{
-  const files = e.target.files;
-
-  for(let file of files){
-    if(images.length >= 10){
-      alert("Maximum 10 images allowed.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = ev=>{
-      images.push(ev.target.result);
-      renderThumbnails();
-      renderPreview();
-    };
-    reader.readAsDataURL(file);
+function getCookie(n){const c=document.cookie.match('(?:^|; )'+n+'=([^;]*)');return c?decodeURIComponent(c[1]):null;}
+function loadUserSession(){
+  const email=getCookie('as_user_email')||localStorage.getItem('userEmail');
+  const name=getCookie('as_user_name')||localStorage.getItem('userName');
+  const bal=getCookie('as_balance')||localStorage.getItem('rewardBalance')||'0';
+  if(email){
+    document.getElementById('ppName').textContent=name||'User';
+    document.getElementById('ppEmail').textContent=email;
+    document.getElementById('ppBal').textContent='₹'+parseFloat(bal).toFixed(2);
+    document.getElementById('ppLoginBtn').style.display='none';
+    document.getElementById('ppLogoutBtn').style.display='block';
+    document.getElementById('freeBanner').classList.add('hide');
+    userPlan=localStorage.getItem('userPlan')||'free';
+    updatePlanUI();
   }
-});
-
-/* =============================
-   THUMBNAILS
-============================= */
-
-function renderThumbnails(){
-  thumbnailContainer.innerHTML = "";
-
-  images.forEach((src,index)=>{
-
-    const div = document.createElement("div");
-    div.className = "thumb";
-    div.dataset.index = index;
-
-    const img = document.createElement("img");
-    img.src = src;
-
-    const number = document.createElement("div");
-    number.className = "thumb-number";
-    number.textContent = index + 1;
-
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "remove-btn";
-    removeBtn.textContent = "×";
-
-    removeBtn.addEventListener("click", function(e){
-      e.stopPropagation();
-      removeImage(index);
-    });
-
-    const editBtn = document.createElement("button");
-    editBtn.className = "edit-btn";
-    editBtn.textContent = "✏";
-
-    editBtn.addEventListener("click", function(e){
-      e.stopPropagation();
-      openEditor(index);
-    });
-
-    div.appendChild(img);
-    div.appendChild(number);
-    div.appendChild(removeBtn);
-    div.appendChild(editBtn);
-
-    thumbnailContainer.appendChild(div);
-  });
-
-  const add = document.createElement("div");
-  add.className="add-thumb";
-  add.textContent="+";
-  add.addEventListener("click", ()=>fileInput.click());
-
-  thumbnailContainer.appendChild(add);
-   }
-function removeImage(index){
-  images.splice(index,1);
-  renderThumbnails();
-  renderPreview();
+}
+function updatePlanUI(){
+  document.getElementById('maxImgLabel').textContent=LIMITS[userPlan].imgs;
+  const names={free:'FREE PLAN',pro:'PRO PLAN',premium:'PREMIUM'};
+  const descs={free:'Free — 10 PDFs/day',pro:'Pro — 25 PDFs/day',premium:'Premium — Unlimited'};
+  document.getElementById('sbPlanBadge').textContent=names[userPlan];
+  document.getElementById('sbPlanDesc').textContent=descs[userPlan];
+}
+function loadQuota(){const k='pdfQ_'+new Date().toDateString();pdfsToday=parseInt(localStorage.getItem(k)||'0');updateQuotaBar();}
+function incQuota(){const k='pdfQ_'+new Date().toDateString();pdfsToday++;localStorage.setItem(k,pdfsToday);updateQuotaBar();}
+function updateQuotaBar(){
+  const max=LIMITS[userPlan].pdfs===Infinity?999:LIMITS[userPlan].pdfs;
+  const pct=Math.min(100,(pdfsToday/max)*100);
+  document.getElementById('quotaCount').textContent=pdfsToday+' / '+(max===999?'∞':max);
+  const f=document.getElementById('quotaFill');
+  f.style.width=pct+'%';
+  f.className='quota-fill'+(pct>=100?' full':pct>=70?' warn':'');
 }
 
-/* =============================
-   DRAG SORT
-============================= */
-new Sortable(thumbnailContainer,{
-  animation:150,
-  draggable: ".thumb",
-  filter: "button",
-  preventOnFilter: false,
-  onEnd:function(evt){
-    if(evt.oldIndex == null || evt.newIndex == null) return;
-
-    const moved = images.splice(evt.oldIndex,1)[0];
-    images.splice(evt.newIndex,0,moved);
-    renderThumbnails();
-    renderPreview();
-  }
-});
-
-/* =============================
-   LIVE PREVIEW
-============================= */
-
-function renderPreview(){
-  previewWrapper.innerHTML="";
-
-  if(images.length === 0){
-    previewWrapper.style.display="none";
-    return;
-  }
-
-  previewWrapper.style.display="block";
-
-  images.forEach(src=>{
-    const page = document.createElement("div");
-    page.className="preview-page";
-
-    const img = document.createElement("img");
-    img.src = src;
-
-    page.appendChild(img);
-    previewWrapper.appendChild(page);
-  });
+/* NAV */
+function toggleMenu(){document.getElementById('mobDrawer').classList.toggle('open');document.getElementById('mobOvl').classList.toggle('open');}
+function toggleProfile(){document.getElementById('profPanel').classList.toggle('open');document.getElementById('profOvl').classList.toggle('open');}
+function doLogout(){
+  ['as_user_email','as_user_name','as_ref_code','as_balance'].forEach(k=>document.cookie=k+'=;expires=Thu,01 Jan 1970 00:00:00 UTC;path=/');
+  ['userEmail','userName','referralCode','rewardBalance','userPlan'].forEach(k=>localStorage.removeItem(k));
+  location.reload();
 }
 
-/* =============================
-   DOWNLOAD PDF
-============================= */
+/* TOOL SWITCHING */
+function showTool(id){
+  document.querySelectorAll('.tool-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  document.getElementById('sb-'+id).classList.add('active');
+  if(id==='rotate')renderRotGrid();
+  window.scrollTo({top:200,behavior:'smooth'});
+}
 
-async function downloadPDF(){
-  if(images.length === 0) return alert("Add images first");
+/* IMAGE UPLOAD */
+const imgInput=document.getElementById('imgFileInput');
+const dropZone=document.getElementById('dropZone');
+imgInput.addEventListener('change',e=>handleFiles(e.target.files));
+dropZone.addEventListener('dragover',e=>{e.preventDefault();e.stopPropagation();dropZone.classList.add('drag')});
+dropZone.addEventListener('dragleave',e=>{e.stopPropagation();dropZone.classList.remove('drag')});
+dropZone.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();dropZone.classList.remove('drag');handleFiles(e.dataTransfer.files)});
+// Allow clicking anywhere on drop zone to open file picker
+dropZone.addEventListener('click',e=>{e.stopPropagation();document.getElementById('imgFileInput').click()});
 
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF("p","mm","a4");
-
-  for(let i=0;i<images.length;i++){
-    const img = new Image();
-    img.src = images[i];
-
-    await new Promise(resolve=>{
-      img.onload = function(){
-        const w = pdf.internal.pageSize.getWidth();
-        const h = pdf.internal.pageSize.getHeight();
-        pdf.addImage(img,"JPEG",0,0,w,h);
-        if(i < images.length-1) pdf.addPage();
-        resolve();
+function handleFiles(files){
+  const max=LIMITS[userPlan].imgs;
+  for(const f of files){
+    if(images.length>=max){showToast('Max '+max+' images for your plan','⚠️','err');return;}
+    if(!f.type.startsWith('image/')){showToast('Only images allowed','⚠️','err');continue;}
+    const r=new FileReader();
+    r.onload=ev=>{images.push(ev.target.result);imgRotations.push(0);renderThumbs();renderPreview();};
+    r.readAsDataURL(f);
+  }
+}
+function renderThumbs(){
+  const grid=document.getElementById('thumbGrid');
+  grid.innerHTML='';
+  images.forEach((src,i)=>{
+    const card=document.createElement('div');card.className='thumb-card';card.dataset.i=i;
+    const img=document.createElement('img');img.src=src;img.style.transform='rotate('+imgRotations[i]+'deg)';
+    const num=document.createElement('div');num.className='thumb-num';num.textContent=i+1;
+    const acts=document.createElement('div');acts.className='thumb-actions';
+    const eb=document.createElement('button');eb.className='t-btn edit';eb.textContent='✏ Edit';
+    eb.onclick=e=>{e.stopPropagation();openImageEditor(i)};
+    const db=document.createElement('button');db.className='t-btn del';db.textContent='✕';
+    db.onclick=e=>{e.stopPropagation();images.splice(i,1);imgRotations.splice(i,1);renderThumbs();renderPreview()};
+    acts.append(eb,db);card.append(img,num,acts);grid.appendChild(card);
+  });
+  const add=document.createElement('div');add.className='add-card';
+  add.innerHTML='<span>+</span><div>Add more</div>';add.onclick=()=>imgInput.click();
+  grid.appendChild(add);
+  if(images.length>1){
+    new Sortable(grid,{draggable:'.thumb-card',animation:200,
+      onEnd:evt=>{
+        const[mi]=images.splice(evt.oldIndex,1);const[mr]=imgRotations.splice(evt.oldIndex,1);
+        images.splice(evt.newIndex,0,mi);imgRotations.splice(evt.newIndex,0,mr);
+        renderThumbs();renderPreview();
       }
     });
   }
+}
+function renderPreview(){
+  const strip=document.getElementById('prevStrip');const lbl=document.getElementById('previewLabel');
+  strip.innerHTML='';
+  if(!images.length){strip.classList.remove('show');lbl.style.display='none';return;}
+  strip.classList.add('show');lbl.style.display='block';
+  images.forEach((src,i)=>{
+    const wrapper=document.createElement('div');wrapper.style.cssText='position:relative;width:100%;max-width:460px;margin:0 auto';
+    const card=document.createElement('div');card.className='prev-card';
+    const img=document.createElement('img');img.src=src;
+    if(imgRotations[i]!==0){
+      img.style.transform='rotate('+imgRotations[i]+'deg)';
+      img.style.transformOrigin='center';
+    }
+    const num=document.createElement('div');num.className='prev-num';num.textContent='Page '+(i+1)+' of '+images.length;
+    card.append(img,num);wrapper.appendChild(card);strip.appendChild(wrapper);
+  });
+}
+function clearImages(){images=[];imgRotations=[];renderThumbs();renderPreview();}
 
-  const password = pdfPasswordInput.value.trim();
+/* IMAGE EDITOR */
+const edModal=document.getElementById('edModal');
+const edCanvas=document.getElementById('editCanvas');
+const edCtx=edCanvas.getContext('2d');
+let edTool='draw',edColor='#1a1a1a',edSize=3,edOpacity=1;
+let edDrawing=false,edHistory=[],edBaseImg=null,edCropStart=null,edCropArea=null;
+
+function openImageEditor(idx){
+  currentEditIdx=idx;edModal.classList.add('open');
+  edBaseImg=new Image();edBaseImg.src=images[idx];
+  edBaseImg.onload=()=>{edCanvas.width=edBaseImg.width;edCanvas.height=edBaseImg.height;edCtx.drawImage(edBaseImg,0,0);edHistory=[];edCropArea=null;};
+}
+function closeEditor(){edModal.classList.remove('open');edCropArea=null;edCropStart=null;removeCropOverlay();}
+function setEdTool(t){
+  if(edTool==='crop'&&t!=='crop'){removeCropOverlay();edCropArea=null;}
+  edTool=t;
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('on'));
+  const map={draw:'tb-draw',marker:'tb-marker',text:'tb-text',crop:'tb-crop',eraser:'tb-eraser'};
+  if(map[t])document.getElementById(map[t]).classList.add('on');
+  const hints={draw:'Click & drag to draw',marker:'Drag to highlight text',text:'Click to place text',crop:'Drag to select crop region — corner handles to adjust',eraser:'Drag to erase areas'};
+  document.getElementById('edHint').textContent=hints[t]||'';
+}
+function setEdColor(c,el){edColor=c;document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('on'));el.classList.add('on');}
+function setEdSize(s,el){edSize=s;document.querySelectorAll('.sz-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+document.getElementById('opRange').addEventListener('input',e=>{edOpacity=e.target.value/100});
+
+function edGetPos(e){
+  const r=edCanvas.getBoundingClientRect();const sx=edCanvas.width/r.width,sy=edCanvas.height/r.height;
+  const cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;
+  return{x:(cx-r.left)*sx,y:(cy-r.top)*sy};
+}
+// Separate overlay canvas for crop UI — never pollutes the base drawing canvas
+let cropOverlayCanvas=null,cropOverlayCtx=null;
+function ensureCropOverlay(){
+  if(!cropOverlayCanvas){
+    cropOverlayCanvas=document.createElement('canvas');
+    cropOverlayCanvas.style.cssText='position:absolute;top:0;left:0;pointer-events:none';
+    edCanvas.parentNode.style.position='relative';
+    edCanvas.parentNode.appendChild(cropOverlayCanvas);
+  }
+  cropOverlayCanvas.width=edCanvas.width;
+  cropOverlayCanvas.height=edCanvas.height;
+  cropOverlayCanvas.style.width=edCanvas.style.width||edCanvas.width+'px';
+  cropOverlayCanvas.style.height=edCanvas.style.height||edCanvas.height+'px';
+  cropOverlayCtx=cropOverlayCanvas.getContext('2d');
+}
+function removeCropOverlay(){
+  if(cropOverlayCanvas){cropOverlayCanvas.remove();cropOverlayCanvas=null;cropOverlayCtx=null;}
+}
+function drawCropOverlay(){
+  if(!cropOverlayCanvas||!edCropArea)return;
+  const{x,y,w,h}=edCropArea;
+  const ax=Math.min(x,x+w),ay=Math.min(y,y+h),aw=Math.abs(w),ah=Math.abs(h);
+  const C=edCanvas,ctx=cropOverlayCtx;
+  // Scale overlay to match displayed canvas size
+  const scaleX=C.getBoundingClientRect().width/C.width;
+  const scaleY=C.getBoundingClientRect().height/C.height;
+  cropOverlayCanvas.style.width=(C.width*scaleX)+'px';
+  cropOverlayCanvas.style.height=(C.height*scaleY)+'px';
+  ctx.clearRect(0,0,C.width,C.height);
+  // Dark mask outside selection
+  ctx.fillStyle='rgba(0,0,0,0.55)';
+  ctx.fillRect(0,0,C.width,C.height);
+  // Clear the selected region to show image through
+  ctx.clearRect(ax,ay,aw,ah);
+  // Bright border with corner handles
+  ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;ctx.setLineDash([]);
+  ctx.strokeRect(ax,ay,aw,ah);
+  // Corner handles (WhatsApp style)
+  const hs=10;ctx.strokeStyle='#fff';ctx.lineWidth=3;
+  // TL
+  ctx.beginPath();ctx.moveTo(ax,ay+hs);ctx.lineTo(ax,ay);ctx.lineTo(ax+hs,ay);ctx.stroke();
+  // TR
+  ctx.beginPath();ctx.moveTo(ax+aw-hs,ay);ctx.lineTo(ax+aw,ay);ctx.lineTo(ax+aw,ay+hs);ctx.stroke();
+  // BL
+  ctx.beginPath();ctx.moveTo(ax,ay+ah-hs);ctx.lineTo(ax,ay+ah);ctx.lineTo(ax+hs,ay+ah);ctx.stroke();
+  // BR
+  ctx.beginPath();ctx.moveTo(ax+aw-hs,ay+ah);ctx.lineTo(ax+aw,ay+ah);ctx.lineTo(ax+aw,ay+ah-hs);ctx.stroke();
+  // Grid lines (rule of thirds)
+  ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(ax+aw/3,ay);ctx.lineTo(ax+aw/3,ay+ah);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ax+aw*2/3,ay);ctx.lineTo(ax+aw*2/3,ay+ah);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ax,ay+ah/3);ctx.lineTo(ax+aw,ay+ah/3);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ax,ay+ah*2/3);ctx.lineTo(ax+aw,ay+ah*2/3);ctx.stroke();
+  ctx.setLineDash([]);
+  // Size label
+  ctx.fillStyle='#38bdf8';ctx.font='bold 13px DM Sans,sans-serif';ctx.fillText(aw+'×'+ah,ax+4,ay-6>8?ay-6:ay+16);
+}
+function edSaveHist(){edHistory.push(edCanvas.toDataURL());if(edHistory.length>30)edHistory.shift();}
+function edUndo(){
+  if(!edHistory.length)return;
+  const p=new Image();p.src=edHistory.pop();p.onload=()=>{edCtx.clearRect(0,0,edCanvas.width,edCanvas.height);edCtx.drawImage(p,0,0)};
+}
+edCanvas.addEventListener('mousedown',e=>{
+  const p=edGetPos(e);edDrawing=true;
+  if(edTool==='draw'||edTool==='marker'){edCtx.beginPath();edCtx.moveTo(p.x,p.y);}
+  if(edTool==='crop'){edCropStart=p;ensureCropOverlay();}
+  if(edTool==='text'){
+    edDrawing=false;const txt=prompt('Enter text:');
+    if(txt){edCtx.save();edCtx.globalAlpha=edOpacity;edCtx.fillStyle=edColor;edCtx.font='bold '+(edSize*7)+'px DM Sans,sans-serif';edCtx.fillText(txt,p.x,p.y);edCtx.restore();edSaveHist();}
+  }
+});
+edCanvas.addEventListener('mousemove',e=>{
+  if(!edDrawing)return;const p=edGetPos(e);
+  if(edTool==='draw'){edCtx.save();edCtx.globalAlpha=edOpacity;edCtx.strokeStyle=edColor;edCtx.lineWidth=edSize;edCtx.lineCap='round';edCtx.lineTo(p.x,p.y);edCtx.stroke();edCtx.restore();edCtx.beginPath();edCtx.moveTo(p.x,p.y);}
+  else if(edTool==='marker'){edCtx.save();edCtx.globalAlpha=0.38;edCtx.strokeStyle=edColor;edCtx.lineWidth=edSize*4;edCtx.lineCap='round';edCtx.lineTo(p.x,p.y);edCtx.stroke();edCtx.restore();edCtx.beginPath();edCtx.moveTo(p.x,p.y);}
+  else if(edTool==='eraser'){edCtx.save();edCtx.globalCompositeOperation='destination-out';edCtx.beginPath();edCtx.arc(p.x,p.y,edSize*3,0,Math.PI*2);edCtx.fill();edCtx.restore();}
+  else if(edTool==='crop'&&edCropStart){edCropArea={x:edCropStart.x,y:edCropStart.y,w:p.x-edCropStart.x,h:p.y-edCropStart.y};drawCropOverlay();}
+});
+edCanvas.addEventListener('mouseup',()=>{edDrawing=false;if(['draw','marker','eraser'].includes(edTool))edSaveHist();});
+edCanvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];edCanvas.dispatchEvent(new MouseEvent('mousedown',{clientX:t.clientX,clientY:t.clientY}));},{passive:false});
+edCanvas.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];edCanvas.dispatchEvent(new MouseEvent('mousemove',{clientX:t.clientX,clientY:t.clientY}));},{passive:false});
+edCanvas.addEventListener('touchend',e=>{e.preventDefault();edCanvas.dispatchEvent(new MouseEvent('mouseup'));},{passive:false});
+
+function applyEditor(){
+  if(edTool==='crop'&&edCropArea){
+    const{x,y,w,h}=edCropArea;
+    const ax=Math.min(x,x+w),ay=Math.min(y,y+h),aw=Math.abs(w),ah=Math.abs(h);
+    if(aw<5||ah<5){showToast('Selection too small — drag a larger area','⚠️','err');return;}
+    // Crop from the ORIGINAL base image (not canvas which may have dark overlay artifacts)
+    const t=document.createElement('canvas');t.width=aw;t.height=ah;
+    t.getContext('2d').drawImage(edBaseImg,ax,ay,aw,ah,0,0,aw,ah);
+    images[currentEditIdx]=t.toDataURL('image/jpeg',0.92);
+  }else{
+    removeCropOverlay();
+    images[currentEditIdx]=edCanvas.toDataURL('image/jpeg',0.92);
+  }
+  removeCropOverlay();
+  closeEditor();renderThumbs();renderPreview();showToast('Image updated!','✅');
+}
+
+/* DOWNLOAD IMAGE PDF */
+async function downloadImgPDF(){
+  if(!images.length){showToast('Add images first','⚠️','err');return;}
+  if(userPlan!=='premium'&&pdfsToday>=LIMITS[userPlan].pdfs){showToast('Daily limit reached — upgrade plan','🚫','err');return;}
+  const pw=document.getElementById('progWrap');const pf=document.getElementById('progFill');
+  pw.style.display='block';pf.style.width='5%';
+  const password=document.getElementById('pdfPassword').value.trim();
+  const name=(document.getElementById('pdfName').value.trim()||'AmbikaShelf');
+  const orient=document.getElementById('pdfOrientation').value;
+  const size=document.getElementById('pageSize').value;
+
+  // Try server-side with password
   if(password){
     try{
-      pdf.setEncryption({
-        userPassword: password,
-        ownerPassword: password,
-        userPermissions: ["print"]
+      pf.style.width='30%';
+      const resp=await fetch(API+'/api/pdf/create',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({images,rotations:imgRotations,password,name,orientation:orient,pageSize:size})
       });
-    }catch(e){
-      console.warn("Encryption may not be supported in this browser.");
+      if(resp.ok){
+        const blob=await resp.blob();
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a');a.href=url;a.download=name+'.pdf';a.click();
+        URL.revokeObjectURL(url);pf.style.width='100%';
+        setTimeout(()=>{pw.style.display='none';pf.style.width='0%'},500);
+        showToast('Password-protected PDF ready!','🔐');incQuota();checkPaywall();return;
+      }
+    }catch(e){console.warn('Server unavailable, using client fallback');}
+  }
+
+  // Client-side PDF
+  const{jsPDF}=window.jspdf;
+  const pdf=new jsPDF(orient,'mm',size);
+  const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight();
+  for(let i=0;i<images.length;i++){
+    pf.style.width=Math.round(5+((i+1)/images.length)*85)+'%';
+    let src=images[i];
+    if(imgRotations[i]!==0){
+      const rot=imgRotations[i];const rimg=new Image();await new Promise(r=>{rimg.onload=r;rimg.src=src});
+      const tmp=document.createElement('canvas');
+      if(rot===90||rot===270){tmp.width=rimg.height;tmp.height=rimg.width;}else{tmp.width=rimg.width;tmp.height=rimg.height;}
+      const tc=tmp.getContext('2d');tc.translate(tmp.width/2,tmp.height/2);tc.rotate(rot*Math.PI/180);tc.drawImage(rimg,-rimg.width/2,-rimg.height/2);
+      src=tmp.toDataURL('image/jpeg',0.92);
     }
+    const img=new Image();await new Promise(r=>{img.onload=r;img.src=src});
+    if(i>0)pdf.addPage();pdf.addImage(img,'JPEG',0,0,W,H);
   }
+  // Paywall last page
+  if((usedProFeature||usedPremiumFeature)&&!isSubscribed()){
+    pdf.addPage();pdf.setFillColor(248,248,248);pdf.rect(0,0,W,H,'F');
+    pdf.setFontSize(18);pdf.setTextColor(40,40,40);
+    pdf.text((usedPremiumFeature?'👑 Premium':'⚡ Pro')+' Feature Used',W/2,H/2-22,{align:'center'});
+    pdf.setFontSize(11);pdf.setTextColor(100,100,100);
+    pdf.text('Login & pay ₹'+(usedPremiumFeature?'3':'2')+' or subscribe to remove this page.',W/2,H/2,{align:'center'});
+    pdf.text('Subscribe: ambikashelf.shop/subscription',W/2,H/2+12,{align:'center'});
+  }
+  if(password){
+    try{pdf.setEncryption(password,password,['print','copy']);}
+    catch(e){showToast('Note: For full password protection, our server processes it. Try after adding the backend /api/pdf/create route.','⚠️');}
+  }
+  pf.style.width='100%';await new Promise(r=>setTimeout(r,350));
+  pdf.save(name+'.pdf');pw.style.display='none';pf.style.width='0%';
+  showToast('PDF downloaded!','🎉');incQuota();checkPaywall();
+}
+function isSubscribed(){
+  const email=getCookie('as_user_email')||localStorage.getItem('userEmail');
+  if(!email)return false;
+  if(usedPremiumFeature)return userPlan==='premium';
+  if(usedProFeature)return userPlan==='pro'||userPlan==='premium';
+  return true;
+}
+function checkPaywall(){if((usedProFeature||usedPremiumFeature)&&!isSubscribed())setTimeout(()=>openPW(usedPremiumFeature?'premium':'pro'),700);}
 
-  let fileName = pdfNameInput.value.trim();
-  if(!fileName) fileName = "AmbikaShelf";
-  pdf.save(fileName + ".pdf");
+/* TEXT TO PDF */
+function fmt(cmd,ui,val){document.getElementById('textEditor').focus();document.execCommand(cmd,ui||false,val||null);}
+async function downloadTextPDF(){
+  const ed=document.getElementById('textEditor');
+  const content=ed.innerText||ed.textContent;
+  if(!content.trim()){showToast('Write something first','⚠️','err');return;}
+  const{jsPDF}=window.jspdf;const size=document.getElementById('txtPageSize').value;
+  const pdf=new jsPDF('p','mm',size);const W=pdf.internal.pageSize.getWidth()-40;
+  const lines=pdf.splitTextToSize(content,W);let y=20;
+  pdf.setFontSize(12);pdf.setTextColor(30,30,30);
+  for(const l of lines){if(y>pdf.internal.pageSize.getHeight()-20){pdf.addPage();y=20;}pdf.text(l,20,y);y+=7;}
+  pdf.save((document.getElementById('txtPdfName').value.trim()||'document')+'.pdf');
+  showToast('Text PDF downloaded!','📝');incQuota();
 }
 
-/* =============================
-   EDITOR
-============================= */
-/* =============================
-   PROFESSIONAL EDITOR ENGINE
-============================= */
-
-let tool = null;
-let baseImage = new Image();
-let history = [];
-let penColor = "#000000";
-let penSize = 3;
-let isDrawing = false;
-let cropArea = null;
-let dragging = false;
-
-function openEditor(index){
-  currentEditIndex = index;
-  editModal.style.display = "flex";
-
-  baseImage = new Image();
-  baseImage.src = images[index];
-
-  baseImage.onload = () => {
-    editCanvas.width = baseImage.width;
-    editCanvas.height = baseImage.height;
-    redraw();
-    history = [];
+/* PDF EDITOR */
+let pdfDocRef=null;
+function setPDFTool(t,btn){
+  pdfEdToolActive=t;
+  document.querySelectorAll('#pdfEditArea .btn').forEach(b=>{b.classList.remove('btn-primary');b.classList.add('btn-outline')});
+  btn.classList.remove('btn-outline');btn.classList.add('btn-primary');
+}
+async function loadPDFForEdit(input){
+  const file=input.files[0];if(!file)return;usedProFeature=true;
+  showToast('Loading PDF...','⏳');
+  const ab=await file.arrayBuffer();
+  try{pdfDocRef=await pdfjsLib.getDocument({data:ab}).promise;}
+  catch(e){showToast('Cannot open PDF — may be password protected','❌','err');return;}
+  const wrap=document.getElementById('pdfCanvasWrap');wrap.innerHTML='';
+  document.getElementById('pdfEditArea').style.display='block';
+  for(let p=1;p<=pdfDocRef.numPages;p++){
+    const page=await pdfDocRef.getPage(p);const vp=page.getViewport({scale:1.4});
+    const base=document.createElement('canvas');base.width=vp.width;base.height=vp.height;
+    base.style.cssText='display:block;width:100%;max-width:820px;margin:0 auto;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.15)';
+    await page.render({canvasContext:base.getContext('2d'),viewport:vp}).promise;
+    const overlay=document.createElement('canvas');overlay.width=vp.width;overlay.height=vp.height;
+    overlay.style.cssText='position:absolute;top:0;left:0;width:100%;cursor:crosshair;touch-action:none';
+    const lbl=document.createElement('div');lbl.style.cssText='font-size:11px;color:rgba(226,234,245,0.4);text-align:center;padding:4px 0;font-family:DM Sans,sans-serif';lbl.textContent='Page '+p;
+    const pw=document.createElement('div');pw.style.cssText='position:relative;max-width:820px;margin:0 auto 16px';
+    pw.append(base,overlay);wrap.append(lbl,pw);
+    setupPDFOverlay(overlay);
   }
+  showToast('PDF loaded — '+pdfDocRef.numPages+' page(s)','✅');
+}
+function setupPDFOverlay(ov){
+  const ctx=ov.getContext('2d');let drawing=false,last=null;
+  function pos(e){const r=ov.getBoundingClientRect();const sx=ov.width/r.width,sy=ov.height/r.height;const cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;return{x:(cx-r.left)*sx,y:(cy-r.top)*sy};}
+  ov.addEventListener('mousedown',e=>{drawing=true;last=pos(e);if(pdfEdToolActive==='text'){drawing=false;const t=prompt('Text to add:');if(t){ctx.fillStyle=pdfEdColor;ctx.font='17px DM Sans,sans-serif';ctx.fillText(t,last.x,last.y);}}});
+  ov.addEventListener('mousemove',e=>{if(!drawing)return;const p=pos(e);
+    if(pdfEdToolActive==='pen'){ctx.strokeStyle=pdfEdColor;ctx.lineWidth=2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();}
+    else if(pdfEdToolActive==='marker'){ctx.globalAlpha=0.35;ctx.strokeStyle=pdfEdColor;ctx.lineWidth=14;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.globalAlpha=1;}
+    else if(pdfEdToolActive==='eraser'){ctx.clearRect(p.x-10,p.y-10,20,20);}
+    last=p;
+  });
+  ov.addEventListener('mouseup',()=>drawing=false);
+  ov.addEventListener('touchstart',e=>{e.preventDefault();drawing=true;last=pos(e);},{passive:false});
+  ov.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;const p=pos(e);ctx.strokeStyle=pdfEdColor;ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;},{passive:false});
+  ov.addEventListener('touchend',()=>drawing=false);
+}
+function clearPDFAnnotations(){document.querySelectorAll('#pdfCanvasWrap canvas[style*="absolute"]').forEach(c=>c.getContext('2d').clearRect(0,0,c.width,c.height));}
+async function downloadEditedPDF(){
+  const pairs=document.querySelectorAll('#pdfCanvasWrap > div[style*="relative"]');
+  if(!pairs.length){showToast('Load a PDF first','⚠️','err');return;}
+  const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');
+  const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight();
+  for(let i=0;i<pairs.length;i++){
+    const base=pairs[i].children[0],ann=pairs[i].children[1];
+    const m=document.createElement('canvas');m.width=base.width;m.height=base.height;
+    const mc=m.getContext('2d');mc.drawImage(base,0,0);mc.drawImage(ann,0,0);
+    if(i>0)pdf.addPage();pdf.addImage(m.toDataURL('image/jpeg',0.92),'JPEG',0,0,W,H);
+  }
+  pdf.save('edited_pdf.pdf');showToast('Edited PDF downloaded!','🎉');incQuota();checkPaywall();
 }
 
-function redraw(){
-  editCtx.clearRect(0,0,editCanvas.width,editCanvas.height);
-  editCtx.drawImage(baseImage,0,0);
-
-  if(cropArea){
-    editCtx.fillStyle="rgba(0,0,0,0.5)";
-    editCtx.fillRect(0,0,editCanvas.width,editCanvas.height);
-    editCtx.clearRect(cropArea.x,cropArea.y,cropArea.w,cropArea.h);
-    editCtx.strokeStyle="#00ff00";
-    editCtx.lineWidth=2;
-    editCtx.strokeRect(cropArea.x,cropArea.y,cropArea.w,cropArea.h);
+/* PASSWORD MANAGER */
+let passFileBuf=null;
+function handlePassFile(input){const f=input.files[0];if(!f)return;f.arrayBuffer().then(ab=>{passFileBuf=ab;const el=document.getElementById('passFileName');el.textContent='📄 '+f.name;el.style.display='block';showToast('PDF loaded','✅');});}
+async function applyPasswordChange(){
+  if(!passFileBuf){showToast('Upload a PDF first','⚠️','err');return;}
+  const np=document.getElementById('newPass').value,cp=document.getElementById('confPass').value;
+  if(!np){showToast('Enter a new password','⚠️','err');return;}
+  if(np!==cp){showToast('Passwords do not match','❌','err');return;}
+  const op=document.getElementById('oldPass').value;
+  let doc;try{doc=await pdfjsLib.getDocument({data:passFileBuf,password:op}).promise;}catch(e){showToast('Could not open PDF — wrong current password?','❌','err');return;}
+  showToast('Processing...','⏳');
+  const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');
+  const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight();
+  for(let p=1;p<=doc.numPages;p++){
+    const page=await doc.getPage(p);const vp=page.getViewport({scale:2});
+    const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+    await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+    if(p>1)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',0,0,W,H);
   }
+  try{pdf.setEncryption(np,np,['print','copy']);}catch(e){showToast('Tip: Add /api/pdf/create backend route for full 128-bit encryption','ℹ️');}
+  pdf.save((document.getElementById('passOutName').value||'protected')+'.pdf');
+  showToast('Password applied!','🔐');
 }
 
-function setTool(t){ tool = t; }
-function setColor(c){ penColor = c; }
-function setSize(s){ penSize = s; }
-
-function getPos(e){
-  const rect = editCanvas.getBoundingClientRect();
-  const scaleX = editCanvas.width / rect.width;
-  const scaleY = editCanvas.height / rect.height;
-
-  let x,y;
-
-  if(e.touches){
-    x = e.touches[0].clientX;
-    y = e.touches[0].clientY;
-  } else {
-    x = e.clientX;
-    y = e.clientY;
+/* REMOVE PASSWORD */
+let remPassBuf=null;
+function handleRemPassFile(input){const f=input.files[0];if(!f)return;f.arrayBuffer().then(ab=>{remPassBuf=ab;const el=document.getElementById('remPassFileName');el.textContent='📄 '+f.name;el.style.display='block';usedPremiumFeature=true;showToast('PDF loaded','✅');});}
+async function removePassword(){
+  if(!remPassBuf){showToast('Upload a PDF first','⚠️','err');return;}
+  const pass=document.getElementById('remOldPass').value;let doc;
+  try{doc=await pdfjsLib.getDocument({data:remPassBuf,password:pass}).promise;}catch(e){showToast('Wrong password or unsupported encryption','❌','err');return;}
+  showToast('Removing password...','⏳');
+  const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');
+  const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight();
+  for(let p=1;p<=doc.numPages;p++){
+    const page=await doc.getPage(p);const vp=page.getViewport({scale:2});
+    const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+    await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+    if(p>1)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',0,0,W,H);
   }
-
-  return {
-    x:(x - rect.left)*scaleX,
-    y:(y - rect.top)*scaleY
-  };
+  pdf.save((document.getElementById('remOutName').value||'unlocked')+'.pdf');
+  showToast('Password removed!','🔓');incQuota();
+  if(!isSubscribed())setTimeout(()=>openPW('premium'),700);
 }
 
-editCanvas.addEventListener("mousedown",startAction);
-editCanvas.addEventListener("mousemove",moveAction);
-editCanvas.addEventListener("mouseup",endAction);
-
-editCanvas.addEventListener("touchstart",e=>{e.preventDefault();startAction(e)});
-editCanvas.addEventListener("touchmove",e=>{e.preventDefault();moveAction(e)});
-editCanvas.addEventListener("touchend",endAction);
-
-function startAction(e){
-  const pos = getPos(e);
-  isDrawing = true;
-
-  if(tool==="draw"){
-    editCtx.beginPath();
-    editCtx.moveTo(pos.x,pos.y);
-  }
-
-  if(tool==="crop"){
-    cropArea = {x:pos.x,y:pos.y,w:0,h:0};
-  }
-
-  if(tool==="text"){
-    const txt = prompt("Enter text");
-    if(txt){
-      editCtx.fillStyle=penColor;
-      editCtx.font=`${penSize*8}px Arial`;
-      editCtx.fillText(txt,pos.x,pos.y);
-      saveHistory();
+/* WATERMARK */
+function loadWMImage(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{wmImageData=ev.target.result;document.getElementById('wmImgPreview').innerHTML='<img src="'+ev.target.result+'" style="max-height:80px;border-radius:8px;border:1px solid rgba(255,255,255,.1)">';showToast('Watermark loaded','✅');};r.readAsDataURL(f);usedPremiumFeature=true;}
+async function applyWatermarkToPDF(){
+  if(!images.length){showToast('Add images first','⚠️','err');return;}
+  usedPremiumFeature=true;
+  const wmTxt=document.getElementById('wmText').value||'AmbikaShelf';
+  const wmClr=document.getElementById('wmColor').value;
+  const wmOp=parseFloat(document.getElementById('wmOpacity').value)/100;
+  for(let i=0;i<images.length;i++){
+    const img=new Image();await new Promise(r=>{img.onload=r;img.src=images[i]});
+    const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
+    const cx=c.getContext('2d');cx.drawImage(img,0,0);
+    if(wmImageData){
+      const wm=new Image();await new Promise(r=>{wm.onload=r;wm.src=wmImageData});
+      cx.globalAlpha=wmOp;
+      if(wmPos==='center'){cx.save();cx.translate(c.width/2,c.height/2);cx.rotate(-Math.PI/6);cx.drawImage(wm,-wm.width*.4,-wm.height*.4,wm.width*.8,wm.height*.8);cx.restore();}
+      else if(wmPos==='br'){cx.drawImage(wm,c.width-wm.width*.3-10,c.height-wm.height*.3-10,wm.width*.3,wm.height*.3);}
+      else{cx.drawImage(wm,10,10,wm.width*.3,wm.height*.3);}
+      cx.globalAlpha=1;
+    }else{
+      const fs=Math.max(24,Math.min(c.width*.07,72));cx.font='bold '+fs+'px DM Sans,sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.globalAlpha=wmOp;cx.fillStyle=wmClr;
+      if(wmPos==='center'){cx.save();cx.translate(c.width/2,c.height/2);cx.rotate(-Math.PI/6);cx.fillText(wmTxt,0,0);cx.restore();}
+      else if(wmPos==='br'){cx.fillText(wmTxt,c.width-20,c.height-20);}
+      else{cx.fillText(wmTxt,20,30);}
+      cx.globalAlpha=1;
     }
+    images[i]=c.toDataURL('image/jpeg',0.92);
   }
+  renderThumbs();renderPreview();showToast('Watermark applied!','💧');
 }
 
-function moveAction(e){
-  if(!isDrawing) return;
-  const pos = getPos(e);
+/* SIGNATURE */
+const sigCanvas=document.getElementById('sigCanvas');
+const sigCtx=sigCanvas.getContext('2d');
+sigCtx.strokeStyle='#1a1a1a';sigCtx.lineWidth=2;sigCtx.lineCap='round';
+let sigDrawing=false,sigLast=null;
+function getSigPos(e){const r=sigCanvas.getBoundingClientRect();const sx=sigCanvas.width/r.width,sy=sigCanvas.height/r.height;const cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;return{x:(cx-r.left)*sx,y:(cy-r.top)*sy};}
+sigCanvas.addEventListener('mousedown',e=>{sigDrawing=true;sigLast=getSigPos(e)});
+sigCanvas.addEventListener('mousemove',e=>{if(!sigDrawing)return;const p=getSigPos(e);sigCtx.beginPath();sigCtx.moveTo(sigLast.x,sigLast.y);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();sigLast=p;});
+sigCanvas.addEventListener('mouseup',()=>sigDrawing=false);
+sigCanvas.addEventListener('touchstart',e=>{e.preventDefault();sigDrawing=true;sigLast=getSigPos(e);},{passive:false});
+sigCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigDrawing)return;const p=getSigPos(e);sigCtx.beginPath();sigCtx.moveTo(sigLast.x,sigLast.y);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();sigLast=p;},{passive:false});
+sigCanvas.addEventListener('touchend',()=>sigDrawing=false);
+function setSigMode(m){
+  sigMode=m;
+  if(m==='draw'){document.getElementById('sigDrawWrap').style.display='block';document.getElementById('sigTypeWrap').style.display='none';document.getElementById('sigModeLabel').textContent='Draw your signature below';}
+  else{document.getElementById('sigDrawWrap').style.display='none';document.getElementById('sigTypeWrap').style.display='block';renderTypedSig();}
+}
+function clearSig(){sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);}
+function renderTypedSig(){
+  const txt=document.getElementById('sigTypeInput').value||'Your Signature';
+  const font=document.getElementById('sigFont').value;
+  sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
+  sigCtx.font='52px '+font;sigCtx.fillStyle='#1a1a1a';sigCtx.textAlign='center';sigCtx.textBaseline='middle';
+  sigCtx.fillText(txt,sigCanvas.width/2,sigCanvas.height/2);
+}
+async function addSignatureToPDF(){
+  if(!images.length){showToast('Add images first','⚠️','err');return;}
+  usedProFeature=true;
+  const pageN=parseInt(document.getElementById('sigPage').value)-1;
+  if(pageN<0||pageN>=images.length){showToast('Invalid page number','⚠️','err');return;}
+  const szMap={sm:0.2,md:0.3,lg:0.45};const scale=szMap[document.getElementById('sigSize').value];
+  const base=new Image();await new Promise(r=>{base.onload=r;base.src=images[pageN]});
+  const c=document.createElement('canvas');c.width=base.width;c.height=base.height;
+  const cx=c.getContext('2d');cx.drawImage(base,0,0);
+  const sw=sigCanvas.width*scale*2,sh=sigCanvas.height*scale*2;
+  cx.drawImage(sigCanvas,base.width-sw-20,base.height-sh-20,sw,sh);
+  images[pageN]=c.toDataURL('image/jpeg',0.92);
+  renderThumbs();renderPreview();showToast('Signature added to page '+(pageN+1),'✍️');
+}
+function downloadSigOnly(){const a=document.createElement('a');a.download='signature.png';a.href=sigCanvas.toDataURL('image/png');a.click();}
 
-  if(tool==="draw"){
-    editCtx.strokeStyle=penColor;
-    editCtx.lineWidth=penSize;
-    editCtx.lineTo(pos.x,pos.y);
-    editCtx.stroke();
-  }
+/* ROTATE */
+function renderRotGrid(){
+  const grid=document.getElementById('rotGrid');const empty=document.getElementById('rotEmpty');const acts=document.getElementById('rotActions');
+  if(!images.length){empty.style.display='block';grid.style.display='none';acts.style.display='none';return;}
+  empty.style.display='none';grid.style.display='grid';acts.style.display='flex';
+  grid.innerHTML='';
+  images.forEach((src,i)=>{
+    const card=document.createElement('div');card.className='rot-card';
+    const img=document.createElement('img');img.src=src;img.style.transform='rotate('+imgRotations[i]+'deg)';img.style.transition='transform .4s';
+    const num=document.createElement('div');num.style.cssText='font-size:11px;color:var(--muted);margin-bottom:3px';num.textContent='Page '+(i+1);
+    const deg=document.createElement('div');deg.className='rot-deg';deg.id='rdeg-'+i;deg.textContent=imgRotations[i]+'°';deg.style.cssText='font-size:11px;color:var(--muted)';
+    const btns=document.createElement('div');btns.className='rot-btns';
+    const b90=document.createElement('button');b90.className='rot-btn';b90.textContent='+90°';
+    b90.onclick=()=>{imgRotations[i]=(imgRotations[i]+90)%360;img.style.transform='rotate('+imgRotations[i]+'deg)';deg.textContent=imgRotations[i]+'°';renderPreview();};
+    const b180=document.createElement('button');b180.className='rot-btn';b180.textContent='180°';
+    b180.onclick=()=>{imgRotations[i]=(imgRotations[i]+180)%360;img.style.transform='rotate('+imgRotations[i]+'deg)';deg.textContent=imgRotations[i]+'°';renderPreview();};
+    btns.append(b90,b180);card.append(img,num,deg,btns);grid.appendChild(card);
+  });
+}
+function rotateAll(deg){imgRotations=imgRotations.map(r=>(r+deg)%360);renderRotGrid();renderPreview();}
 
-  if(tool==="crop"){
-    cropArea.w = pos.x - cropArea.x;
-    cropArea.h = pos.y - cropArea.y;
-    redraw();
-  }
+/* PAYWALL */
+function openPW(tier){
+  document.getElementById('pwIcon').textContent=tier==='premium'?'👑':'⚡';
+  document.getElementById('pwTitle').textContent=tier==='premium'?'Premium Feature Used':'Pro Feature Used';
+  document.getElementById('pwDesc').textContent='You used a '+(tier==='premium'?'Premium':'Pro')+' feature. Login & pay once to download a clean copy, or subscribe for unlimited access.';
+  document.getElementById('paywallModal').classList.add('open');
+}
+function closePW(){document.getElementById('paywallModal').classList.remove('open');}
+function handlePay(tier){
+  const email=getCookie('as_user_email')||localStorage.getItem('userEmail');
+  if(!email){showToast('Login first to pay from wallet','⚠️','err');setTimeout(()=>location.href='login.html',1200);return;}
+  const amount=tier==='premium'?3:2;
+  fetch(API+'/api/wallet/deduct',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,amount,reason:'PDF Studio '+tier+' feature'})})
+    .then(r=>r.json()).then(d=>{if(d.success){showToast('₹'+amount+' deducted. Enjoy your PDF!','💳');closePW();}else showToast(d.msg||'Failed','❌','err');})
+    .catch(()=>showToast('Network error','❌','err'));
 }
 
-function endAction(){
-  isDrawing=false;
-  if(tool==="draw") saveHistory();
+/* TOAST */
+let toastTimer=null;
+function showToast(msg,ico,type){
+  ico=ico||'ℹ️';type=type||'ok';
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  document.getElementById('toastIco').textContent=ico;
+  t.className='toast show '+type;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3400);
 }
+// Alias
+function toast(m,i,t){showToast(m,i,t);}
+</script>
 
-function applyEdit(){
-  if(tool==="crop" && cropArea){
-    const temp=document.createElement("canvas");
-    temp.width=Math.abs(cropArea.w);
-    temp.height=Math.abs(cropArea.h);
-    const t=temp.getContext("2d");
+<!-- PDF.js Worker -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-    t.drawImage(
-      baseImage,
-      cropArea.x,
-      cropArea.y,
-      cropArea.w,
-      cropArea.h,
-      0,
-      0,
-      cropArea.w,
-      cropArea.h
-    );
-
-    images[currentEditIndex]=temp.toDataURL("image/jpeg");
-  } else {
-    images[currentEditIndex]=editCanvas.toDataURL("image/jpeg");
-  }
-
-  closeModal();
-  renderPreview();
-  renderThumbnails();
-}
-
-function saveHistory(){
-  history.push(editCanvas.toDataURL());
-}
-
-function undo(){
-  if(history.length>0){
-    const img=new Image();
-    img.src=history.pop();
-    img.onload=()=>editCtx.drawImage(img,0,0);
-  }
-}
-
-function closeModal(){
-  editModal.style.display="none";
-  cropArea=null;
-  tool=null;
-   }
-        </script>
+<!-- Chatbase -->
 <script>
-(function(){
-if(!window.chatbase||window.chatbase("getState")!=="initialized"){
-window.chatbase=(...arguments)=>{
-if(!window.chatbase.q){window.chatbase.q=[]}
-window.chatbase.q.push(arguments)
-};
-window.chatbase=new Proxy(window.chatbase,{
-get(target,prop){
-if(prop==="q"){return target.q}
-return(...args)=>target(prop,...args)
-}
-})
-}
-
-const onLoad=function(){
-const script=document.createElement("script");
-script.src="https://www.chatbase.co/embed.min.js";
-script.id="AUGcI9djCuTSwBe1VDN8d";
-script.domain="www.chatbase.co";
-document.body.appendChild(script)
-};
-
-if(document.readyState==="complete"){onLoad()}
-else{window.addEventListener("load",onLoad)}
-})();
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...a)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(a)};window.chatbase=new Proxy(window.chatbase,{get(t,p){if(p==="q")return t.q;return(...a)=>t(p,...a)}})}const onLoad=()=>{const s=document.createElement("script");s.src="https://www.chatbase.co/embed.min.js";s.id="AUGcI9djCuTSwBe1VDN8d";s.domain="www.chatbase.co";document.body.appendChild(s)};if(document.readyState==="complete")onLoad();else window.addEventListener("load",onLoad);})();
 </script>
 </body>
 </html>
