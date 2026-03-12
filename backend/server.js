@@ -26,26 +26,7 @@ app.use(express.json({ limit: "10mb" }));        // ← MOVED UP ✅
 app.use(bodyParser.json());                       // ← MOVED UP ✅
 app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
 // ══════════════════════════════════════════════════════════════
-//  PDF STUDIO BACKEND — Password Protection Route
-//  Add this to your server.js (or a separate pdfRoutes.js file)
-//  
-//  STEP 1: npm install hummus-recipe  (best PDF password lib for Node)
-//          OR use pdf-lib (simpler, no native binaries)
-//  
-//  We use pdf-lib here — pure JS, works on Render with zero config
-//  STEP 1: npm install pdf-lib
-// ══════════════════════════════════════════════════════════════
 
-const { PDFDocument, rgb } = require('pdf-lib');
-
-// ── If using a separate routes file, add at top: ──
-// const express = require('express');
-// const router = express.Router();
-// module.exports = router;
-
-// ── POST /api/pdf/create ──────────────────────────────────────
-// Body: { images: [base64...], rotations: [0,90...], password: "...", name: "...", orientation: "p"|"l", pageSize: "a4"|"letter" }
-// Returns: PDF file as binary download
 // ─────────────────────────────────────────────────────────────
 app.post('/api/pdf/create', async (req, res) => {
   try {
