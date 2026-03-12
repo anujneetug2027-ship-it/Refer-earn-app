@@ -75,19 +75,18 @@ app.post('/api/pdf/create', async (req, res) => {
     permBuf.writeInt32LE(perms, 0);
     const encKey  = md5(Buffer.concat([uPad, oEntry, permBuf, fileId])).slice(0, 5);
     const uEntry  = rc4(encKey, PDF_PAD);
-
-    const idHex = fileId.toString('hex');
-    const oeHex = oEntry.toString('hex');
-    const ueHex = uEntry.toString('hex');
+    const idHex   = fileId.toString('hex');
+    const oeHex   = oEntry.toString('hex');
+    const ueHex   = uEntry.toString('hex');
 
     let pdf = pdfBuf.toString('binary');
 
-    // Find highest object number
+    // Find highest existing object number
     let maxObj = 0;
-    for (const m of pdf.matchAll(/^(\d+) \d+ obj$/mg)) maxObj = Math.max(maxObj, parseInt(m[1]));
+    for (const m of pdf.matchAll(/\n(\d+) \d+ obj\n/g)) maxObj = Math.max(maxObj, parseInt(m[1]));
     const encObjNum = maxObj + 1;
 
-    // Build the /Encrypt object
+    // Build Encrypt object string
     const encObjStr =
       encObjNum + ' 0 obj\n' +
       '<<\n/Filter /Standard\n/V 1\n/R 2\n/Length 40\n' +
@@ -96,38 +95,39 @@ app.post('/api/pdf/create', async (req, res) => {
       '/U <' + ueHex + '>\n' +
       '>>\nendobj\n\n';
 
-    // Insert before xref, then rebuild xref + trailer
+    // xref starts right after all objects — insert Encrypt obj there
     const xrefPos = pdf.lastIndexOf('\nxref\n');
     if (xrefPos === -1) return pdfBuf;
 
-    const newBody  = pdf.slice(0, xrefPos + 1) + encObjStr;
+    const encObjOffset = xrefPos + 1; // byte offset of new Encrypt object
+    const newBody = pdf.slice(0, xrefPos + 1) + encObjStr;
     const fromXref = pdf.slice(xrefPos + 1);
 
+    // Parse existing xref
     const xm = fromXref.match(/xref\n0 (\d+)\n([\s\S]+?)\ntrailer\n([\s\S]+?)\nstartxref/);
     if (!xm) return pdfBuf;
 
+    const existingCount   = parseInt(xm[1]);
+    const existingEntries = xm[2]; // keep these EXACTLY — offsets are still correct
     const existingTrailer = xm[3];
+    const totalObjs       = encObjNum + 1;
 
-    // Re-scan object byte offsets
-    const offsets = {};
-    for (const m of newBody.matchAll(/\n(\d+) \d+ obj\n/g)) {
-      offsets[parseInt(m[1])] = m.index + 1;
+    // Rebuild xref: existing entries unchanged + new Encrypt entry appended
+    let xrefTable = 'xref\n0 ' + totalObjs + '\n';
+    xrefTable += existingEntries;
+    // Fill any gap with free entries (shouldn't happen but be safe)
+    for (let i = existingCount; i < encObjNum; i++) {
+      xrefTable += '0000000000 65535 f \n';
     }
+    xrefTable += String(encObjOffset).padStart(10, '0') + ' 00000 n \n';
 
-    const totalObjs = encObjNum + 1;
-    let xrefTable = 'xref\n0 ' + totalObjs + '\n0000000000 65535 f \n';
-    for (let i = 1; i < totalObjs; i++) {
-      const off = offsets[i];
-      xrefTable += (off !== undefined)
-        ? String(off).padStart(10, '0') + ' 00000 n \n'
-        : '0000000000 65535 f \n';
-    }
-
+    // Update trailer: add /Encrypt ref + /ID, update /Size
     let newTrailer = existingTrailer.trim().replace(/\/Size \d+/, '/Size ' + totalObjs);
     newTrailer = newTrailer.replace('<<',
       '<< /Encrypt ' + encObjNum + ' 0 R /ID [<' + idHex + '><' + idHex + '>]');
 
-    const result = newBody + xrefTable + '\ntrailer\n' + newTrailer + '\n\nstartxref\n' + newBody.length + '\n%%EOF\n';
+    const result = newBody + xrefTable + '\ntrailer\n' + newTrailer +
+                   '\n\nstartxref\n' + newBody.length + '\n%%EOF\n';
     return Buffer.from(result, 'binary');
   }
 
@@ -150,16 +150,23 @@ app.post('/api/pdf/create', async (req, res) => {
       const img     = dataUri.startsWith('data:image/png')
         ? await pdfDoc.embedPng(bytes)
         : await pdfDoc.embedJpg(bytes);
-      const page    = pdfDoc.addPage([W, H]);
+      const page  = pdfDoc.addPage([W, H]);
       const { width: iW, height: iH } = img.size();
-      const rot     = rotations[i] || 0;
-      const scale   = (rot === 90 || rot === 270) ? Math.min(W / iH, H / iW) : Math.min(W / iW, H / iH);
-      page.drawImage(img, { x: (W - iW * scale) / 2, y: (H - iH * scale) / 2, width: iW * scale, height: iH * scale });
+      const rot   = rotations[i] || 0;
+      const scale = (rot === 90 || rot === 270)
+        ? Math.min(W / iH, H / iW)
+        : Math.min(W / iW, H / iH);
+      page.drawImage(img, {
+        x: (W - iW * scale) / 2, y: (H - iH * scale) / 2,
+        width: iW * scale, height: iH * scale
+      });
     }
 
-    // useObjectStreams:false required for our xref-based encryption
+    // useObjectStreams:false gives a traditional xref table our encryptPdf can patch
     const pdfBytes   = Buffer.from(await pdfDoc.save({ useObjectStreams: false }));
-    const finalBytes = (password && password.trim()) ? encryptPdf(pdfBytes, password.trim()) : pdfBytes;
+    const finalBytes = (password && password.trim())
+      ? encryptPdf(pdfBytes, password.trim())
+      : pdfBytes;
 
     const safeName = (name || 'AmbikaShelf').replace(/[^\w\-]/g, '_');
     res.setHeader('Content-Type', 'application/pdf');
@@ -521,4 +528,3 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
