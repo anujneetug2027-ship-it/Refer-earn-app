@@ -27,103 +27,114 @@ app.use(bodyParser.json());                       // ← MOVED UP ✅
 app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
 // ══════════════════════════════════════════════════════════════
 
-// ─────────────────────────────────────────────────────────────
+
+// ────────────────────────────────────────────────────────────────────────
+
+
+// ── PASTE THIS ROUTE BLOCK into server.js (after your middleware section) ──
+
 app.post('/api/pdf/create', async (req, res) => {
   try {
-    const { images, rotations = [], password, name = 'AmbikaShelf', pageSize = 'a4', orientation = 'p' } = req.body;
+    const {
+      images = [],
+      rotations = [],
+      password = '',
+      name = 'AmbikaShelf',
+      pageSize = 'a4',
+      orientation = 'p'
+    } = req.body;
 
-    if (!images || !images.length) {
+    if (!images.length) {
       return res.status(400).json({ success: false, msg: 'No images provided' });
     }
 
-    // Page size in points (1 inch = 72 pts)
-    const sizes = {
-      a4:     { w: 595, h: 842 },
-      letter: { w: 612, h: 792 },
-      a3:     { w: 842, h: 1191 },
+    // Page dimensions in PDF points (72pt = 1 inch)
+    const pageSizes = {
+      a4:     [595.28, 841.89],
+      letter: [612,    792   ],
+      a3:     [841.89, 1190.55],
     };
-    let { w: pageW, h: pageH } = sizes[pageSize] || sizes.a4;
-    if (orientation === 'l') { [pageW, pageH] = [pageH, pageW]; } // swap for landscape
+    let [pageW, pageH] = pageSizes[pageSize] || pageSizes.a4;
+    if (orientation === 'l') { [pageW, pageH] = [pageH, pageW]; }
 
     const pdfDoc = await PDFDocument.create();
 
     for (let i = 0; i < images.length; i++) {
-      // Strip base64 data URI prefix
-      const base64 = images[i].replace(/^data:image\/\w+;base64,/, '');
+      // Strip the "data:image/jpeg;base64," prefix
+      const dataUri = images[i];
+      const base64  = dataUri.replace(/^data:image\/\w+;base64,/, '');
       const imgBytes = Buffer.from(base64, 'base64');
 
-      // Embed image (support jpg and png)
-      let pdfImg;
-      if (images[i].startsWith('data:image/png')) {
-        pdfImg = await pdfDoc.embedPng(imgBytes);
+      // Embed as PNG or JPEG depending on the data URI
+      let embedded;
+      if (dataUri.startsWith('data:image/png')) {
+        embedded = await pdfDoc.embedPng(imgBytes);
       } else {
-        pdfImg = await pdfDoc.embedJpg(imgBytes);
+        embedded = await pdfDoc.embedJpg(imgBytes);
       }
 
       const page = pdfDoc.addPage([pageW, pageH]);
-      const rot = rotations[i] || 0;
+      const rot  = rotations[i] || 0;
 
-      // Scale image to fill page while keeping aspect ratio
-      const { width: imgW, height: imgH } = pdfImg.scale(1);
+      // Scale image to fill the page (letterbox — keeps aspect ratio)
+      const { width: iW, height: iH } = embedded.size();
       let drawW, drawH;
 
       if (rot === 90 || rot === 270) {
-        // Swap dimensions for rotated images
-        const scale = Math.min(pageW / imgH, pageH / imgW);
-        drawW = imgH * scale;
-        drawH = imgW * scale;
+        // Rotated: swap dimensions for scale calculation
+        const scale = Math.min(pageW / iH, pageH / iW);
+        drawW = iH * scale;
+        drawH = iW * scale;
       } else {
-        const scale = Math.min(pageW / imgW, pageH / imgH);
-        drawW = imgW * scale;
-        drawH = imgH * scale;
+        const scale = Math.min(pageW / iW, pageH / iH);
+        drawW = iW * scale;
+        drawH = iH * scale;
       }
 
-      const x = (pageW - drawW) / 2;
-      const y = (pageH - drawH) / 2;
-
-      page.drawImage(pdfImg, {
-        x, y,
-        width: drawW,
+      page.drawImage(embedded, {
+        x:      (pageW - drawW) / 2,
+        y:      (pageH - drawH) / 2,
+        width:  drawW,
         height: drawH,
-        rotate: { type: 'degrees', angle: -rot }, // pdf-lib uses clockwise
+        rotate: { type: 'degrees', angle: -rot },
       });
     }
 
-    // ── Password Protection ──────────────────────────────────
-    // pdf-lib supports encryption via pdfDoc.save({ encryption: ... })
-    // NOTE: pdf-lib's built-in encryption uses RC4-128 (AES-256 needs pdf-lib-plus)
+    // ── Password protection ──
     let pdfBytes;
-
-    if (password) {
+    if (password && password.trim()) {
       pdfBytes = await pdfDoc.save({
-        userPassword: password,
-        ownerPassword: password + '_owner_' + Date.now(), // different owner pass
+        userPassword:  password.trim(),
+        ownerPassword: password.trim() + '_as_owner',
         permissions: {
-          printing: 'lowResolution',
-          modifying: false,
-          copying: false,
-          annotating: false,
-          fillingForms: false,
-          contentAccessibility: false,
-          documentAssembly: false,
+          printing:              'highResolution',
+          modifying:             false,
+          copying:               false,
+          annotating:            false,
+          fillingForms:          false,
+          contentAccessibility:  false,
+          documentAssembly:      false,
         },
       });
     } else {
       pdfBytes = await pdfDoc.save();
     }
 
-    // Send as downloadable PDF
-    const safeName = name.replace(/[^a-zA-Z0-9_\-]/g, '_');
+    // ── Send the PDF as a download ──
+    const safeName = (name || 'AmbikaShelf').replace(/[^\w\-]/g, '_');
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${safeName}.pdf"`);
     res.setHeader('Content-Length', pdfBytes.length);
-    return res.send(Buffer.from(pdfBytes));
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    return res.end(Buffer.from(pdfBytes));
 
   } catch (err) {
-    console.error('PDF create error:', err);
-    return res.status(500).json({ success: false, msg: 'PDF generation failed: ' + err.message });
+    console.error('❌ PDF create error:', err.message);
+    return res.status(500).json({ success: false, msg: err.message });
   }
 });
+
+// ── END OF PASTE BLOCK ─────────────────────────────────────────────────────
 
 
 // ══════════════════════════════════════════════════════════════
