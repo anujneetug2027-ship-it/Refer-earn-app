@@ -22,9 +22,9 @@ const app = express();
 // ✅ Body parsers MUST come before ANY routes
 app.use(cors({ origin: '*', credentials: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(express.json({ limit: "10mb" }));        // ← MOVED UP ✅
-app.use(bodyParser.json());                       // ← MOVED UP ✅
-app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
+app.use(express.json({ limit: "50mb" }));          // ✅ 50mb for base64 image payloads
+app.use(bodyParser.json({ limit: "50mb" }));       // ✅ must match express.json limit
+app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" })); // ✅
 // ══════════════════════════════════════════════════════════════
 
 
