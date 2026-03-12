@@ -989,21 +989,18 @@ function applyEditor(){
 /* DOWNLOAD IMAGE PDF */
 async function downloadImgPDF(){
   if(!images.length){showToast('Add images first','⚠️','err');return;}
-  if(userPlan!=='premium'&&pdfsToday>=LIMITS[userPlan].pdfs){showToast('Daily limit reached — upgrade plan','🚫','err');return;}
-  const pw=document.getElementById('progWrap');const pf=document.getElementById('progFill');
+  if(userPlan!=='premium'&&pdfsToday>=LIMITS[userPlan].pdfs){showToast('Daily limit reached','🚫','err');return;}
+  const pw=document.getElementById('progWrap'),pf=document.getElementById('progFill');
   pw.style.display='block';pf.style.width='5%';
   const password=document.getElementById('pdfPassword').value.trim();
   const fileName=(document.getElementById('pdfName').value.trim()||'AmbikaShelf');
   const orient=document.getElementById('pdfOrientation').value;
   const size=document.getElementById('pageSize').value;
   try{
-    const{PDFDocument}=PDFLib;
-    const pdfDoc=await PDFDocument.create();
-    const pageSizes={a4:[595.28,841.89],letter:[612,792],a3:[841.89,1190.55]};
-    let[pageW,pageH]=pageSizes[size]||pageSizes.a4;
-    if(orient==='l'){[pageW,pageH]=[pageH,pageW];}
+    // ── Build image array (apply rotations via canvas) ──
+    const processedImages=[];
     for(let i=0;i<images.length;i++){
-      pf.style.width=Math.round(5+((i+1)/images.length)*80)+'%';
+      pf.style.width=Math.round(5+((i+1)/images.length)*60)+'%';
       let src=images[i];
       if(imgRotations[i]!==0){
         const rot=imgRotations[i];
@@ -1011,48 +1008,65 @@ async function downloadImgPDF(){
         const tmp=document.createElement('canvas');
         if(rot===90||rot===270){tmp.width=rimg.height;tmp.height=rimg.width;}
         else{tmp.width=rimg.width;tmp.height=rimg.height;}
-        const tc=tmp.getContext('2d');tc.translate(tmp.width/2,tmp.height/2);tc.rotate(rot*Math.PI/180);tc.drawImage(rimg,-rimg.width/2,-rimg.height/2);
+        const tc=tmp.getContext('2d');tc.translate(tmp.width/2,tmp.height/2);
+        tc.rotate(rot*Math.PI/180);tc.drawImage(rimg,-rimg.width/2,-rimg.height/2);
         src=tmp.toDataURL('image/jpeg',0.92);
       }
-      const base64=src.replace(/^data:image\/\w+;base64,/,'');
-      const imgBytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
-      let embedded;
-      if(src.startsWith('data:image/png')){embedded=await pdfDoc.embedPng(imgBytes);}
-      else{embedded=await pdfDoc.embedJpg(imgBytes);}
+      processedImages.push(src);
+    }
+    pf.style.width='70%';
+
+    // ── If password: send to backend which uses qpdf for real AES-256 encryption ──
+    if(password){
+      const resp=await fetch(API+'/api/pdf/create',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({images:processedImages,password,name:fileName,orientation:orient,pageSize:size})
+      });
+      if(!resp.ok){
+        const err=await resp.json().catch(()=>({msg:'Server error'}));
+        throw new Error(err.msg||'Server error '+resp.status);
+      }
+      const blob=await resp.blob();
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download=fileName+'.pdf';a.click();
+      URL.revokeObjectURL(url);
+      pf.style.width='100%';
+      setTimeout(()=>{pw.style.display='none';pf.style.width='0%'},500);
+      showToast('Password-protected PDF downloaded!','🔐');
+      incQuota();checkPaywall();return;
+    }
+
+    // ── No password: build client-side with pdf-lib ──
+    const{PDFDocument}=PDFLib;
+    const pdfDoc=await PDFDocument.create();
+    const pageSizes={a4:[595.28,841.89],letter:[612,792],a3:[841.89,1190.55]};
+    let[pageW,pageH]=pageSizes[size]||pageSizes.a4;
+    if(orient==='l'){[pageW,pageH]=[pageH,pageW];}
+    for(let i=0;i<processedImages.length;i++){
+      pf.style.width=Math.round(70+((i+1)/processedImages.length)*25)+'%';
+      const src=processedImages[i];
+      const b64=src.replace(/^data:image\/\w+;base64,/,'');
+      const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+      const embedded=src.startsWith('data:image/png')
+        ?await pdfDoc.embedPng(bytes):await pdfDoc.embedJpg(bytes);
       const page=pdfDoc.addPage([pageW,pageH]);
       const{width:iW,height:iH}=embedded.size();
       const scale=Math.min(pageW/iW,pageH/iH);
-      const drawW=iW*scale,drawH=iH*scale;
-      page.drawImage(embedded,{x:(pageW-drawW)/2,y:(pageH-drawH)/2,width:drawW,height:drawH});
+      page.drawImage(embedded,{x:(pageW-iW*scale)/2,y:(pageH-iH*scale)/2,width:iW*scale,height:iH*scale});
     }
-    // Paywall info page
-    if((usedProFeature||usedPremiumFeature)&&!isSubscribed()){
-      const infoPage=pdfDoc.addPage([595.28,841.89]);
-      // (visual paywall page — text drawing needs standard font embed, kept minimal)
-    }
-    pf.style.width='90%';
-    let pdfBytes;
-    if(password){
-      pdfBytes=await pdfDoc.save({
-        userPassword:password,
-        ownerPassword:password+'_owner',
-        permissions:{printing:'highResolution',modifying:false,copying:false,annotating:false,fillingForms:false,contentAccessibility:false,documentAssembly:false}
-      });
-      showToast('Password-protected PDF downloaded!','🔐');
-    }else{
-      pdfBytes=await pdfDoc.save();
-      showToast('PDF downloaded!','🎉');
-    }
+    const pdfBytes=await pdfDoc.save();
     pf.style.width='100%';
     const blob=new Blob([pdfBytes],{type:'application/pdf'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=url;a.download=fileName+'.pdf';a.click();
     URL.revokeObjectURL(url);
     setTimeout(()=>{pw.style.display='none';pf.style.width='0%'},500);
+    showToast('PDF downloaded!','🎉');
     incQuota();checkPaywall();
   }catch(err){
     pw.style.display='none';pf.style.width='0%';
-    showToast('Error generating PDF: '+err.message,'❌','err');
+    showToast('Error: '+err.message,'❌','err');
     console.error(err);
   }
 }
@@ -1150,33 +1164,30 @@ async function applyPasswordChange(){
   if(!np){showToast('Enter a new password','⚠️','err');return;}
   if(np!==cp){showToast('Passwords do not match','❌','err');return;}
   const op=document.getElementById('oldPass').value;
-  let srcDoc;
-  try{srcDoc=await pdfjsLib.getDocument({data:passFileBuf,password:op}).promise;}
+  // Verify current password works with PDF.js
+  try{await pdfjsLib.getDocument({data:passFileBuf,password:op}).promise;}
   catch(e){showToast('Cannot open PDF — wrong current password?','❌','err');return;}
-  showToast('Applying password...','⏳');
+  showToast('Sending to server for encryption...','⏳');
   try{
-    const{PDFDocument}=PDFLib;
-    const newPdf=await PDFDocument.create();
-    const pgW=595.28,pgH=841.89;
+    // Convert PDF pages to images, send to backend with new password
+    const srcDoc=await pdfjsLib.getDocument({data:passFileBuf,password:op}).promise;
+    const imgs=[];
     for(let p=1;p<=srcDoc.numPages;p++){
-      const page=await srcDoc.getPage(p);const vp=page.getViewport({scale:2});
+      const page=await srcDoc.getPage(p);
+      const vp=page.getViewport({scale:2});
       const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
       await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
-      const base64=c.toDataURL('image/jpeg',0.92).replace(/^data:image\/\w+;base64,/,'');
-      const imgBytes=Uint8Array.from(atob(base64),ch=>ch.charCodeAt(0));
-      const embedded=await newPdf.embedJpg(imgBytes);
-      const newPage=newPdf.addPage([pgW,pgH]);
-      const{width:iW,height:iH}=embedded.size();
-      const scale=Math.min(pgW/iW,pgH/iH);
-      newPage.drawImage(embedded,{x:(pgW-iW*scale)/2,y:(pgH-iH*scale)/2,width:iW*scale,height:iH*scale});
+      imgs.push(c.toDataURL('image/jpeg',0.92));
     }
-    const pdfBytes=await newPdf.save({
-      userPassword:np,ownerPassword:np+'_owner',
-      permissions:{printing:'highResolution',modifying:false,copying:false,annotating:false,fillingForms:false,contentAccessibility:false,documentAssembly:false}
+    const outName=document.getElementById('passOutName')?document.getElementById('passOutName').value||'protected':'protected';
+    const resp=await fetch(API+'/api/pdf/create',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({images:imgs,password:np,name:outName})
     });
-    const blob=new Blob([pdfBytes],{type:'application/pdf'});
+    if(!resp.ok) throw new Error('Server error '+resp.status);
+    const blob=await resp.blob();
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download=(document.getElementById('passOutName').value||'protected')+'.pdf';a.click();
+    const a=document.createElement('a');a.href=url;a.download=outName+'.pdf';a.click();
     URL.revokeObjectURL(url);
     showToast('Password applied & downloaded!','🔐');
   }catch(err){showToast('Error: '+err.message,'❌','err');console.error(err);}
