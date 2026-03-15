@@ -58,7 +58,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:70px;display:flex;al
 .prof-btn.outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
 .prof-btn.red{background:transparent;border:1px solid rgba(244,63,94,0.3);color:var(--danger)}
 .prof-btn:hover{opacity:.85;transform:translateY(-1px)}
-.hero{padding:95px 24px 0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(56,189,248,0.06) 0%,transparent 70%);position:relative;z-index:1}
+.hero{padding:95px 8px 0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(56,189,248,0.06) 0%,transparent 70%);position:relative;z-index:1}
 .hero-inner{text-align:center;padding:44px 0 32px}
 .hero-eyebrow{display:inline-block;font-size:10px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
 .hero-title{font-family:'Cinzel',serif;font-size:clamp(2rem,5vw,3.6rem);font-weight:900;color:#fff;line-height:1.1;margin-bottom:10px}
@@ -241,9 +241,9 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
 .f-legal{display:flex;gap:20px}
 .f-legal a{font-size:11px;color:rgba(255,255,255,0.2);transition:color .25s}
 .f-legal a:hover{color:var(--accent)}
-@media(max-width:960px){.studio{grid-template-columns:1fr;padding:12px 10px 80px}.sidebar{position:static}.settings-grid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr 1fr}.f-brand{grid-column:1/-1}}
+@media(max-width:960px){.studio{grid-template-columns:1fr;padding:8px 0 80px}.sidebar{position:static;border-radius:0;width:100%}.settings-grid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr 1fr}.f-brand{grid-column:1/-1}}
 @media(max-width:768px){.nav-links{display:none}.hamburger{display:flex}.pw-opts{grid-template-columns:1fr}}
-@media(max-width:480px){footer{padding:40px 16px 24px}.f-grid{grid-template-columns:1fr}.studio{padding:8px 6px 80px}.panel-bd{padding:16px}}
+@media(max-width:480px){footer{padding:40px 16px 24px}.f-grid{grid-template-columns:1fr}.studio{padding:4px 0 80px;gap:10px}.sidebar{border-radius:0;margin:0}.main-panel{border-radius:14px}.panel-bd{padding:16px}}
 </style>
 </head>
 <body>
@@ -421,7 +421,7 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
         <span class="dz-icon">📁</span>
         <div class="dz-title">Drop images here or click to select</div>
         <div class="dz-sub">JPG · PNG · WEBP · Max <span id="maxImgLabel">30</span> images</div>
-        <div class="dz-btn">📂 Browse Files</div>
+        <div class="dz-btn" onclick="event.stopPropagation();document.getElementById('imgFileInput').click()">📂 Browse Files</div>
       </div>
       <div class="thumb-grid" id="thumbGrid"></div>
       <div style="margin-top:16px">
@@ -857,7 +857,7 @@ function showTool(id){
 /* IMAGE UPLOAD */
 const imgInput=document.getElementById('imgFileInput');
 const dropZone=document.getElementById('dropZone');
-imgInput.addEventListener('change',e=>handleFiles(e.target.files));
+imgInput.addEventListener('change',e=>{handleFiles(e.target.files);imgInput.value="";});
 dropZone.addEventListener('dragover',e=>{e.preventDefault();e.stopPropagation();dropZone.classList.add('drag')});
 dropZone.addEventListener('dragleave',e=>{e.stopPropagation();dropZone.classList.remove('drag')});
 dropZone.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();dropZone.classList.remove('drag');handleFiles(e.dataTransfer.files)});
