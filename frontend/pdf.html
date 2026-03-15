@@ -10,6 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -253,9 +254,9 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
     <span class="pw-icon" id="pwIcon">🔒</span>
     <div class="pw-title" id="pwTitle">Unlock Your PDF</div>
     <div class="pw-desc" id="pwDesc">You used Pro/Premium features. Pay once to download a clean copy, or subscribe for unlimited access.</div>
-    <div class="pw-opts">
-      <div class="pw-opt pro-opt" onclick="handlePay('pro')"><div class="pw-price">₹2</div><div class="pw-label">Pro features used<br><small>one-time</small></div></div>
-      <div class="pw-opt prem-opt" onclick="handlePay('premium')"><div class="pw-price">₹3</div><div class="pw-label">Premium features<br><small>one-time</small></div></div>
+    <div class="pw-opts" id="pwOpts">
+      <div class="pw-opt pro-opt" id="pwOptPro" onclick="handlePay('pro')"><div class="pw-price">₹2</div><div class="pw-label">One-time unlock<br><small>Remove watermark page</small></div></div>
+      <div class="pw-opt prem-opt" id="pwOptPrem" onclick="handlePay('premium')"><div class="pw-price">₹3</div><div class="pw-label">One-time unlock<br><small>Premium features</small></div></div>
     </div>
     <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="location.href='#subscription'">📦 Subscribe — Unlimited Access</button>
     <div class="pw-sub"><a onclick="closePW()">✕ Continue without paying</a></div>
@@ -352,6 +353,11 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
 <!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
+    <div style="display:flex;justify-content:center;margin-bottom:18px">
+      <img src="https://ambikashelf.shop/ambikashelf.png" alt="AmbikaShelf"
+           style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid rgba(56,189,248,0.4);box-shadow:0 0 24px rgba(56,189,248,0.25)"
+           onerror="this.style.display='none'">
+    </div>
     <span class="hero-eyebrow">✦ AmbikaShelf Tools</span>
     <h1 class="hero-title">PDF <span>Studio</span></h1>
     <p class="hero-sub">Professional PDF creation, editing &amp; management — no software needed. Fast, secure, in your browser.</p>
@@ -483,10 +489,13 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
         <div class="inp-group"><label class="inp-label">PDF Name</label><input class="inp" id="txtPdfName" type="text" placeholder="My Document"></div>
         <div class="inp-group"><label class="inp-label">Page Size</label><select class="inp inp-select" id="txtPageSize"><option value="a4">A4</option><option value="letter">Letter</option></select></div>
       </div>
-      <div class="row">
+      <div class="row" style="flex-wrap:wrap;gap:8px">
         <button class="btn btn-primary" onclick="downloadTextPDF()">⬇ Download as PDF</button>
+        <button class="btn btn-outline" onclick="addTextPage()">➕ Add Page</button>
+        <button class="btn btn-pro" onclick="showTool('signature');showToast('Add your signature, then it will be embedded when you add images','💡')">✍ Add Signature</button>
         <button class="btn btn-outline" onclick="document.getElementById('textEditor').innerHTML=''">🗑 Clear</button>
       </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px">💡 All formatting (bold, italic, colour, size, alignment) appears in the PDF. Use ➕ Add Page for page breaks.</p>
     </div>
   </div>
 </div>
@@ -657,12 +666,27 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
         </select>
       </div>
       <div class="settings-grid" style="margin-top:14px">
-        <div class="inp-group"><label class="inp-label">Add to Page #</label><input class="inp" id="sigPage" type="number" min="1" value="1"></div>
         <div class="inp-group"><label class="inp-label">Size</label><select class="inp inp-select" id="sigSize"><option value="sm">Small</option><option value="md" selected>Medium</option><option value="lg">Large</option></select></div>
+        <div class="inp-group"><label class="inp-label">Position</label><select class="inp inp-select" id="sigPos"><option value="br">Bottom Right</option><option value="bl">Bottom Left</option><option value="bc">Bottom Center</option><option value="tr">Top Right</option></select></div>
+      </div>
+      <div class="inp-group" style="margin-top:10px">
+        <label class="inp-label">Apply to Pages</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#fff;cursor:pointer">
+            <input type="radio" name="sigPages" value="all" checked id="sigPagesAll"> All Pages
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#fff;cursor:pointer">
+            <input type="radio" name="sigPages" value="pick" id="sigPagesPick"> Specific Pages
+          </label>
+        </div>
+        <div id="sigPagePickWrap" style="display:none;margin-top:8px">
+          <input class="inp" id="sigPageList" type="text" placeholder="e.g. 1,3,5 or 2-4">
+          <p style="font-size:11px;color:var(--muted);margin-top:4px">Enter page numbers separated by commas, or ranges like 2-5</p>
+        </div>
       </div>
       <div class="row">
         <button class="btn btn-pro" onclick="addSignatureToPDF()">✍ Add to PDF</button>
-        <button class="btn btn-outline" onclick="downloadSigOnly()">⬇ Download Signature</button>
+        <button class="btn btn-outline" onclick="downloadSigOnly()">⬇ Signature Only</button>
       </div>
     </div>
   </div>
@@ -759,8 +783,20 @@ function updatePlanUI(){
   document.getElementById('sbPlanBadge').textContent=names[userPlan];
   document.getElementById('sbPlanDesc').textContent=descs[userPlan];
 }
-function loadQuota(){const k='pdfQ_'+new Date().toDateString();pdfsToday=parseInt(localStorage.getItem(k)||'0');updateQuotaBar();}
-function incQuota(){const k='pdfQ_'+new Date().toDateString();pdfsToday++;localStorage.setItem(k,pdfsToday);updateQuotaBar();}
+function getQuotaKey(){
+  // Key based on date in IST (UTC+5:30)
+  const now=new Date();
+  const ist=new Date(now.getTime()+5.5*60*60*1000);
+  return 'pdfQ_'+ist.toISOString().slice(0,10);
+}
+function loadQuota(){
+  const k=getQuotaKey();
+  // Clear old keys
+  Object.keys(localStorage).filter(x=>x.startsWith('pdfQ_')&&x!==k).forEach(x=>localStorage.removeItem(x));
+  pdfsToday=parseInt(localStorage.getItem(k)||'0');
+  updateQuotaBar();
+}
+function incQuota(){const k=getQuotaKey();pdfsToday++;localStorage.setItem(k,pdfsToday);updateQuotaBar();}
 function updateQuotaBar(){
   const max=LIMITS[userPlan].pdfs===Infinity?999:LIMITS[userPlan].pdfs;
   const pct=Math.min(100,(pdfsToday/max)*100);
@@ -786,7 +822,13 @@ function showTool(id){
   document.getElementById('pane-'+id).classList.add('active');
   document.getElementById('sb-'+id).classList.add('active');
   if(id==='rotate')renderRotGrid();
-  window.scrollTo({top:200,behavior:'smooth'});
+  // On mobile, close drawer and scroll to tool pane
+  const drawer=document.getElementById('mobDrawer');
+  if(drawer&&drawer.classList.contains('open')){toggleMenu();}
+  setTimeout(()=>{
+    const pane=document.getElementById('pane-'+id);
+    if(pane){pane.scrollIntoView({behavior:'smooth',block:'start'});}
+  },150);
 }
 
 /* IMAGE UPLOAD */
@@ -989,18 +1031,55 @@ function applyEditor(){
 /* DOWNLOAD IMAGE PDF */
 async function downloadImgPDF(){
   if(!images.length){showToast('Add images first','⚠️','err');return;}
-  if(userPlan!=='premium'&&pdfsToday>=LIMITS[userPlan].pdfs){showToast('Daily limit reached','🚫','err');return;}
+  if(userPlan!=='premium'&&pdfsToday>=LIMITS[userPlan].pdfs){showToast('Daily limit reached — upgrade plan','🚫','err');return;}
+  if(paywallGate())return; // Block if unpaid pro/premium features used
   const pw=document.getElementById('progWrap'),pf=document.getElementById('progFill');
   pw.style.display='block';pf.style.width='5%';
   const password=document.getElementById('pdfPassword').value.trim();
   const fileName=(document.getElementById('pdfName').value.trim()||'AmbikaShelf');
   const orient=document.getElementById('pdfOrientation').value;
   const size=document.getElementById('pageSize').value;
+
+  // If password requested → MUST use backend (only real encryption)
+  if(password){
+    try{
+      pf.style.width='20%';
+      showToast('Generating encrypted PDF on server...','⏳');
+      const resp=await fetch(API+'/api/pdf/create',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({images,rotations:imgRotations,password,name:fileName,orientation:orient,pageSize:size})
+      });
+      pf.style.width='85%';
+      if(resp.ok){
+        const blob=await resp.blob();
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a');a.href=url;a.download=fileName+'.pdf';a.click();
+        URL.revokeObjectURL(url);
+        pf.style.width='100%';
+        setTimeout(()=>{pw.style.display='none';pf.style.width='0%'},500);
+        showToast('Password-protected PDF downloaded!','🔐');
+        incQuota();checkPaywall();return;
+      }else{
+        const err=await resp.json().catch(()=>({}));
+        showToast('Server error: '+(err.msg||resp.status)+' — downloading without password','⚠️');
+      }
+    }catch(e){
+      showToast('Cannot reach server — downloading without password','⚠️');
+      console.warn('Server error:',e);
+    }
+  }
+
+  // No password (or server failed) → client-side via pdf-lib
   try{
-    // ── Build image array (apply rotations via canvas) ──
-    const processedImages=[];
+    pf.style.width='30%';
+    const{PDFDocument}=PDFLib;
+    const pdfDoc=await PDFDocument.create();
+    const pageSizes={a4:[595.28,841.89],letter:[612,792],a3:[841.89,1190.55]};
+    let[pageW,pageH]=pageSizes[size]||pageSizes.a4;
+    if(orient==='l'){[pageW,pageH]=[pageH,pageW];}
     for(let i=0;i<images.length;i++){
-      pf.style.width=Math.round(5+((i+1)/images.length)*60)+'%';
+      pf.style.width=Math.round(30+((i+1)/images.length)*55)+'%';
       let src=images[i];
       if(imgRotations[i]!==0){
         const rot=imgRotations[i];
@@ -1008,62 +1087,36 @@ async function downloadImgPDF(){
         const tmp=document.createElement('canvas');
         if(rot===90||rot===270){tmp.width=rimg.height;tmp.height=rimg.width;}
         else{tmp.width=rimg.width;tmp.height=rimg.height;}
-        const tc=tmp.getContext('2d');tc.translate(tmp.width/2,tmp.height/2);
-        tc.rotate(rot*Math.PI/180);tc.drawImage(rimg,-rimg.width/2,-rimg.height/2);
+        const tc=tmp.getContext('2d');tc.translate(tmp.width/2,tmp.height/2);tc.rotate(rot*Math.PI/180);tc.drawImage(rimg,-rimg.width/2,-rimg.height/2);
         src=tmp.toDataURL('image/jpeg',0.92);
       }
-      processedImages.push(src);
-    }
-    pf.style.width='70%';
-
-    // ── If password: send to backend which uses qpdf for real AES-256 encryption ──
-    if(password){
-      const resp=await fetch(API+'/api/pdf/create',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({images:processedImages,password,name:fileName,orientation:orient,pageSize:size})
-      });
-      if(!resp.ok){
-        const err=await resp.json().catch(()=>({msg:'Server error'}));
-        throw new Error(err.msg||'Server error '+resp.status);
-      }
-      const blob=await resp.blob();
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');a.href=url;a.download=fileName+'.pdf';a.click();
-      URL.revokeObjectURL(url);
-      pf.style.width='100%';
-      setTimeout(()=>{pw.style.display='none';pf.style.width='0%'},500);
-      showToast('Password-protected PDF downloaded!','🔐');
-      incQuota();checkPaywall();return;
-    }
-
-    // ── No password: build client-side with pdf-lib ──
-    const{PDFDocument}=PDFLib;
-    const pdfDoc=await PDFDocument.create();
-    const pageSizes={a4:[595.28,841.89],letter:[612,792],a3:[841.89,1190.55]};
-    let[pageW,pageH]=pageSizes[size]||pageSizes.a4;
-    if(orient==='l'){[pageW,pageH]=[pageH,pageW];}
-    for(let i=0;i<processedImages.length;i++){
-      pf.style.width=Math.round(70+((i+1)/processedImages.length)*25)+'%';
-      const src=processedImages[i];
-      const b64=src.replace(/^data:image\/\w+;base64,/,'');
-      const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-      const embedded=src.startsWith('data:image/png')
-        ?await pdfDoc.embedPng(bytes):await pdfDoc.embedJpg(bytes);
+      const base64=src.replace(/^data:image\/\w+;base64,/,'');
+      const imgBytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
+      let embedded;
+      if(src.startsWith('data:image/png')){embedded=await pdfDoc.embedPng(imgBytes);}
+      else{embedded=await pdfDoc.embedJpg(imgBytes);}
       const page=pdfDoc.addPage([pageW,pageH]);
       const{width:iW,height:iH}=embedded.size();
       const scale=Math.min(pageW/iW,pageH/iH);
-      page.drawImage(embedded,{x:(pageW-iW*scale)/2,y:(pageH-iH*scale)/2,width:iW*scale,height:iH*scale});
+      const drawW=iW*scale,drawH=iH*scale;
+      page.drawImage(embedded,{x:(pageW-drawW)/2,y:(pageH-drawH)/2,width:drawW,height:drawH});
     }
+    // Paywall page
+    if((usedProFeature||usedPremiumFeature)&&!isSubscribed()){
+      pdfDoc.addPage([595.28,841.89]);
+    }
+    pf.style.width='95%';
     const pdfBytes=await pdfDoc.save();
-    pf.style.width='100%';
     const blob=new Blob([pdfBytes],{type:'application/pdf'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=url;a.download=fileName+'.pdf';a.click();
     URL.revokeObjectURL(url);
+    pf.style.width='100%';
     setTimeout(()=>{pw.style.display='none';pf.style.width='0%'},500);
     showToast('PDF downloaded!','🎉');
-    incQuota();checkPaywall();
+    incQuota();
+    // Reset feature flags after successful paid/free download
+    usedProFeature=false;usedPremiumFeature=false;
   }catch(err){
     pw.style.display='none';pf.style.width='0%';
     showToast('Error: '+err.message,'❌','err');
@@ -1078,21 +1131,109 @@ function isSubscribed(){
   if(usedProFeature)return userPlan==='pro'||userPlan==='premium';
   return true;
 }
-function checkPaywall(){if((usedProFeature||usedPremiumFeature)&&!isSubscribed())setTimeout(()=>openPW(usedPremiumFeature?'premium':'pro'),700);}
+function checkPaywall(){
+  if((usedProFeature||usedPremiumFeature)&&!isSubscribed()){
+    setTimeout(()=>openPW(usedPremiumFeature?'premium':'pro'),300);
+    return true; // blocked
+  }
+  return false;
+}
+// Check paywall BEFORE allowing download
+function paywallGate(){
+  if((usedProFeature||usedPremiumFeature)&&!isSubscribed()){
+    openPW(usedPremiumFeature?'premium':'pro');
+    return true; // blocked — do NOT proceed
+  }
+  return false;
+}
 
 /* TEXT TO PDF */
 function fmt(cmd,ui,val){document.getElementById('textEditor').focus();document.execCommand(cmd,ui||false,val||null);}
+function addTextPage(){
+  const ed=document.getElementById('textEditor');
+  ed.focus();
+  // Insert a visible page break divider
+  const br=document.createElement('div');
+  br.className='page-break-divider';
+  br.contentEditable='false';
+  br.style.cssText='width:100%;border:none;border-top:2.5px dashed #cbd5e1;margin:18px 0;text-align:center;font-size:11px;color:#94a3b8;letter-spacing:1px;user-select:none;padding:4px 0;background:transparent';
+  br.textContent='— Page Break —';
+  br.setAttribute('data-pagebreak','true');
+  const sel=window.getSelection();
+  if(sel&&sel.rangeCount){
+    const range=sel.getRangeAt(0);
+    range.collapse(false);
+    range.insertNode(br);
+    // Move cursor after divider
+    const newRange=document.createRange();
+    newRange.setStartAfter(br);
+    newRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+  } else {
+    ed.appendChild(br);
+  }
+  // Insert a new paragraph after
+  const p=document.createElement('p');p.innerHTML='&nbsp;';
+  br.after(p);
+  showToast('Page break added','📄');
+}
+
 async function downloadTextPDF(){
   const ed=document.getElementById('textEditor');
-  const content=ed.innerText||ed.textContent;
-  if(!content.trim()){showToast('Write something first','⚠️','err');return;}
-  const{jsPDF}=window.jspdf;const size=document.getElementById('txtPageSize').value;
-  const pdf=new jsPDF('p','mm',size);const W=pdf.internal.pageSize.getWidth()-40;
-  const lines=pdf.splitTextToSize(content,W);let y=20;
-  pdf.setFontSize(12);pdf.setTextColor(30,30,30);
-  for(const l of lines){if(y>pdf.internal.pageSize.getHeight()-20){pdf.addPage();y=20;}pdf.text(l,20,y);y+=7;}
-  pdf.save((document.getElementById('txtPdfName').value.trim()||'document')+'.pdf');
-  showToast('Text PDF downloaded!','📝');incQuota();
+  if(!ed.innerText.trim()){showToast('Write something first','⚠️','err');return;}
+  const{PDFDocument}=PDFLib;
+  const sizeName=document.getElementById('txtPageSize').value;
+  const pageSizes={a4:[595.28,841.89],letter:[612,792]};
+  const[pageW,pageH]=pageSizes[sizeName]||pageSizes.a4;
+  const margin=50;
+  const pdfDoc=await PDFDocument.create();
+
+  // Split editor content by page break dividers
+  const tempDiv=document.createElement('div');
+  tempDiv.innerHTML=ed.innerHTML;
+  // Split on page-break-divider elements
+  const children=[...tempDiv.childNodes];
+  const pages=[[]];
+  children.forEach(node=>{
+    if(node.nodeType===1&&node.getAttribute&&node.getAttribute('data-pagebreak')){
+      pages.push([]);
+    } else {
+      pages[pages.length-1].push(node.cloneNode(true));
+    }
+  });
+
+  showToast('Generating PDF...','⏳');
+  for(const pageNodes of pages){
+    if(!pageNodes.length) continue;
+    // Render this page to canvas using the editor's styling
+    const wrap=document.createElement('div');
+    wrap.style.cssText='width:'+(pageW-margin*2)+'px;padding:0;background:#fff;color:#1e293b;font-family:Georgia,serif;font-size:15px;line-height:1.85;position:fixed;left:-9999px;top:0';
+    pageNodes.forEach(n=>wrap.appendChild(n.cloneNode(true)));
+    document.body.appendChild(wrap);
+    await new Promise(r=>requestAnimationFrame(r));
+
+    // Use html2canvas to capture formatted content
+    let imgData=null;
+    if(window.html2canvas){
+      const canvas=await html2canvas(wrap,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      imgData=canvas.toDataURL('image/jpeg',0.95);
+      const page=pdfDoc.addPage([pageW,pageH]);
+      const imgBytes=Uint8Array.from(atob(imgData.split(',')[1]),c=>c.charCodeAt(0));
+      const embImg=await pdfDoc.embedJpg(imgBytes);
+      const {width:iW,height:iH}=embImg.size();
+      const scale=Math.min((pageW-margin*2)/iW,(pageH-margin*2)/iH);
+      page.drawImage(embImg,{x:margin,y:pageH-margin-iH*scale,width:iW*scale,height:iH*scale});
+    }
+    document.body.removeChild(wrap);
+  }
+
+  const bytes=await pdfDoc.save();
+  const blob=new Blob([bytes],{type:'application/pdf'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=(document.getElementById('txtPdfName').value.trim()||'document')+'.pdf';a.click();
+  URL.revokeObjectURL(url);
+  showToast('PDF downloaded with full formatting!','📝');incQuota();
 }
 
 /* PDF EDITOR */
@@ -1164,13 +1305,11 @@ async function applyPasswordChange(){
   if(!np){showToast('Enter a new password','⚠️','err');return;}
   if(np!==cp){showToast('Passwords do not match','❌','err');return;}
   const op=document.getElementById('oldPass').value;
-  // Verify current password works with PDF.js
-  try{await pdfjsLib.getDocument({data:passFileBuf,password:op}).promise;}
+  let srcDoc;
+  try{srcDoc=await pdfjsLib.getDocument({data:passFileBuf,password:op}).promise;}
   catch(e){showToast('Cannot open PDF — wrong current password?','❌','err');return;}
-  showToast('Sending to server for encryption...','⏳');
+  showToast('Rendering pages & sending to server...','⏳');
   try{
-    // Convert PDF pages to images, send to backend with new password
-    const srcDoc=await pdfjsLib.getDocument({data:passFileBuf,password:op}).promise;
     const imgs=[];
     for(let p=1;p<=srcDoc.numPages;p++){
       const page=await srcDoc.getPage(p);
@@ -1179,12 +1318,12 @@ async function applyPasswordChange(){
       await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
       imgs.push(c.toDataURL('image/jpeg',0.92));
     }
-    const outName=document.getElementById('passOutName')?document.getElementById('passOutName').value||'protected':'protected';
+    const outName=(document.getElementById('passOutName').value||'protected').trim();
     const resp=await fetch(API+'/api/pdf/create',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({images:imgs,password:np,name:outName})
     });
-    if(!resp.ok) throw new Error('Server error '+resp.status);
+    if(!resp.ok)throw new Error('Server error '+resp.status);
     const blob=await resp.blob();
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=url;a.download=outName+'.pdf';a.click();
@@ -1257,6 +1396,33 @@ sigCanvas.addEventListener('mouseup',()=>sigDrawing=false);
 sigCanvas.addEventListener('touchstart',e=>{e.preventDefault();sigDrawing=true;sigLast=getSigPos(e);},{passive:false});
 sigCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigDrawing)return;const p=getSigPos(e);sigCtx.beginPath();sigCtx.moveTo(sigLast.x,sigLast.y);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();sigLast=p;},{passive:false});
 sigCanvas.addEventListener('touchend',()=>sigDrawing=false);
+// Toggle page picker visibility
+document.addEventListener('change',function(e){
+  if(e.target&&e.target.name==='sigPages'){
+    const wrap=document.getElementById('sigPagePickWrap');
+    if(wrap)wrap.style.display=e.target.value==='pick'?'block':'none';
+  }
+});
+
+function parseSigPages(totalPages){
+  const allRadio=document.getElementById('sigPagesAll');
+  if(allRadio&&allRadio.checked) return Array.from({length:totalPages},(_,i)=>i);
+  const val=(document.getElementById('sigPageList').value||'').trim();
+  if(!val) return Array.from({length:totalPages},(_,i)=>i);
+  const pages=new Set();
+  val.split(',').forEach(part=>{
+    part=part.trim();
+    if(part.includes('-')){
+      const [a,b]=part.split('-').map(Number);
+      for(let i=a;i<=b;i++) if(i>=1&&i<=totalPages) pages.add(i-1);
+    } else {
+      const n=parseInt(part);
+      if(!isNaN(n)&&n>=1&&n<=totalPages) pages.add(n-1);
+    }
+  });
+  return pages.size?[...pages]:Array.from({length:totalPages},(_,i)=>i);
+}
+
 function setSigMode(m){
   sigMode=m;
   if(m==='draw'){document.getElementById('sigDrawWrap').style.display='block';document.getElementById('sigTypeWrap').style.display='none';document.getElementById('sigModeLabel').textContent='Draw your signature below';}
@@ -1271,18 +1437,40 @@ function renderTypedSig(){
   sigCtx.fillText(txt,sigCanvas.width/2,sigCanvas.height/2);
 }
 async function addSignatureToPDF(){
-  if(!images.length){showToast('Add images first','⚠️','err');return;}
+  if(!images.length){showToast('Add images first via Image to PDF','⚠️','err');return;}
   usedProFeature=true;
-  const pageN=parseInt(document.getElementById('sigPage').value)-1;
-  if(pageN<0||pageN>=images.length){showToast('Invalid page number','⚠️','err');return;}
-  const szMap={sm:0.2,md:0.3,lg:0.45};const scale=szMap[document.getElementById('sigSize').value];
-  const base=new Image();await new Promise(r=>{base.onload=r;base.src=images[pageN]});
-  const c=document.createElement('canvas');c.width=base.width;c.height=base.height;
-  const cx=c.getContext('2d');cx.drawImage(base,0,0);
-  const sw=sigCanvas.width*scale*2,sh=sigCanvas.height*scale*2;
-  cx.drawImage(sigCanvas,base.width-sw-20,base.height-sh-20,sw,sh);
-  images[pageN]=c.toDataURL('image/jpeg',0.92);
-  renderThumbs();renderPreview();showToast('Signature added to page '+(pageN+1),'✍️');
+  const sigC=document.getElementById('sigCanvas');
+  const sizeMap={sm:0.15,md:0.25,lg:0.38};
+  const scaleFactor=sizeMap[document.getElementById('sigSize').value]||0.25;
+  const posVal=(document.getElementById('sigPos')||{value:'br'}).value;
+  const sigData=sigC.toDataURL('image/png');
+  const targetPages=parseSigPages(images.length);
+  let sigW=Math.round(sigC.width*scaleFactor),sigH=Math.round(sigC.height*scaleFactor);
+  targetPages.forEach(i=>{
+    const imgEl=new Image();imgEl.src=images[i];
+    const tmp=document.createElement('canvas');
+    // We'll apply on download — store sig info
+  });
+  // Apply signature overlay to target pages
+  for(const pageIdx of targetPages){
+    const src=images[pageIdx];
+    const baseImg=new Image();await new Promise(r=>{baseImg.onload=r;baseImg.src=src;});
+    const tmp=document.createElement('canvas');tmp.width=baseImg.width;tmp.height=baseImg.height;
+    const ctx=tmp.getContext('2d');ctx.drawImage(baseImg,0,0);
+    const sigImg=new Image();await new Promise(r=>{sigImg.onload=r;sigImg.src=sigData;});
+    const sw=Math.round(tmp.width*scaleFactor),sh=Math.round(sigImg.height*(sw/sigImg.width));
+    const pad=20;
+    let sx=pad,sy=pad;
+    if(posVal==='br'){sx=tmp.width-sw-pad;sy=tmp.height-sh-pad;}
+    else if(posVal==='bl'){sx=pad;sy=tmp.height-sh-pad;}
+    else if(posVal==='bc'){sx=(tmp.width-sw)/2;sy=tmp.height-sh-pad;}
+    else if(posVal==='tr'){sx=tmp.width-sw-pad;sy=pad;}
+    ctx.globalAlpha=0.88;ctx.drawImage(sigImg,sx,sy,sw,sh);ctx.globalAlpha=1;
+    images[pageIdx]=tmp.toDataURL('image/jpeg',0.92);
+  }
+  renderThumbs();renderPreview();
+  showToast('Signature added to '+targetPages.length+' page(s)!','✍️');
+  incQuota();checkPaywall();
 }
 function downloadSigOnly(){const a=document.createElement('a');a.download='signature.png';a.href=sigCanvas.toDataURL('image/png');a.click();}
 
@@ -1308,20 +1496,53 @@ function renderRotGrid(){
 function rotateAll(deg){imgRotations=imgRotations.map(r=>(r+deg)%360);renderRotGrid();renderPreview();}
 
 /* PAYWALL */
+
 function openPW(tier){
-  document.getElementById('pwIcon').textContent=tier==='premium'?'👑':'⚡';
-  document.getElementById('pwTitle').textContent=tier==='premium'?'Premium Feature Used':'Pro Feature Used';
-  document.getElementById('pwDesc').textContent='You used a '+(tier==='premium'?'Premium':'Pro')+' feature. Login & pay once to download a clean copy, or subscribe for unlimited access.';
+  const pro=document.getElementById('pwOptPro');
+  const prem=document.getElementById('pwOptPrem');
+  if(tier==='premium'){
+    if(pro)pro.style.display='none';
+    if(prem)prem.style.display='flex';
+    document.getElementById('pwIcon').textContent='👑';
+    document.getElementById('pwTitle').textContent='Premium Feature Used';
+    document.getElementById('pwDesc').textContent='You used a Premium feature. Pay ₹3 once to unlock, or subscribe for unlimited access.';
+  } else {
+    if(pro)pro.style.display='flex';
+    if(prem)prem.style.display='none';
+    document.getElementById('pwIcon').textContent='⚡';
+    document.getElementById('pwTitle').textContent='Pro Feature Used';
+    document.getElementById('pwDesc').textContent='You used a Pro feature. Pay ₹2 once to unlock, or subscribe for unlimited access.';
+  }
   document.getElementById('paywallModal').classList.add('open');
 }
 function closePW(){document.getElementById('paywallModal').classList.remove('open');}
 function handlePay(tier){
   const email=getCookie('as_user_email')||localStorage.getItem('userEmail');
-  if(!email){showToast('Login first to pay from wallet','⚠️','err');setTimeout(()=>location.href='login.html',1200);return;}
-  const amount=tier==='premium'?3:2;
-  fetch(API+'/api/wallet/deduct',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,amount,reason:'PDF Studio '+tier+' feature'})})
-    .then(r=>r.json()).then(d=>{if(d.success){showToast('₹'+amount+' deducted. Enjoy your PDF!','💳');closePW();}else showToast(d.msg||'Failed','❌','err');})
-    .catch(()=>showToast('Network error','❌','err'));
+  if(!email){showToast('Please login first','⚠️','err');setTimeout(()=>location.href='login.html',1200);return;}
+  const amt=tier==='premium'?3:2;
+  const bal=parseFloat(getCookie('as_balance')||localStorage.getItem('rewardBalance')||'0');
+  if(bal<amt){
+    closePW();
+    showToast('Insufficient balance — ₹'+amt+' needed. Redirecting to add money...','💳','err');
+    setTimeout(()=>location.href='add.html',2000);
+    return;
+  }
+  fetch(API+'/api/wallet/deduct',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email,amount:amt,reason:'PDF Studio '+(tier==='premium'?'Premium':'Pro')+' unlock'})
+  }).then(r=>r.json()).then(d=>{
+    if(d.success){
+      const newBal=bal-amt;
+      localStorage.setItem('rewardBalance',newBal);
+      document.cookie='as_balance='+newBal+';path=/;max-age='+60*60*24*3;
+      document.getElementById('ppBal').textContent='₹'+newBal.toFixed(2);
+      if(tier==='premium')usedPremiumFeature=false; else usedProFeature=false;
+      closePW();
+      showToast('₹'+amt+' deducted! Download ready.','✅');
+    } else {
+      showToast(d.msg||'Payment failed','❌','err');
+    }
+  }).catch(()=>showToast('Network error — try again','❌','err'));
 }
 
 /* TOAST */
@@ -1341,6 +1562,7 @@ function toast(m,i,t){showToast(m,i,t);}
 
 <!-- PDF.js Worker -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 
 <!-- Chatbase -->
 <script>
