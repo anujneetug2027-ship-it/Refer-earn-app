@@ -44,9 +44,6 @@ router.post('/verify', async (req, res) => {
       amount
     } = req.body;
 
-    // ✅ FIX: Only verify signature if order_id exists
-    // If no order_id (order creation failed on frontend), skip sig check
-    // but still verify payment_id exists
     if (razorpay_order_id && razorpay_signature) {
       const expectedSig = crypto
         .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
@@ -58,7 +55,6 @@ router.post('/verify', async (req, res) => {
         return res.status(400).json({ success: false, msg: 'Invalid signature' });
       }
     } else {
-      // No order_id — verify the payment_id format at minimum
       if (!razorpay_payment_id || !razorpay_payment_id.startsWith('pay_')) {
         console.error(`❌ Invalid payment_id: ${razorpay_payment_id}`);
         return res.status(400).json({ success: false, msg: 'Invalid payment ID' });
@@ -66,7 +62,7 @@ router.post('/verify', async (req, res) => {
       console.warn(`⚠️ No order_id for ${email} — skipping sig check, payment_id: ${razorpay_payment_id}`);
     }
 
-    // ✅ Prevent duplicate crediting — check if payment already processed
+    // Prevent duplicate crediting
     const alreadyProcessed = await User.findOne({
       email,
       'walletTransactions.paymentId': razorpay_payment_id
@@ -77,7 +73,7 @@ router.post('/verify', async (req, res) => {
       return res.json({ success: true, msg: 'Already processed', newBalance: alreadyProcessed.rewardBalance });
     }
 
-    // ✅ Credit wallet in MongoDB
+    // Credit wallet in MongoDB
     const user = await User.findOneAndUpdate(
       { email },
       {
@@ -133,7 +129,7 @@ router.get('/balance', async (req, res) => {
   }
 });
 
-// ── 4. Webhook (optional but recommended) ────────────────
+// ── 4. Webhook ────────────────────────────────────────────
 router.post('/webhook',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
@@ -155,7 +151,6 @@ router.post('/webhook',
         const amount  = payment.amount / 100;
 
         if (email) {
-          // Prevent duplicate via webhook too
           const already = await User.findOne({ email, 'walletTransactions.paymentId': payment.id });
           if (!already) {
             await User.findOneAndUpdate(
@@ -178,5 +173,38 @@ router.post('/webhook',
     }
   }
 );
+
+// ── 5. Deduct Balance (PDF Studio payments) ──────────────
+router.post('/deduct', async (req, res) => {
+  try {
+    const { email, amount, reason } = req.body;
+    if (!email || !amount)
+      return res.status(400).json({ success: false, msg: 'Missing fields' });
+
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(404).json({ success: false, msg: 'User not found' });
+
+    if ((user.rewardBalance || 0) < amount)
+      return res.status(400).json({ success: false, msg: 'Insufficient balance' });
+
+    user.rewardBalance = (user.rewardBalance || 0) - amount;
+    user.walletTransactions.push({
+      paymentId: 'pdf_' + Date.now(),
+      orderId:   'pdf_studio',
+      amount:    -amount,
+      date:      new Date(),
+      type:      'debit'
+    });
+    await user.save();
+
+    console.log(`✅ PDF Studio debit: ₹${amount} from ${email} | Reason: ${reason} | New balance: ₹${user.rewardBalance}`);
+    res.json({ success: true, newBalance: user.rewardBalance });
+
+  } catch (err) {
+    console.error('❌ /deduct:', err.message);
+    res.status(500).json({ success: false, msg: err.message });
+  }
+});
 
 module.exports = router;
