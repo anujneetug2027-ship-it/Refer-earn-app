@@ -58,7 +58,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:70px;display:flex;al
 .prof-btn.outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
 .prof-btn.red{background:transparent;border:1px solid rgba(244,63,94,0.3);color:var(--danger)}
 .prof-btn:hover{opacity:.85;transform:translateY(-1px)}
-.hero{padding:95px 8px 0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(56,189,248,0.06) 0%,transparent 70%);position:relative;z-index:1}
+.hero{padding:95px 24px 0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(56,189,248,0.06) 0%,transparent 70%);position:relative;z-index:1}
 .hero-inner{text-align:center;padding:44px 0 32px}
 .hero-eyebrow{display:inline-block;font-size:10px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
 .hero-title{font-family:'Cinzel',serif;font-size:clamp(2rem,5vw,3.6rem);font-weight:900;color:#fff;line-height:1.1;margin-bottom:10px}
@@ -69,17 +69,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:70px;display:flex;al
 .banner-inner strong{color:var(--accent)}
 .banner-inner a{color:var(--accent);font-weight:600;text-decoration:underline;cursor:pointer}
 .banner-inner.hide{display:none}
-.studio{max-width:1380px;margin:0 auto;display:grid;grid-template-columns:300px 1fr;gap:28px;padding:20px 16px 80px;position:relative;z-index:1}
+.studio{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:264px 1fr;gap:24px;padding:20px 24px 80px;position:relative;z-index:1}
 .sidebar{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;position:sticky;top:82px;align-self:start}
-.sb-head{padding:22px 18px 16px;border-bottom:1px solid var(--border)}
+.sb-head{padding:20px;background:linear-gradient(135deg,#091626,#0d1e38);border-bottom:1px solid var(--border)}
 .sb-head h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
 .sb-head p{font-size:11px;color:var(--muted)}
 .sb-plan-badge{margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;background:rgba(56,189,248,0.1);color:var(--accent);border:1px solid rgba(56,189,248,0.2)}
-.sb-nav{padding:10px 10px 6px}
-.sb-item{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;cursor:pointer;transition:all .2s;font-size:15px;font-weight:500;color:var(--muted);margin-bottom:2px;border:1px solid transparent}
+.sb-nav{padding:10px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:3px;border:1px solid transparent}
 .sb-item:hover{background:rgba(255,255,255,0.04);color:#fff}
 .sb-item.active{background:rgba(56,189,248,0.08);color:var(--accent);border-color:rgba(56,189,248,0.14)}
-.sb-item .ico{font-size:26px;width:36px;text-align:center}
+.sb-item .ico{font-size:17px;width:26px;text-align:center}
 .sb-tag{margin-left:auto;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border-radius:20px}
 .tag-pro{background:rgba(167,139,250,0.12);color:var(--pro);border:1px solid rgba(167,139,250,0.25)}
 .tag-prem{background:rgba(251,191,36,0.12);color:var(--premium);border:1px solid rgba(251,191,36,0.25)}
@@ -154,8 +154,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:70px;display:flex;al
 .preview-strip.show{display:flex}
 .prev-card{width:100%;max-width:460px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.5);position:relative}
 .prev-card img{width:100%;display:block;object-fit:contain}
-.thumb-card.drag-over img{border-color:#38bdf8;box-shadow:0 0 0 2px #38bdf8;}
-.thumb-card.drag-over{transform:scale(1.04);}
 .prev-num{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;color:#fff;backdrop-filter:blur(4px)}
 .ed-modal{position:fixed;inset:0;background:rgba(3,9,18,0.92);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(14px)}
 .ed-modal.open{display:flex}
@@ -241,9 +239,9 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
 .f-legal{display:flex;gap:20px}
 .f-legal a{font-size:11px;color:rgba(255,255,255,0.2);transition:color .25s}
 .f-legal a:hover{color:var(--accent)}
-@media(max-width:960px){.studio{grid-template-columns:1fr;padding:8px 0 80px}.sidebar{position:static;border-radius:0;width:100%}.settings-grid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr 1fr}.f-brand{grid-column:1/-1}}
+@media(max-width:960px){.studio{grid-template-columns:1fr}.sidebar{position:static}.settings-grid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr 1fr}.f-brand{grid-column:1/-1}}
 @media(max-width:768px){.nav-links{display:none}.hamburger{display:flex}.pw-opts{grid-template-columns:1fr}}
-@media(max-width:480px){footer{padding:40px 16px 24px}.f-grid{grid-template-columns:1fr}.studio{padding:4px 0 80px;gap:10px}.sidebar{border-radius:0;margin:0}.main-panel{border-radius:14px}.panel-bd{padding:16px}}
+@media(max-width:480px){footer{padding:40px 16px 24px}.f-grid{grid-template-columns:1fr}.studio{padding:16px 16px 80px}.panel-bd{padding:16px}}
 </style>
 </head>
 <body>
@@ -257,7 +255,7 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
     <div class="pw-title" id="pwTitle">Unlock Your PDF</div>
     <div class="pw-desc" id="pwDesc">You used Pro/Premium features. Pay once to download a clean copy, or subscribe for unlimited access.</div>
     <div class="pw-opts" id="pwOpts">
-      <div class="pw-opt pro-opt" id="pwOptPro" onclick="handlePay('pro')"><div class="pw-price">₹2</div><div class="pw-label">Download clean PDF<br><small>One-time · No watermark</small></div></div>
+      <div class="pw-opt pro-opt" id="pwOptPro" onclick="handlePay('pro')"><div class="pw-price">₹2</div><div class="pw-label">One-time unlock<br><small>Remove watermark page</small></div></div>
       <div class="pw-opt prem-opt" id="pwOptPrem" onclick="handlePay('premium')"><div class="pw-price">₹3</div><div class="pw-label">One-time unlock<br><small>Premium features</small></div></div>
     </div>
     <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="location.href='#subscription'">📦 Subscribe — Unlimited Access</button>
@@ -355,9 +353,16 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
 <!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
+    <div style="display:flex;justify-content:center;margin-bottom:18px">
+      <img src="https://ambikashelf.shop/ambikashelf.png" alt="AmbikaShelf"
+           style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid rgba(56,189,248,0.4);box-shadow:0 0 24px rgba(56,189,248,0.25)"
+           onerror="this.style.display='none'">
+    </div>
     <span class="hero-eyebrow">✦ AmbikaShelf Tools</span>
     <h1 class="hero-title">PDF <span>Studio</span></h1>
     <p class="hero-sub">Professional PDF creation, editing &amp; management — no software needed. Fast, secure, in your browser.</p>
+  </div>
+</div>
 
 <!-- FREE BANNER -->
 <div class="free-banner">
@@ -373,13 +378,8 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sb-head">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-      <span style="font-size:28px">🗂️</span>
-      <div>
-        <div style="font-size:17px;font-weight:700;color:#fff">PDF Studio</div>
-        <div style="font-size:12px;color:var(--muted)" id="sbPlanDesc">Free — 10 PDFs/day</div>
-      </div>
-    </div>
+    <h3>🗂 PDF Studio</h3>
+    <p id="sbPlanDesc">Free — 10 PDFs/day</p>
     <div class="sb-plan-badge" id="sbPlanBadge">FREE PLAN</div>
   </div>
   <div class="sb-nav">
@@ -421,7 +421,7 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
         <span class="dz-icon">📁</span>
         <div class="dz-title">Drop images here or click to select</div>
         <div class="dz-sub">JPG · PNG · WEBP · Max <span id="maxImgLabel">30</span> images</div>
-        <div class="dz-btn" onclick="event.stopPropagation();document.getElementById('imgFileInput').click()">📂 Browse Files</div>
+        <div class="dz-btn">📂 Browse Files</div>
       </div>
       <div class="thumb-grid" id="thumbGrid"></div>
       <div style="margin-top:16px">
@@ -480,22 +480,10 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
           <button class="rb-btn" onclick="fmt('undo')">↩</button>
           <button class="rb-btn" onclick="fmt('redo')">↪</button>
         </div>
-        <div id="textPagesWrap" style="display:flex;flex-direction:column;gap:16px;padding:8px 0">
-          <div class="txt-page" id="txtPage1" data-page="1">
-            <div class="txt-page-label">Page 1</div>
-            <div class="txt-page-content" contenteditable="true" spellcheck="true"
-              onfocus="setActivePage(this)"
-              style="min-height:440px;padding:36px 48px;background:#fff;color:#1e293b;font-family:Georgia,serif;font-size:15px;line-height:1.85;outline:none">
-              Start typing your document here...
-            </div>
-          </div>
+        <div id="textEditor" contenteditable="true" spellcheck="true"
+          style="min-height:480px;padding:36px 48px;background:#fff;color:#1e293b;font-family:Georgia,serif;font-size:15px;line-height:1.85;outline:none;border-radius:0 0 12px 12px">
+          Start typing your document here...
         </div>
-        <style>
-          .txt-page{background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);overflow:hidden;position:relative}
-          .txt-page-label{background:#1e293b;color:#94a3b8;font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 12px;text-transform:uppercase}
-          .txt-page-content:focus{outline:none}
-          .txt-page-content:empty:before{content:attr(placeholder);color:#94a3b8}
-        </style>
       </div>
       <div class="settings-grid" style="margin-top:16px">
         <div class="inp-group"><label class="inp-label">PDF Name</label><input class="inp" id="txtPdfName" type="text" placeholder="My Document"></div>
@@ -776,27 +764,16 @@ function getCookie(n){const c=document.cookie.match('(?:^|; )'+n+'=([^;]*)');ret
 function loadUserSession(){
   const email=getCookie('as_user_email')||localStorage.getItem('userEmail');
   const name=getCookie('as_user_name')||localStorage.getItem('userName');
+  const bal=getCookie('as_balance')||localStorage.getItem('rewardBalance')||'0';
   if(email){
     document.getElementById('ppName').textContent=name||'User';
     document.getElementById('ppEmail').textContent=email;
+    document.getElementById('ppBal').textContent='₹'+parseFloat(bal).toFixed(2);
     document.getElementById('ppLoginBtn').style.display='none';
     document.getElementById('ppLogoutBtn').style.display='block';
     document.getElementById('freeBanner').classList.add('hide');
     userPlan=localStorage.getItem('userPlan')||'free';
     updatePlanUI();
-    // Fetch live balance from backend
-    fetch(API+'/api/wallet/balance?email='+encodeURIComponent(email))
-      .then(r=>r.json()).then(d=>{
-        if(d.success){
-          const bal=parseFloat(d.balance||0);
-          localStorage.setItem('rewardBalance',bal);
-          document.cookie='as_balance='+bal+';path=/;max-age='+60*60*24*3;
-          document.getElementById('ppBal').textContent='₹'+bal.toFixed(2);
-        }
-      }).catch(()=>{
-        const bal=parseFloat(getCookie('as_balance')||localStorage.getItem('rewardBalance')||'0');
-        document.getElementById('ppBal').textContent='₹'+bal.toFixed(2);
-      });
   }
 }
 function updatePlanUI(){
@@ -857,7 +834,7 @@ function showTool(id){
 /* IMAGE UPLOAD */
 const imgInput=document.getElementById('imgFileInput');
 const dropZone=document.getElementById('dropZone');
-imgInput.addEventListener('change',e=>{handleFiles(e.target.files);imgInput.value="";});
+imgInput.addEventListener('change',e=>handleFiles(e.target.files));
 dropZone.addEventListener('dragover',e=>{e.preventDefault();e.stopPropagation();dropZone.classList.add('drag')});
 dropZone.addEventListener('dragleave',e=>{e.stopPropagation();dropZone.classList.remove('drag')});
 dropZone.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();dropZone.classList.remove('drag');handleFiles(e.dataTransfer.files)});
@@ -874,130 +851,33 @@ function handleFiles(files){
     r.readAsDataURL(f);
   }
 }
-// Drag state
-let dragSrcIdx = null;
-
 function renderThumbs(){
   const grid=document.getElementById('thumbGrid');
   grid.innerHTML='';
-  if(!images.length){document.getElementById('sortHint').style.display='none';return;}
-  document.getElementById('sortHint').style.display='flex';
   images.forEach((src,i)=>{
-    const card=document.createElement('div');
-    card.className='thumb-card';
-    card.draggable=true;
-    card.dataset.idx=i;
-    card.style.cssText='position:relative;flex-shrink:0;cursor:grab;user-select:none;touch-action:none;transition:opacity .2s,transform .2s';
-
-    const img=document.createElement('img');
-    img.src=src;
-    img.style.cssText='width:100px;height:130px;object-fit:cover;border-radius:8px;display:block;pointer-events:none;border:2px solid rgba(255,255,255,0.08)';
-    if(imgRotations[i])img.style.transform='rotate('+imgRotations[i]+'deg)';
-
-    const num=document.createElement('div');
-    num.style.cssText='position:absolute;top:4px;left:4px;background:rgba(0,0,0,.7);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;pointer-events:none';
-    num.textContent=i+1;
-
-    const del=document.createElement('button');
-    del.style.cssText='position:absolute;top:4px;right:4px;background:rgba(239,68,68,.85);border:none;color:#fff;width:20px;height:20px;border-radius:50%;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1';
-    del.textContent='×';
-    del.onclick=e=>{e.stopPropagation();images.splice(i,1);imgRotations.splice(i,1);renderThumbs();renderPreview();};
-
-    const edit=document.createElement('button');
-    edit.style.cssText='position:absolute;bottom:4px;right:4px;background:rgba(56,189,248,.85);border:none;color:#fff;width:20px;height:20px;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center';
-    edit.textContent='✏';
-    edit.onclick=e=>{e.stopPropagation();openEditor(i);};
-
-    card.append(img,num,del,edit);
-
-    // ── Desktop drag events ──
-    card.addEventListener('dragstart',e=>{
-      dragSrcIdx=i;
-      e.dataTransfer.effectAllowed='move';
-      setTimeout(()=>card.style.opacity='0.4',0);
-    });
-    card.addEventListener('dragend',()=>{
-      card.style.opacity='1';
-      document.querySelectorAll('.thumb-card').forEach(c=>c.classList.remove('drag-over'));
-    });
-    card.addEventListener('dragover',e=>{
-      e.preventDefault();e.dataTransfer.dropEffect='move';
-      card.classList.add('drag-over');
-    });
-    card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
-    card.addEventListener('drop',e=>{
-      e.preventDefault();card.classList.remove('drag-over');
-      const dropIdx=parseInt(card.dataset.idx);
-      if(dragSrcIdx===null||dragSrcIdx===dropIdx)return;
-      // Reorder arrays
-      const [movedImg]=images.splice(dragSrcIdx,1);
-      const [movedRot]=imgRotations.splice(dragSrcIdx,1);
-      images.splice(dropIdx,0,movedImg);
-      imgRotations.splice(dropIdx,0,movedRot);
-      dragSrcIdx=null;
-      renderThumbs();renderPreview();
-    });
-
-    // ── Mobile touch drag ──
-    let touchStartX,touchStartY,touchClone=null,touchMoved=false;
-    card.addEventListener('touchstart',e=>{
-      if(e.target===del||e.target===edit)return;
-      touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;
-      dragSrcIdx=i;touchMoved=false;
-      // Create floating clone after 200ms hold
-      card._holdTimer=setTimeout(()=>{
-        touchClone=card.cloneNode(true);
-        touchClone.style.cssText='position:fixed;z-index:9999;opacity:0.85;pointer-events:none;transform:scale(1.08);transition:none;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5)';
-        const r=card.getBoundingClientRect();
-        touchClone.style.left=r.left+'px';touchClone.style.top=r.top+'px';
-        touchClone.style.width=r.width+'px';touchClone.style.height=r.height+'px';
-        document.body.appendChild(touchClone);
-        card.style.opacity='0.3';
-        showToast('Drag to reorder','↕');
-      },200);
-    },{passive:true});
-    card.addEventListener('touchmove',e=>{
-      clearTimeout(card._holdTimer);
-      if(!touchClone){dragSrcIdx=null;return;}
-      e.preventDefault();touchMoved=true;
-      const t=e.touches[0];
-      const r=card.getBoundingClientRect();
-      touchClone.style.left=(t.clientX-r.width/2)+'px';
-      touchClone.style.top=(t.clientY-r.height/2)+'px';
-      // Find which card we're over
-      touchClone.style.display='none';
-      const el=document.elementFromPoint(t.clientX,t.clientY);
-      touchClone.style.display='';
-      const overCard=el&&el.closest('.thumb-card');
-      document.querySelectorAll('.thumb-card').forEach(c=>c.classList.remove('drag-over'));
-      if(overCard&&overCard!==card)overCard.classList.add('drag-over');
-    },{passive:false});
-    card.addEventListener('touchend',e=>{
-      clearTimeout(card._holdTimer);
-      if(touchClone){touchClone.remove();touchClone=null;}
-      card.style.opacity='1';
-      if(!touchMoved){dragSrcIdx=null;return;}
-      const t=e.changedTouches[0];
-      const el=document.elementFromPoint(t.clientX,t.clientY);
-      const overCard=el&&el.closest('.thumb-card');
-      document.querySelectorAll('.thumb-card').forEach(c=>c.classList.remove('drag-over'));
-      if(overCard&&dragSrcIdx!==null){
-        const dropIdx=parseInt(overCard.dataset.idx);
-        if(dragSrcIdx!==dropIdx){
-          const [movedImg]=images.splice(dragSrcIdx,1);
-          const [movedRot]=imgRotations.splice(dragSrcIdx,1);
-          images.splice(dropIdx,0,movedImg);
-          imgRotations.splice(dropIdx,0,movedRot);
-          renderThumbs();renderPreview();
-        }
-      }
-      dragSrcIdx=null;touchMoved=false;
-    });
-
-    grid.appendChild(card);
+    const card=document.createElement('div');card.className='thumb-card';card.dataset.i=i;
+    const img=document.createElement('img');img.src=src;img.style.transform='rotate('+imgRotations[i]+'deg)';
+    const num=document.createElement('div');num.className='thumb-num';num.textContent=i+1;
+    const acts=document.createElement('div');acts.className='thumb-actions';
+    const eb=document.createElement('button');eb.className='t-btn edit';eb.textContent='✏ Edit';
+    eb.onclick=e=>{e.stopPropagation();openImageEditor(i)};
+    const db=document.createElement('button');db.className='t-btn del';db.textContent='✕';
+    db.onclick=e=>{e.stopPropagation();images.splice(i,1);imgRotations.splice(i,1);renderThumbs();renderPreview()};
+    acts.append(eb,db);card.append(img,num,acts);grid.appendChild(card);
   });
+  const add=document.createElement('div');add.className='add-card';
+  add.innerHTML='<span>+</span><div>Add more</div>';add.onclick=()=>imgInput.click();
+  grid.appendChild(add);
+  if(images.length>1){
+    new Sortable(grid,{draggable:'.thumb-card',animation:200,
+      onEnd:evt=>{
+        const[mi]=images.splice(evt.oldIndex,1);const[mr]=imgRotations.splice(evt.oldIndex,1);
+        images.splice(evt.newIndex,0,mi);imgRotations.splice(evt.newIndex,0,mr);
+        renderThumbs();renderPreview();
+      }
+    });
+  }
 }
-
 function renderPreview(){
   const strip=document.getElementById('prevStrip');const lbl=document.getElementById('previewLabel');
   strip.innerHTML='';
@@ -1268,45 +1148,40 @@ function paywallGate(){
 }
 
 /* TEXT TO PDF */
-let activePageContent=null;
-function setActivePage(el){activePageContent=el;}
-
+function fmt(cmd,ui,val){document.getElementById('textEditor').focus();document.execCommand(cmd,ui||false,val||null);}
 function addTextPage(){
-  const wrap=document.getElementById('textPagesWrap');
-  const pageCount=wrap.querySelectorAll('.txt-page').length+1;
-  const div=document.createElement('div');
-  div.className='txt-page';
-  div.dataset.page=pageCount;
-  div.innerHTML=`<div class="txt-page-label">Page ${pageCount} <span onclick="removeTxtPage(this)" style="float:right;cursor:pointer;color:#ef4444;font-size:11px;margin-left:8px">✕ Remove</span></div>
-    <div class="txt-page-content" contenteditable="true" spellcheck="true" onfocus="setActivePage(this)"
-      style="min-height:440px;padding:36px 48px;background:#fff;color:#1e293b;font-family:Georgia,serif;font-size:15px;line-height:1.85;outline:none" placeholder="Type page ${pageCount} content..."></div>`;
-  wrap.appendChild(div);
-  div.querySelector('.txt-page-content').focus();
-  div.scrollIntoView({behavior:'smooth'});
-  showToast('Page '+pageCount+' added!','📄');
-}
-
-function removeTxtPage(btn){
-  const page=btn.closest('.txt-page');
-  if(document.querySelectorAll('.txt-page').length<=1){showToast('Need at least one page','⚠️','err');return;}
-  page.remove();
-  // Re-number pages
-  document.querySelectorAll('.txt-page').forEach((p,i)=>{
-    p.querySelector('.txt-page-label').innerHTML='Page '+(i+1)+' <span onclick="removeTxtPage(this)" style="float:right;cursor:pointer;color:#ef4444;font-size:11px;margin-left:8px">✕ Remove</span>';
-  });
-  showToast('Page removed','🗑');
-}
-
-function fmt(cmd,ui,val){
-  const ed=activePageContent||document.querySelector('.txt-page-content');
-  if(ed)ed.focus();
-  document.execCommand(cmd,ui||false,val||null);
+  const ed=document.getElementById('textEditor');
+  ed.focus();
+  // Insert a visible page break divider
+  const br=document.createElement('div');
+  br.className='page-break-divider';
+  br.contentEditable='false';
+  br.style.cssText='width:100%;border:none;border-top:2.5px dashed #cbd5e1;margin:18px 0;text-align:center;font-size:11px;color:#94a3b8;letter-spacing:1px;user-select:none;padding:4px 0;background:transparent';
+  br.textContent='— Page Break —';
+  br.setAttribute('data-pagebreak','true');
+  const sel=window.getSelection();
+  if(sel&&sel.rangeCount){
+    const range=sel.getRangeAt(0);
+    range.collapse(false);
+    range.insertNode(br);
+    // Move cursor after divider
+    const newRange=document.createRange();
+    newRange.setStartAfter(br);
+    newRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+  } else {
+    ed.appendChild(br);
+  }
+  // Insert a new paragraph after
+  const p=document.createElement('p');p.innerHTML='&nbsp;';
+  br.after(p);
+  showToast('Page break added','📄');
 }
 
 async function downloadTextPDF(){
-  const pages=document.querySelectorAll('.txt-page-content');
-  const hasContent=[...pages].some(p=>p.innerText.trim());
-  if(!hasContent){showToast('Write something first','⚠️','err');return;}
+  const ed=document.getElementById('textEditor');
+  if(!ed.innerText.trim()){showToast('Write something first','⚠️','err');return;}
   const{PDFDocument}=PDFLib;
   const sizeName=document.getElementById('txtPageSize').value;
   const pageSizes={a4:[595.28,841.89],letter:[612,792]};
@@ -1314,18 +1189,35 @@ async function downloadTextPDF(){
   const margin=50;
   const pdfDoc=await PDFDocument.create();
 
+  // Split editor content by page break dividers
+  const tempDiv=document.createElement('div');
+  tempDiv.innerHTML=ed.innerHTML;
+  // Split on page-break-divider elements
+  const children=[...tempDiv.childNodes];
+  const pages=[[]];
+  children.forEach(node=>{
+    if(node.nodeType===1&&node.getAttribute&&node.getAttribute('data-pagebreak')){
+      pages.push([]);
+    } else {
+      pages[pages.length-1].push(node.cloneNode(true));
+    }
+  });
+
   showToast('Generating PDF...','⏳');
-  // Each .txt-page-content is one PDF page
-  for(const pageEl of pages){
-    if(!pageEl.innerText.trim())continue;
+  for(const pageNodes of pages){
+    if(!pageNodes.length) continue;
+    // Render this page to canvas using the editor's styling
     const wrap=document.createElement('div');
-    wrap.style.cssText='width:'+(pageW-margin*2)+'px;padding:0;background:#fff;color:#1e293b;font-family:Georgia,serif;font-size:15px;line-height:1.85;position:fixed;left:-9999px;top:0;box-sizing:border-box';
-    wrap.innerHTML=pageEl.innerHTML;
+    wrap.style.cssText='width:'+(pageW-margin*2)+'px;padding:0;background:#fff;color:#1e293b;font-family:Georgia,serif;font-size:15px;line-height:1.85;position:fixed;left:-9999px;top:0';
+    pageNodes.forEach(n=>wrap.appendChild(n.cloneNode(true)));
     document.body.appendChild(wrap);
     await new Promise(r=>requestAnimationFrame(r));
+
+    // Use html2canvas to capture formatted content
+    let imgData=null;
     if(window.html2canvas){
       const canvas=await html2canvas(wrap,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
-      const imgData=canvas.toDataURL('image/jpeg',0.95);
+      imgData=canvas.toDataURL('image/jpeg',0.95);
       const page=pdfDoc.addPage([pageW,pageH]);
       const imgBytes=Uint8Array.from(atob(imgData.split(',')[1]),c=>c.charCodeAt(0));
       const embImg=await pdfDoc.embedJpg(imgBytes);
@@ -1336,25 +1228,6 @@ async function downloadTextPDF(){
     document.body.removeChild(wrap);
   }
 
-  // Embed signature if one was drawn/typed
-  const sigCanvas=document.getElementById('sigCanvas');
-  const hasSig=sigCanvas&&sigCanvas.getContext('2d').getImageData(0,0,sigCanvas.width,sigCanvas.height).data.some(x=>x!==0);
-  if(hasSig){
-    const sigData=sigCanvas.toDataURL('image/png');
-    const sigBytes=Uint8Array.from(atob(sigData.split(',')[1]),c=>c.charCodeAt(0));
-    const sigImg=await pdfDoc.embedPng(sigBytes);
-    const sigSizeMap={sm:0.15,md:0.22,lg:0.32};
-    const sf=sigSizeMap[document.getElementById('sigSize')?.value||'md'];
-    for(let pi=0;pi<pdfDoc.getPageCount();pi++){
-      const pg=pdfDoc.getPage(pi);
-      const {width:pW,height:pH}=pg.getSize();
-      const {width:sW,height:sH}=sigImg.size();
-      const sw=pW*sf,sh=sH*(sw/sW);
-      pg.drawImage(sigImg,{x:pW-sw-30,y:30,width:sw,height:sh,opacity:0.85});
-    }
-    usedProFeature=true;
-  }
-  if(paywallGate())return;
   const bytes=await pdfDoc.save();
   const blob=new Blob([bytes],{type:'application/pdf'});
   const url=URL.createObjectURL(blob);
@@ -1475,10 +1348,9 @@ async function removePassword(){
     await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
     if(p>1)pdf.addPage();pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',0,0,W,H);
   }
-  // Check paywall BEFORE saving
-  if(paywallGate()){return;}
   pdf.save((document.getElementById('remOutName').value||'unlocked')+'.pdf');
   showToast('Password removed!','🔓');incQuota();
+  if(!isSubscribed())setTimeout(()=>openPW('premium'),700);
 }
 
 /* WATERMARK */
@@ -1597,8 +1469,8 @@ async function addSignatureToPDF(){
     images[pageIdx]=tmp.toDataURL('image/jpeg',0.92);
   }
   renderThumbs();renderPreview();
-  showToast('Signature added to '+targetPages.length+' page(s)! Download PDF when ready.','✍️');
-  // Don't count quota or show paywall here — happens at download
+  showToast('Signature added to '+targetPages.length+' page(s)!','✍️');
+  incQuota();checkPaywall();
 }
 function downloadSigOnly(){const a=document.createElement('a');a.download='signature.png';a.href=sigCanvas.toDataURL('image/png');a.click();}
 
