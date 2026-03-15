@@ -69,17 +69,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:70px;display:flex;al
 .banner-inner strong{color:var(--accent)}
 .banner-inner a{color:var(--accent);font-weight:600;text-decoration:underline;cursor:pointer}
 .banner-inner.hide{display:none}
-.studio{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:264px 1fr;gap:24px;padding:20px 24px 80px;position:relative;z-index:1}
+.studio{max-width:1380px;margin:0 auto;display:grid;grid-template-columns:300px 1fr;gap:28px;padding:20px 16px 80px;position:relative;z-index:1}
 .sidebar{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;position:sticky;top:82px;align-self:start}
-.sb-head{padding:20px;background:linear-gradient(135deg,#091626,#0d1e38);border-bottom:1px solid var(--border)}
+.sb-head{padding:22px 18px 16px;border-bottom:1px solid var(--border)}
 .sb-head h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
 .sb-head p{font-size:11px;color:var(--muted)}
 .sb-plan-badge{margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;background:rgba(56,189,248,0.1);color:var(--accent);border:1px solid rgba(56,189,248,0.2)}
-.sb-nav{padding:10px}
-.sb-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:3px;border:1px solid transparent}
+.sb-nav{padding:10px 10px 6px}
+.sb-item{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;cursor:pointer;transition:all .2s;font-size:15px;font-weight:500;color:var(--muted);margin-bottom:2px;border:1px solid transparent}
 .sb-item:hover{background:rgba(255,255,255,0.04);color:#fff}
 .sb-item.active{background:rgba(56,189,248,0.08);color:var(--accent);border-color:rgba(56,189,248,0.14)}
-.sb-item .ico{font-size:17px;width:26px;text-align:center}
+.sb-item .ico{font-size:26px;width:36px;text-align:center}
 .sb-tag{margin-left:auto;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border-radius:20px}
 .tag-pro{background:rgba(167,139,250,0.12);color:var(--pro);border:1px solid rgba(167,139,250,0.25)}
 .tag-prem{background:rgba(251,191,36,0.12);color:var(--premium);border:1px solid rgba(251,191,36,0.25)}
@@ -241,9 +241,9 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
 .f-legal{display:flex;gap:20px}
 .f-legal a{font-size:11px;color:rgba(255,255,255,0.2);transition:color .25s}
 .f-legal a:hover{color:var(--accent)}
-@media(max-width:960px){.studio{grid-template-columns:1fr}.sidebar{position:static}.settings-grid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr 1fr}.f-brand{grid-column:1/-1}}
+@media(max-width:960px){.studio{grid-template-columns:1fr;padding:12px 10px 80px}.sidebar{position:static}.settings-grid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr 1fr}.f-brand{grid-column:1/-1}}
 @media(max-width:768px){.nav-links{display:none}.hamburger{display:flex}.pw-opts{grid-template-columns:1fr}}
-@media(max-width:480px){footer{padding:40px 16px 24px}.f-grid{grid-template-columns:1fr}.studio{padding:16px 16px 80px}.panel-bd{padding:16px}}
+@media(max-width:480px){footer{padding:40px 16px 24px}.f-grid{grid-template-columns:1fr}.studio{padding:8px 6px 80px}.panel-bd{padding:16px}}
 </style>
 </head>
 <body>
@@ -355,11 +355,9 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
 <!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
-    <div style="display:flex;justify-content:center;margin-bottom:18px">
-      <img src="https://ambikashelf.in/icons/pdfshelf.png" alt="PDF Studio"
-           style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(56,189,248,0.4);box-shadow:0 0 28px rgba(56,189,248,0.3)"
-           onerror="this.src='https://ambikashelf.shop/ambikashelf.png'">
-    </div>
+    <span class="hero-eyebrow">✦ AmbikaShelf Tools</span>
+    <h1 class="hero-title">PDF <span>Studio</span></h1>
+    <p class="hero-sub">Professional PDF creation, editing &amp; management — no software needed. Fast, secure, in your browser.</p>
 
 <!-- FREE BANNER -->
 <div class="free-banner">
@@ -375,8 +373,13 @@ footer{background:#060e1b;border-top:1px solid rgba(56,189,248,0.07);padding:60p
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sb-head">
-    <h3>🗂 PDF Studio</h3>
-    <p id="sbPlanDesc">Free — 10 PDFs/day</p>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <span style="font-size:28px">🗂️</span>
+      <div>
+        <div style="font-size:17px;font-weight:700;color:#fff">PDF Studio</div>
+        <div style="font-size:12px;color:var(--muted)" id="sbPlanDesc">Free — 10 PDFs/day</div>
+      </div>
+    </div>
     <div class="sb-plan-badge" id="sbPlanBadge">FREE PLAN</div>
   </div>
   <div class="sb-nav">
