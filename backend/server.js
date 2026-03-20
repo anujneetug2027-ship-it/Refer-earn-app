@@ -31,7 +31,10 @@ app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
 // ────────────────────────────────────────────────────────────────────────
 const portfolioRoutes = require('./portfolio');
 app.use('/api/portfolio', portfolioRoutes);
-
+app.use('/api/portfolio', (req, res, next) => {
+  console.log('Portfolio route hit:', req.method, req.path);
+  next();
+}, portfolioRoutes);
 // ── PASTE THIS ROUTE BLOCK into server.js (after your middleware section) ──
 
 app.post('/api/pdf/create', async (req, res) => {
