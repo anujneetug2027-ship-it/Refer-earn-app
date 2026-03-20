@@ -29,7 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
 
 
 // ────────────────────────────────────────────────────────────────────────
-app.use(express.static(...)):
+app.use(express.static(path.join(__dirname, '../frontend')));  
 const portfolioRoutes = require('./portfolio');
 app.use('/api/portfolio', portfolioRoutes);
 
