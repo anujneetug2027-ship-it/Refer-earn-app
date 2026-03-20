@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Text Editor — AmbikaShelf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07101e;--bg2:#0b1628;--bg3:#0f1e38;--card:#0a1830;
+  --accent:#38bdf8;--accent2:#0369a1;--glow:rgba(56,189,248,0.18);
+  --text:#e2eaf5;--muted:rgba(226,234,245,0.45);--border:rgba(56,189,248,0.12);
+  --r:14px;--pro:#a78bfa;--premium:#fbbf24;--danger:#f43f5e;--success:#34d399;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;position:relative}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.022) 1px,transparent 1px);background-size:64px 64px;pointer-events:none;z-index:0}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,16,30,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-brand{font-family:'Cinzel',serif;font-size:17px;font-weight:700;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.nav-brand span{color:var(--accent)}
+.nav-dot{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:13px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-btn{height:34px;padding:0 16px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;letter-spacing:.3px}
+.nb-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.nb-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.nb-dl{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;font-weight:700;box-shadow:0 4px 16px rgba(56,189,248,0.25)}
+.nb-dl:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(56,189,248,0.38)}
+.nb-dl:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* ── MAIN LAYOUT ── */
+.page{padding-top:64px;min-height:100vh;position:relative;z-index:1}
+
+/* ── UPLOAD HERO ── */
+#upload-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 64px);padding:40px 24px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;padding:5px 14px;border-radius:20px;background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.18)}
+.hero-title{font-family:'Cinzel',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:900;color:#fff;line-height:1.1;margin-bottom:10px;text-align:center}
+.hero-title span{color:var(--accent)}
+.hero-sub{font-size:13px;color:var(--muted);line-height:1.8;max-width:440px;text-align:center;margin-bottom:36px}
+
+.drop-zone{width:100%;max-width:540px;border:2px dashed rgba(56,189,248,0.25);border-radius:20px;padding:52px 32px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(56,189,248,0.02);position:relative;overflow:hidden}
+.drop-zone::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(56,189,248,0.07) 0%,transparent 65%);opacity:0;transition:opacity .3s}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:rgba(56,189,248,0.05)}
+.drop-zone:hover::after,.drop-zone.drag::after{opacity:1}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2}
+.dz-ico{font-size:48px;display:block;margin-bottom:14px;transition:transform .3s}
+.drop-zone:hover .dz-ico{transform:translateY(-6px) scale(1.1)}
+.dz-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
+.dz-sub{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.6}
+.dz-sub b{color:var(--accent)}
+.dz-btn{display:inline-flex;align-items:center;gap:7px;padding:11px 26px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border:none;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;pointer-events:none;letter-spacing:.4px}
+.privacy-note{margin-top:16px;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;justify-content:center}
+
+/* ── EDITOR SCREEN ── */
+#editor-screen{display:none;flex-direction:column;min-height:calc(100vh - 64px)}
+
+/* ── TOOLBAR ── */
+#toolbar{background:rgba(10,24,48,0.97);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);padding:0 20px;height:46px;display:flex;align-items:center;gap:14px;position:sticky;top:64px;z-index:90}
+.tb-info{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.tb-info b{color:var(--accent)}
+.tb-sep{width:1px;height:20px;background:var(--border)}
+.tb-stat{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.stat-dot{width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0}
+.stat-dot.spin{background:var(--premium);animation:blink .9s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tb-pgnav{display:flex;align-items:center;gap:4px;margin-left:auto}
+.pg-arr{width:26px;height:26px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:13px;transition:all .18s}
+.pg-arr:hover{border-color:var(--accent);color:var(--accent)}
+.pg-arr:disabled{opacity:.3;cursor:not-allowed}
+.pg-lbl{font-size:11px;color:var(--muted);min-width:68px;text-align:center}
+.tb-legend{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);white-space:nowrap}
+.leg-box{width:10px;height:10px;border-radius:2px;border:1px solid}
+
+/* ── EDITOR BODY ── */
+.editor-body{flex:1;display:flex;gap:0}
+
+/* ── CANVAS AREA ── */
+.canvas-area{flex:1;padding:28px;display:flex;flex-direction:column;align-items:center;gap:0;overflow-y:auto;background:var(--bg)}
+.canvas-hint{font-size:11px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.canvas-hint b{color:var(--accent)}
+
+#cw{position:relative;background:#fff;border-radius:var(--r);box-shadow:0 0 0 1px rgba(56,189,248,0.15),0 20px 60px rgba(0,0,0,0.7);overflow:hidden;line-height:0}
+#cv{display:block}
+#ov{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+
+.tb-block{position:absolute;cursor:text;pointer-events:all;border:1.5px solid transparent;border-radius:2px;color:transparent!important;background:transparent;transition:border-color .12s,background .12s}
+.tb-block:hover{border-color:rgba(56,189,248,0.6);background:rgba(56,189,248,0.07)}
+.tb-block.modified{border-color:rgba(251,191,36,0.7);background:rgba(251,191,36,0.06)}
+.tb-block.active{border-color:var(--accent)!important;background:rgba(56,189,248,0.1)!important;z-index:20}
+
+/* ── SIDE PANEL ── */
+.side-panel{width:320px;flex-shrink:0;background:var(--card);border-left:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:110px;height:calc(100vh - 110px);overflow-y:auto}
+.sp-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px 20px;text-align:center}
+.sp-placeholder-ico{font-size:40px;opacity:.3}
+.sp-placeholder-txt{font-size:12px;color:var(--muted);line-height:1.6}
+.sp-placeholder-txt b{color:var(--accent);display:block;margin-bottom:4px;font-size:13px}
+
+/* ── EDIT FORM (inside side panel) ── */
+.edit-form{display:none;flex-direction:column;height:100%}
+
+/* Form header */
+.ef-head{padding:16px 18px;background:linear-gradient(135deg,#091626,#0d1e38);border-bottom:1px solid var(--border);flex-shrink:0}
+.ef-head-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ef-title{font-size:12px;font-weight:700;color:#fff;letter-spacing:.3px;display:flex;align-items:center;gap:6px}
+.ef-title-ico{font-size:14px}
+.ef-close{width:22px;height:22px;background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);cursor:pointer;font-size:15px;display:grid;place-items:center;transition:all .15s;font-family:'DM Sans',sans-serif}
+.ef-close:hover{border-color:var(--danger);color:var(--danger)}
+
+/* Detection strip */
+.detect-strip{background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.1);border-radius:9px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ds-item{display:flex;flex-direction:column;gap:1px}
+.ds-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);opacity:.7}
+.ds-val{font-size:11px;color:var(--text);font-weight:500;word-break:break-all}
+.ds-val.mono{font-family:'Courier New',monospace;font-size:10px}
+.ds-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:1px 6px;border-radius:4px;font-weight:600}
+.ds-badge.yes{background:rgba(52,211,153,0.12);color:var(--success);border:1px solid rgba(52,211,153,0.25)}
+.ds-badge.no{background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid rgba(255,255,255,0.07)}
+
+/* Scrollable form fields */
+.ef-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:16px;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+
+/* Field group */
+.fg{display:flex;flex-direction:column;gap:6px}
+.fg-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent)}
+.fg-label span{color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;font-size:9px;margin-left:4px}
+
+/* Textarea */
+.ef-textarea{background:rgba(11,22,40,0.8);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:all .2s;width:100%;resize:vertical;min-height:60px;line-height:1.5}
+.ef-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.1);background:rgba(56,189,248,0.03)}
+.ef-textarea::placeholder{color:var(--muted)}
+
+/* Select */
+.ef-select{appearance:none;background:rgba(11,22,40,0.8) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 36px 10px 12px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text);outline:none;transition:all .2s;width:100%;cursor:pointer}
+.ef-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.1)}
+.ef-select option{background:#0b1628;color:var(--text)}
+
+/* Style toggle row */
+.style-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.style-tog{padding:9px 0;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:var(--muted);transition:all .18s;display:flex;align-items:center;justify-content:center;gap:5px;letter-spacing:.3px}
+.style-tog:hover{border-color:rgba(56,189,248,0.3);color:var(--text)}
+.style-tog.on{background:rgba(56,189,248,0.1);border-color:var(--accent);color:var(--accent)}
+#tog-bold{font-weight:800}
+#tog-italic{font-style:italic}
+
+/* Size + color row */
+.size-color-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sc-group{display:flex;flex-direction:column;gap:6px}
+.ef-input{background:rgba(11,22,40,0.8);border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:9px 11px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text);outline:none;transition:all .2s;width:100%;text-align:center}
+.ef-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.1)}
+.color-row{display:flex;align-items:center;gap:8px}
+.ef-color{width:38px;height:36px;border-radius:9px;border:1px solid rgba(255,255,255,0.1);background:rgba(11,22,40,0.8);cursor:pointer;padding:3px}
+.ef-color:focus{outline:none;border-color:var(--accent)}
+.color-hex{font-size:11px;color:var(--muted);font-family:'Courier New',monospace}
+
+/* Form footer */
+.ef-foot{padding:14px 18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.ef-apply{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border:none;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.4px}
+.ef-apply:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(56,189,248,0.35)}
+.ef-foot-row{display:flex;gap:8px}
+.ef-reset{flex:1;padding:9px;background:transparent;border:1px solid rgba(244,63,94,0.3);border-radius:9px;color:var(--danger);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .18s}
+.ef-reset:hover{background:rgba(244,63,94,0.08)}
+.ef-cancel{flex:1;padding:9px;background:transparent;border:1px solid var(--border);border-radius:9px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .18s}
+.ef-cancel:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── LOADING OVERLAY ── */
+#loading{display:none;position:fixed;inset:0;background:rgba(7,16,30,0.93);z-index:2000;flex-direction:column;align-items:center;justify-content:center;gap:16px;backdrop-filter:blur(8px)}
+.ld-spin{width:44px;height:44px;border:3px solid rgba(56,189,248,0.15);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-txt{font-size:13px;color:var(--muted)}
+.ld-logo{font-family:'Cinzel',serif;font-size:14px;color:var(--accent);letter-spacing:2px;margin-bottom:4px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 18px;font-size:12px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.7);transform:translateY(80px);opacity:0;transition:all .25s;z-index:3000;max-width:340px;display:flex;align-items:center;gap:8px}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.ok .t-ico{color:var(--success)}
+#toast.warn .t-ico{color:var(--premium)}
+#toast.err .t-ico{color:var(--danger)}
+.t-ico{font-size:14px;flex-shrink:0}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:768px){
+  .side-panel{display:none}
+  .editor-body{flex-direction:column}
+  .canvas-area{padding:16px}
+  .tb-legend{display:none}
+  /* Show edit panel as bottom sheet on mobile */
+  #edit-sheet{display:block}
+}
+@media(min-width:769px){
+  #edit-sheet{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading">
+  <div class="ld-logo">AmbikaShelf</div>
+  <div class="ld-spin"></div>
+  <div class="ld-txt" id="ld-txt">Processing PDF…</div>
+</div>
+
+<!-- Toast -->
+<div id="toast"><span class="t-ico" id="t-ico">✓</span><span id="t-msg"></span></div>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-dot">✎</div>
+    Ambika<span>Shelf</span> &nbsp;<span style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);font-weight:400;letter-spacing:0">/ PDF Text Editor</span>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn nb-ghost" id="nb-undo" style="display:none" onclick="undoAll()">↺ Undo All</button>
+    <button class="nav-btn nb-ghost" id="nb-close" style="display:none" onclick="resetAll()">✕ Close</button>
+    <button class="nav-btn nb-dl" id="nb-dl" style="display:none" onclick="downloadPDF()">⬇ Download PDF</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- ── UPLOAD SCREEN ── -->
+  <div id="upload-screen">
+    <div class="hero-badge">✦ Precision Text Editor</div>
+    <h1 class="hero-title">Edit PDF Text<br><span>Pixel-Perfect</span></h1>
+    <p class="hero-sub">Auto-detects exact font, size, weight &amp; color from every text block. Edit inline — preview live — download undetectably.</p>
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".pdf">
+      <span class="dz-ico">📄</span>
+      <div class="dz-title">Drop your PDF here</div>
+      <div class="dz-sub">or click to browse · <b>Exact font &amp; color auto-detected</b></div>
+      <div class="dz-btn">📂 Choose PDF File</div>
+    </div>
+    <div class="privacy-note">🔒 Runs entirely in your browser — no upload, no server, no data leaves your device</div>
+  </div>
+
+  <!-- ── EDITOR SCREEN ── -->
+  <div id="editor-screen">
+
+    <!-- Toolbar -->
+    <div id="toolbar">
+      <div class="tb-info" id="tb-info">—</div>
+      <div class="tb-sep"></div>
+      <div class="tb-stat"><div class="stat-dot" id="stat-dot"></div><span id="stat-txt">Ready</span></div>
+      <div class="tb-legend">
+        <div class="leg-item"><div class="leg-box" style="background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.5)"></div>editable</div>
+        <div class="leg-item"><div class="leg-box" style="background:rgba(56,189,248,.15);border-color:#38bdf8"></div>active</div>
+        <div class="leg-item"><div class="leg-box" style="background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.6)"></div>modified</div>
+      </div>
+      <div class="tb-pgnav">
+        <button class="pg-arr" id="pg-prev" onclick="changePage(-1)">‹</button>
+        <span class="pg-lbl" id="pg-lbl">Page 1 / 1</span>
+        <button class="pg-arr" id="pg-next" onclick="changePage(1)">›</button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="editor-body">
+
+      <!-- Canvas -->
+      <div class="canvas-area">
+        <div class="canvas-hint">💡 <b>Click any text block</b> to open the editor panel on the right</div>
+        <div id="cw">
+          <canvas id="cv"></canvas>
+          <div id="ov"></div>
+        </div>
+      </div>
+
+      <!-- Side Panel -->
+      <div class="side-panel">
+
+        <!-- Placeholder (shown when nothing selected) -->
+        <div class="sp-placeholder" id="sp-placeholder">
+          <div class="sp-placeholder-ico">✎</div>
+          <div class="sp-placeholder-txt">
+            <b>No block selected</b>
+            Click any highlighted text on the PDF to start editing. Font, size, weight &amp; color are auto-detected.
+          </div>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="edit-form" id="edit-form">
+
+          <!-- Form Header with detection strip -->
+          <div class="ef-head">
+            <div class="ef-head-top">
+              <div class="ef-title"><span class="ef-title-ico">🔍</span> Detected Properties</div>
+              <button class="ef-close" onclick="closePanel()">×</button>
+            </div>
+            <div class="detect-strip" id="detect-strip">
+              <!-- filled by JS -->
+            </div>
+          </div>
+
+          <!-- Scrollable Fields -->
+          <div class="ef-body">
+
+            <!-- 1. Text Content -->
+            <div class="fg">
+              <div class="fg-label">① Text Content <span>— edit your replacement text</span></div>
+              <textarea class="ef-textarea" id="ef-text" rows="3" spellcheck="false" placeholder="Enter replacement text…"></textarea>
+            </div>
+
+            <!-- 2. Font Family -->
+            <div class="fg">
+              <div class="fg-label">② Font Family <span>— auto-detected, adjust if needed</span></div>
+              <select class="ef-select" id="ef-family">
+                <option value="helvetica">Helvetica / Arial (sans-serif)</option>
+                <option value="times">Times New Roman (serif)</option>
+                <option value="courier">Courier New (monospace)</option>
+              </select>
+            </div>
+
+            <!-- 3. Style -->
+            <div class="fg">
+              <div class="fg-label">③ Style <span>— auto-detected from font name</span></div>
+              <div class="style-row">
+                <button class="style-tog" id="tog-bold" onclick="toggleStyle('bold')">B&nbsp; Bold</button>
+                <button class="style-tog" id="tog-italic" onclick="toggleStyle('italic')">I&nbsp; Italic</button>
+              </div>
+            </div>
+
+            <!-- 4. Size -->
+            <div class="fg">
+              <div class="fg-label">④ Font Size <span>— in PDF points (exact)</span></div>
+              <input type="number" class="ef-input" id="ef-size" min="1" max="500" step="0.01" placeholder="12.00">
+            </div>
+
+            <!-- 5. Color -->
+            <div class="fg">
+              <div class="fg-label">⑤ Text Color <span>— auto-detected from PDF stream</span></div>
+              <div class="color-row">
+                <input type="color" class="ef-color" id="ef-color" value="#000000">
+                <span class="color-hex" id="color-hex">#000000</span>
+                <span style="font-size:10px;color:var(--muted);margin-left:auto">← click to change</span>
+              </div>
+            </div>
+
+          </div><!-- /ef-body -->
+
+          <!-- Footer actions -->
+          <div class="ef-foot">
+            <button class="ef-apply" onclick="applyEdit()">✓ Apply &amp; Preview</button>
+            <div class="ef-foot-row">
+              <button class="ef-reset" onclick="resetBlock()">↺ Reset to Original</button>
+              <button class="ef-cancel" onclick="closePanel()">Cancel</button>
+            </div>
+          </div>
+
+        </div><!-- /edit-form -->
+      </div><!-- /side-panel -->
+    </div><!-- /editor-body -->
+  </div><!-- /editor-screen -->
+
+</div><!-- /page -->
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let pdfDoc=null, origBytes=null, fileName='document.pdf';
+let curPage=1, totPages=0;
+let pageData={};  // pn -> [richItem]
+let edits={};     // "pn_idx" -> {text,bold,italic,family,sizePt,color}
+let activeKey=null;
+let fmtBold=false, fmtItalic=false;
+
+// We render at high DPI for sharp canvas, then CSS-scale down to fit screen
+const RENDER_SCALE = 2.5;
+
+/* ══════════════════════════════════════════
+   FILE HANDLING
+══════════════════════════════════════════ */
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) loadPDF(e.target.files[0]);
+});
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type === 'application/pdf') loadPDF(f);
+  else toast('Please drop a valid PDF file', '⚠', 'warn');
+});
+document.getElementById('ef-color').addEventListener('input', function() {
+  document.getElementById('color-hex').textContent = this.value;
+});
+
+async function loadPDF(file) {
+  showLd('Reading PDF…'); fileName = file.name;
+  try {
+    const buf = await file.arrayBuffer();
+    origBytes = new Uint8Array(buf);
+    pdfDoc = await pdfjsLib.getDocument({ data: origBytes.slice() }).promise;
+    totPages = pdfDoc.numPages;
+
+    document.getElementById('upload-screen').style.display = 'none';
+    document.getElementById('editor-screen').style.display = 'flex';
+    ['nb-undo','nb-close','nb-dl'].forEach(id => document.getElementById(id).style.display = 'inline-flex');
+
+    curPage = 1;
+    await renderPage(curPage);
+    hideLd();
+    toast('PDF loaded — click any text to edit', '✓', 'ok');
+  } catch(e) { hideLd(); toast('Failed to load PDF: '+e.message, '✗', 'err'); console.error(e); }
+}
+
+/* ══════════════════════════════════════════
+   DEEP FONT EXTRACTION via operator list
+   Walks the PDF content stream to capture:
+   - Tf → font name + size (in text-space units)
+   - rg/RG/g/G/k/K → fill color
+   - showText variants → snapshot per text chunk
+══════════════════════════════════════════ */
+async function extractRichItems(page, vp) {
+  const [tc, ops] = await Promise.all([
+    page.getTextContent({ includeMarkedContent: false }),
+    page.getOperatorList()
+  ]);
+
+  const OPS = pdfjsLib.OPS;
+  let snapshots = [];
+  let cFont = '', cFontSizeTSpace = 0;
+  let cR = 0, cG = 0, cB = 0;
+
+  // Walk operator list — capture font/color state at each text-show op
+  for (let i = 0; i < ops.fnArray.length; i++) {
+    const fn = ops.fnArray[i], args = ops.argsArray[i];
+    switch(fn) {
+      case OPS.setFont:
+        cFont = args[0] || '';
+        cFontSizeTSpace = args[1] || 0; // font size in TEXT SPACE (PDF points when CTM=identity)
+        break;
+      case OPS.setFillRGBColor:
+        cR = Math.round((args[0]||0)*255);
+        cG = Math.round((args[1]||0)*255);
+        cB = Math.round((args[2]||0)*255);
+        break;
+      case OPS.setFillGray:
+        { const v = Math.round((args[0]||0)*255); cR=cG=cB=v; }
+        break;
+      case OPS.setFillCMYKColor:
+        { const c=args[0]||0,m=args[1]||0,y=args[2]||0,k=args[3]||0;
+          cR=Math.round(255*(1-c)*(1-k));
+          cG=Math.round(255*(1-m)*(1-k));
+          cB=Math.round(255*(1-y)*(1-k)); }
+        break;
+      // All text-drawing operators
+      case OPS.showText:
+      case OPS.showSpacedText:
+      case OPS.nextLineShowText:
+      case OPS.nextLineSetSpacingShowText:
+        snapshots.push({ fontRef: cFont, fontSizeTSpace: cFontSizeTSpace, r: cR, g: cG, b: cB });
+        break;
+    }
+  }
+
+  // Now match snapshots to tc.items (same order — both from content stream walk)
+  const items = [];
+  let si = 0;
+
+  for (let i = 0; i < tc.items.length; i++) {
+    const it = tc.items[i];
+    if (!it.str || !it.str.trim()) continue;
+
+    const snap = snapshots[si] || { fontRef:'', fontSizeTSpace:0, r:0, g:0, b:0 };
+    si++;
+
+    // Transform matrix: maps from user-space → canvas pixels
+    // m = [a, b, c, d, e, f]
+    // e = x on canvas, f = y on canvas (from top)
+    const m = pdfjsLib.Util.transform(vp.transform, it.transform);
+    const x = m[4];
+    const baselineY = m[5]; // baseline from canvas top
+
+    // The actual rendered font size in canvas pixels is the scale of the matrix
+    // |m[0],m[1]| = horizontal scale = font size * RENDER_SCALE / 72 * ... 
+    // Most reliable: use the matrix scale directly
+    const fSizeCanvas = Math.hypot(m[0], m[1]);
+
+    // PDF point size: the text-space font size from Tf operator
+    // This is THE canonical size stored in the PDF
+    // But we need to account for the current transformation matrix scale
+    // vp.scale = RENDER_SCALE, so fSizeCanvas / RENDER_SCALE = pt size at 1x
+    // Actually, the safest: sizePt = fSizeCanvas / RENDER_SCALE
+    const sizePt = fSizeCanvas / RENDER_SCALE;
+
+    const w = it.width * RENDER_SCALE;
+    const h = fSizeCanvas;
+    // Box top: baseline minus ~80% of font height (ascender)
+    const boxTop = baselineY - fSizeCanvas * 0.80;
+
+    // Clean font name (PDF fonts: "ABCXYZ+FontName-Bold" or internal refs)
+    const rawFont = snap.fontRef || it.fontName || '';
+    const cleanFont = rawFont.includes('+') ? rawFont.split('+').pop() : rawFont;
+    const fnLow = cleanFont.toLowerCase();
+
+    // Bold detection — check font name fragments
+    const isBold = /bold|heavy|black|demi|extb|semib|700|800|900/.test(fnLow);
+
+    // Italic detection
+    const isItalic = /italic|oblique|slant|it$|_it/.test(fnLow);
+
+    // Base family detection
+    let family = 'helvetica';
+    if (/times|roman|minion|garamond|palatino|georgia|bookman|caslon|didot|bodoni|cambria|constantia/.test(fnLow))
+      family = 'times';
+    else if (/courier|mono|typewriter|consolas|inconsolata|fixedpitch|lucidaconsole/.test(fnLow))
+      family = 'courier';
+
+    items.push({
+      str: it.str,
+      x, baselineY, boxTop,
+      w: Math.max(w, 4), h,
+      fSizeCanvas,  // pixels on canvas
+      sizePt,       // PDF points — use for export
+      family, isBold, isItalic,
+      rawFont: cleanFont,
+      r: snap.r, g: snap.g, b: snap.b,
+      index: i
+    });
+  }
+  return items;
+}
+
+/* ══════════════════════════════════════════
+   RENDER PAGE
+══════════════════════════════════════════ */
+async function renderPage(pn) {
+  setStat('loading', `Rendering page ${pn}…`);
+  closePanel();
+
+  const page = await pdfDoc.getPage(pn);
+  const vp = page.getViewport({ scale: RENDER_SCALE });
+
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  cv.width = vp.width;
+  cv.height = vp.height;
+
+  // CSS scale: fit within available width (canvas-area minus padding)
+  const maxCSSW = Math.min(vp.width / RENDER_SCALE, window.innerWidth - 380);
+  const cssScale = maxCSSW / (vp.width / RENDER_SCALE);
+  const cssW = Math.round(vp.width * cssScale / RENDER_SCALE * RENDER_SCALE / RENDER_SCALE);
+
+  // Actually just display at 1x PDF resolution CSS-wise:
+  const displayW = Math.min(vp.width / RENDER_SCALE, window.innerWidth - 380);
+  cv.style.width  = displayW + 'px';
+  cv.style.height = (vp.height / RENDER_SCALE * (displayW / (vp.width / RENDER_SCALE))) + 'px';
+
+  const cw = document.getElementById('cw');
+  cw.style.width  = cv.style.width;
+  cw.style.height = cv.style.height;
+
+  // The ratio between canvas px and CSS px for overlay positioning
+  const ratio = displayW / vp.width; // CSS_px / canvas_px
+
+  await page.render({ canvasContext: ctx, viewport: vp }).promise;
+
+  const items = await extractRichItems(page, vp);
+  pageData[pn] = { items, ratio };
+
+  // Paint any existing edits
+  paintAllEdits(pn, ctx);
+
+  buildOverlay(pn, ratio);
+
+  document.getElementById('pg-lbl').textContent = `Page ${pn} / ${totPages}`;
+  document.getElementById('pg-prev').disabled = pn <= 1;
+  document.getElementById('pg-next').disabled = pn >= totPages;
+  document.getElementById('tb-info').innerHTML = `<b>${fileName}</b> &nbsp;·&nbsp; ${totPages} page${totPages>1?'s':''} &nbsp;·&nbsp; ${items.length} text blocks`;
+  setStat('ready', `${Object.keys(edits).length} edits on this document`);
+}
+
+/* ══════════════════════════════════════════
+   PAINT EDITS (live canvas preview)
+   Key precision: use EXACT same metrics
+══════════════════════════════════════════ */
+function paintAllEdits(pn, ctx) {
+  const pd = pageData[pn]; if (!pd) return;
+  for (const it of pd.items) {
+    const key = `${pn}_${it.index}`;
+    const ed = edits[key]; if (!ed) continue;
+    paintOneEdit(ctx, it, ed);
+  }
+}
+
+function paintOneEdit(ctx, it, ed) {
+  // 1. Erase original — white rect covering full glyph bounding box
+  //    Extra padding to catch descenders and any anti-aliasing
+  ctx.save();
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(
+    it.x - 2,
+    it.boxTop - 3,
+    it.w + 60,   // generous width for longer replacement text
+    it.h + 8
+  );
+  ctx.restore();
+
+  // 2. Draw new text at EXACT same baseline position
+  const sizePx = ed.sizePt * RENDER_SCALE; // pt → canvas px
+  const weight  = ed.bold   ? 'bold'   : 'normal';
+  const style   = ed.italic ? 'italic' : 'normal';
+  const cssFam  = famToCSS(ed.family);
+
+  ctx.save();
+  ctx.font = `${style} ${weight} ${sizePx}px ${cssFam}`;
+  ctx.fillStyle = ed.color;
+  ctx.textBaseline = 'alphabetic'; // matches PDF baseline
+  ctx.fillText(ed.text, it.x, it.baselineY);
+  ctx.restore();
+}
+
+function famToCSS(fam) {
+  if (fam === 'times')   return '"Times New Roman", Times, serif';
+  if (fam === 'courier') return '"Courier New", Courier, monospace';
+  return 'Arial, Helvetica, sans-serif';
+}
+
+/* ══════════════════════════════════════════
+   BUILD CLICK OVERLAY
+══════════════════════════════════════════ */
+function buildOverlay(pn, ratio) {
+  const ov = document.getElementById('ov');
+  ov.innerHTML = '';
+  const pd = pageData[pn]; if (!pd) return;
+
+  pd.items.forEach(it => {
+    const key = `${pn}_${it.index}`;
+    const div = document.createElement('div');
+    div.className = 'tb-block' + (edits[key] ? ' modified' : '');
+    div.dataset.key = key;
+    // Convert canvas px → CSS px for overlay positioning
+    div.style.left   = (it.x * ratio) + 'px';
+    div.style.top    = (it.boxTop * ratio) + 'px';
+    div.style.width  = ((it.w + 16) * ratio) + 'px';
+    div.style.height = ((it.h + 4) * ratio) + 'px';
+    div.title = 'Click to edit this text';
+    div.addEventListener('click', e => { e.stopPropagation(); openPanel(it, pn); });
+    ov.appendChild(div);
+  });
+
+  ov.addEventListener('click', e => { if (e.target === ov) closePanel(); });
+}
+
+/* ══════════════════════════════════════════
+   SIDE PANEL — open / populate
+══════════════════════════════════════════ */
+function openPanel(it, pn) {
+  // Deactivate old hotspot
+  document.querySelectorAll('.tb-block.active').forEach(d => d.classList.remove('active'));
+
+  // Find and activate new hotspot
+  const key = `${pn}_${it.index}`;
+  document.querySelectorAll(`.tb-block[data-key="${key}"]`).forEach(d => d.classList.add('active'));
+
+  activeKey = key;
+  const ed = edits[key];
+
+  // Populate fields from saved edit OR detected values
+  document.getElementById('ef-text').value   = ed ? ed.text   : it.str;
+  document.getElementById('ef-size').value   = ed ? ed.sizePt.toFixed(2) : it.sizePt.toFixed(2);
+  document.getElementById('ef-family').value = ed ? ed.family : it.family;
+
+  const hexColor = ed ? ed.color : rgbToHex(it.r, it.g, it.b);
+  document.getElementById('ef-color').value = hexColor;
+  document.getElementById('color-hex').textContent = hexColor;
+
+  fmtBold   = ed ? ed.bold   : it.isBold;
+  fmtItalic = ed ? ed.italic : it.isItalic;
+  refreshToggles();
+
+  // Detection strip
+  document.getElementById('detect-strip').innerHTML = `
+    <div class="ds-item" style="grid-column:1/-1">
+      <div class="ds-label">Font Name (from PDF)</div>
+      <div class="ds-val mono">${it.rawFont || '—'}</div>
+    </div>
+    <div class="ds-item">
+      <div class="ds-label">Size</div>
+      <div class="ds-val">${it.sizePt.toFixed(2)} pt</div>
+    </div>
+    <div class="ds-item">
+      <div class="ds-label">Color</div>
+      <div class="ds-val" style="display:flex;align-items:center;gap:5px">
+        <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgb(${it.r},${it.g},${it.b});border:1px solid rgba(255,255,255,.15);flex-shrink:0"></span>
+        rgb(${it.r},${it.g},${it.b})
+      </div>
+    </div>
+    <div class="ds-item">
+      <div class="ds-label">Bold</div>
+      <div class="ds-val"><span class="ds-badge ${it.isBold?'yes':'no'}">${it.isBold?'✓ Bold':'✗ No'}</span></div>
+    </div>
+    <div class="ds-item">
+      <div class="ds-label">Italic</div>
+      <div class="ds-val"><span class="ds-badge ${it.isItalic?'yes':'no'}">${it.isItalic?'✓ Italic':'✗ No'}</span></div>
+    </div>
+  `;
+
+  // Show form, hide placeholder
+  document.getElementById('sp-placeholder').style.display = 'none';
+  document.getElementById('edit-form').style.display = 'flex';
+
+  // Scroll form into view on mobile
+  document.getElementById('ef-text').focus();
+}
+
+function closePanel() {
+  document.querySelectorAll('.tb-block.active').forEach(d => d.classList.remove('active'));
+  document.getElementById('sp-placeholder').style.display = 'flex';
+  document.getElementById('edit-form').style.display = 'none';
+  activeKey = null;
+}
+
+function toggleStyle(which) {
+  if (which === 'bold') fmtBold = !fmtBold;
+  else fmtItalic = !fmtItalic;
+  refreshToggles();
+}
+
+function refreshToggles() {
+  document.getElementById('tog-bold').classList.toggle('on', fmtBold);
+  document.getElementById('tog-italic').classList.toggle('on', fmtItalic);
+}
+
+/* ══════════════════════════════════════════
+   APPLY EDIT + LIVE PREVIEW
+══════════════════════════════════════════ */
+async function applyEdit() {
+  if (!activeKey) return;
+  const [pnS, idxS] = activeKey.split('_');
+  const pn  = parseInt(pnS);
+  const idx = parseInt(idxS);
+  const pd  = pageData[pn]; if (!pd) return;
+  const it  = pd.items.find(x => x.index === idx); if (!it) return;
+
+  const sizePt = parseFloat(document.getElementById('ef-size').value) || it.sizePt;
+
+  edits[activeKey] = {
+    text:   document.getElementById('ef-text').value,
+    bold:   fmtBold,
+    italic: fmtItalic,
+    family: document.getElementById('ef-family').value,
+    sizePt,
+    color:  document.getElementById('ef-color').value
+  };
+
+  // Live preview: re-render PDF base then overlay ALL edits for this page
+  const page  = await pdfDoc.getPage(pn);
+  const vp    = page.getViewport({ scale: RENDER_SCALE });
+  const cv    = document.getElementById('cv');
+  const ctx   = cv.getContext('2d');
+  await page.render({ canvasContext: ctx, viewport: vp }).promise;
+  paintAllEdits(pn, ctx);
+
+  // Rebuild overlay to update modified highlighting
+  buildOverlay(pn, pd.ratio);
+
+  // Re-activate this block
+  document.querySelectorAll(`.tb-block[data-key="${activeKey}"]`).forEach(d => d.classList.add('active'));
+
+  const n = Object.keys(edits).length;
+  setStat('ready', `${n} edit${n!==1?'s':''} applied`);
+  toast(`Preview updated · ${n} edit${n!==1?'s':''} total`, '✓', 'ok');
+}
+
+async function resetBlock() {
+  if (!activeKey) return;
+  delete edits[activeKey];
+  const pn = parseInt(activeKey.split('_')[0]);
+  closePanel();
+  // Re-render to remove the edit from canvas
+  const page = await pdfDoc.getPage(pn);
+  const vp   = page.getViewport({ scale: RENDER_SCALE });
+  const ctx  = document.getElementById('cv').getContext('2d');
+  await page.render({ canvasContext: ctx, viewport: vp }).promise;
+  const pd = pageData[pn];
+  paintAllEdits(pn, ctx);
+  if (pd) buildOverlay(pn, pd.ratio);
+  toast('Block restored to original', '↺', 'warn');
+}
+
+/* ══════════════════════════════════════════
+   DOWNLOAD — pixel-perfect PDF export
+   Uses exact PDF point coordinates
+══════════════════════════════════════════ */
+async function downloadPDF() {
+  if (!Object.keys(edits).length) { toast('Make some edits first', '⚠', 'warn'); return; }
+  showLd('Building edited PDF…');
+  try {
+    const { PDFDocument, rgb, StandardFonts } = PDFLib;
+    const doc = await PDFDocument.load(origBytes);
+    const pdfPages = doc.getPages();
+
+    // Group edits by page
+    const byPage = {};
+    for (const k of Object.keys(edits)) {
+      const pn = parseInt(k.split('_')[0]);
+      (byPage[pn] || (byPage[pn] = [])).push(k);
+    }
+
+    for (const [pnS, keys] of Object.entries(byPage)) {
+      const pn     = parseInt(pnS);
+      const pdfPg  = pdfPages[pn - 1];
+      const { width: PW, height: PH } = pdfPg.getSize();
+
+      // canvas dimensions (rendered at RENDER_SCALE)
+      const cv = document.getElementById('cv');
+      const CW = cv.width, CH = cv.height;
+      // Scale factors: canvas_px → PDF_points
+      const sx = PW / CW;
+      const sy = PH / CH;
+
+      for (const key of keys) {
+        const idx = parseInt(key.split('_')[1]);
+        const pd  = pageData[pn]; if (!pd) continue;
+        const it  = pd.items.find(x => x.index === idx); if (!it) continue;
+        const ed  = edits[key];
+
+        // ── COORDINATES ──
+        // it.x, it.baselineY: canvas px (from top-left)
+        // PDF: origin bottom-left → flip Y
+        const pdfX        = it.x * sx;
+        const pdfBaseline = PH - (it.baselineY * sy);
+
+        // ── ERASE RECT ──
+        // it.boxTop is canvas px from top
+        const eraseBottom = PH - (it.boxTop * sy);          // pdf y of box top
+        const eraseH      = (it.h + 8) * sy;
+        const eraseW      = (it.w + 64) * sx;
+        pdfPg.drawRectangle({
+          x:      pdfX - 2 * sx,
+          y:      eraseBottom - eraseH,
+          width:  eraseW,
+          height: eraseH,
+          color:  rgb(1, 1, 1),
+          opacity: 1
+        });
+
+        // ── FONT ──
+        const { StandardFonts: SF } = PDFLib;
+        const b = ed.bold, i2 = ed.italic, fam = ed.family;
+        let fontKey =
+          fam === 'courier' ? (b&&i2?SF.CourierBoldOblique:b?SF.CourierBold:i2?SF.CourierOblique:SF.Courier)
+          : fam === 'times' ? (b&&i2?SF.TimesRomanBoldItalic:b?SF.TimesRomanBold:i2?SF.TimesRomanItalic:SF.TimesRoman)
+          : /* helvetica */   (b&&i2?SF.HelveticaBoldOblique:b?SF.HelveticaBold:i2?SF.HelveticaOblique:SF.Helvetica);
+
+        const font = await doc.embedFont(fontKey);
+
+        // ── COLOR ──
+        const hex = ed.color || '#000000';
+        const cr  = parseInt(hex.slice(1,3),16)/255;
+        const cg  = parseInt(hex.slice(3,5),16)/255;
+        const cb  = parseInt(hex.slice(5,7),16)/255;
+
+        // ── DRAW TEXT ──
+        // Use ed.sizePt directly — this is already in PDF points
+        pdfPg.drawText(ed.text, {
+          x:     pdfX,
+          y:     pdfBaseline,
+          size:  Math.max(1, ed.sizePt),
+          font,
+          color: rgb(cr, cg, cb),
+          opacity: 1
+        });
+      }
+    }
+
+    const out  = await doc.save();
+    const blob = new Blob([out], { type: 'application/pdf' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = fileName.replace(/\.pdf$/i, '') + '_edited.pdf';
+    a.click(); URL.revokeObjectURL(url);
+    hideLd(); toast('PDF downloaded successfully!', '⬇', 'ok');
+  } catch(e) { hideLd(); toast('Export failed: '+e.message, '✗', 'err'); console.error(e); }
+}
+
+/* ══════════════════════════════════════════
+   PAGE NAV
+══════════════════════════════════════════ */
+async function changePage(d) {
+  const np = curPage + d;
+  if (np < 1 || np > totPages) return;
+  curPage = np; showLd(`Loading page ${curPage}…`);
+  await renderPage(curPage); hideLd();
+}
+
+async function undoAll() {
+  if (!Object.keys(edits).length) { toast('No edits to undo', '⚠', 'warn'); return; }
+  edits = {};
+  showLd('Reverting…'); await renderPage(curPage); hideLd();
+  toast('All edits cleared', '↺', 'warn');
+}
+
+function resetAll() {
+  pdfDoc=null; origBytes=null; curPage=1; totPages=0;
+  pageData={}; edits={}; activeKey=null;
+  document.getElementById('upload-screen').style.display='flex';
+  document.getElementById('editor-screen').style.display='none';
+  ['nb-undo','nb-close','nb-dl'].forEach(id => document.getElementById(id).style.display='none');
+  document.getElementById('file-input').value='';
+  document.getElementById('ov').innerHTML='';
+  closePanel();
+}
+
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+function rgbToHex(r,g,b){ return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); }
+
+function showLd(msg){ document.getElementById('ld-txt').textContent=msg; document.getElementById('loading').style.display='flex'; }
+function hideLd(){ document.getElementById('loading').style.display='none'; }
+
+function setStat(state, msg){
+  document.getElementById('stat-dot').className='stat-dot'+(state==='loading'?' spin':'');
+  document.getElementById('stat-txt').textContent=msg;
+}
+
+let _tt;
+function toast(msg, ico, type) {
+  const t=document.getElementById('toast');
+  t.className='toast show '+(type||'ok');
+  document.getElementById('t-ico').textContent=ico||'ℹ';
+  document.getElementById('t-msg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),3600);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') closePanel();
+  if ((e.ctrlKey||e.metaKey) && e.key==='Enter') {
+    if (document.getElementById('edit-form').style.display==='flex') applyEdit();
+  }
+});
+</script>
+</body>
+</html>
+
