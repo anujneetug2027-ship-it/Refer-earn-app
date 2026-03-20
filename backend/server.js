@@ -15,7 +15,7 @@ const walletRoutes = require('./wallet');
 const http = require("http");
 const { Server } = require("socket.io");
 const chatSocket = require("./chatSocket");
-
+const fetch = require('node-fetch');
 const app = express();
 
 // ---------- MIDDLEWARE ----------
@@ -29,7 +29,6 @@ app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
 
 
 // ────────────────────────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, '../frontend')));  
 const portfolioRoutes = require('./portfolio');
 app.use('/api/portfolio', portfolioRoutes);
 
