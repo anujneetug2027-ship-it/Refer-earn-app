@@ -29,7 +29,9 @@ app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
 
 
 // ────────────────────────────────────────────────────────────────────────
-
+app.use(express.static(...)):
+const portfolioRoutes = require('./portfolio');
+app.use('/api/portfolio', portfolioRoutes);
 
 // ── PASTE THIS ROUTE BLOCK into server.js (after your middleware section) ──
 
