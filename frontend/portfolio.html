@@ -1110,6 +1110,8 @@ function renderMiniChart(canvasId, data) {
 /* ═══════════════════════════════════════════════
    PORTFOLIO CHART
 ═══════════════════════════════════════════════ */
+let isChartBuilding = false;  // guard against concurrent runs
+
 function setPortfolioTime(t) {
   portfolioTimeRange = t;
   document.querySelectorAll('#portfolioTimeTabs .time-tab').forEach(b=>b.classList.remove('active'));
@@ -1118,52 +1120,70 @@ function setPortfolioTime(t) {
 }
 
 async function buildPortfolioChart() {
+  if (isChartBuilding) return;   // prevent loop
+  isChartBuilding = true;
+
   const loading = document.getElementById('portfolioChartLoading');
+  loading.innerHTML = '<div class="spinner"></div> Building chart…';
   loading.style.display = 'flex';
+
   if (portfolioChart) { portfolioChart.destroy(); portfolioChart = null; }
 
-  const range = portfolioTimeRange;
+  // If no holdings at all, show message and exit
+  const total = portfolio.stocks.length + portfolio.crypto.length + portfolio.utility.length;
+  if (total === 0) {
+    loading.innerHTML = '<span style="color:var(--muted);font-size:13px">Add holdings to see your chart</span>';
+    isChartBuilding = false;
+    return;
+  }
 
-  // Determine bucket size in ms so timestamps align across assets
-  const BUCKET = {
-    '1H':'60000', '1D':'300000', '1W':'1800000',
-    '1M':'86400000', '3M':'86400000', '1Y':'604800000', '2Y':'604800000'
-  }[range] || 300000;
+  const range  = portfolioTimeRange;
+  const BUCKET = { '1H':60000,'1D':300000,'1W':1800000,'1M':86400000,'3M':86400000,'1Y':604800000,'2Y':604800000 }[range] || 300000;
+  const combined = {};
 
-  const combined = {};  // bucketed_timestamp -> total value
-
-  function addToCombined(data, qty, lev) {
-    for (const pt of data) {
-      if (!pt.y || isNaN(pt.y)) continue;
+  function addPoints(data, qty, lev) {
+    if (!data || !data.length) return;
+    for (let i = 0; i < data.length; i++) {
+      const pt = data[i];
+      if (!pt || !pt.y || isNaN(pt.y)) continue;
       const bucket = Math.round(pt.x / BUCKET) * BUCKET;
       combined[bucket] = (combined[bucket] || 0) + (pt.y * qty * lev);
     }
   }
 
-  // Fetch all charts in parallel
-  const stockCharts   = await Promise.all(portfolio.stocks.map(h => fetchStockChart(h.symbol, range)));
-  const cryptoCharts  = await Promise.all(portfolio.crypto.map(h => fetchCryptoChart(h.coinId, range)));
-  const goldChartData = portfolio.utility.length ? await fetchGoldChart(range) : [];
+  try {
+    // Fetch all in parallel — ONE request per asset, not looping
+    const [stockCharts, cryptoCharts, goldData] = await Promise.all([
+      Promise.all(portfolio.stocks.map(h  => fetchStockChart(h.symbol, range))),
+      Promise.all(portfolio.crypto.map(h  => fetchCryptoChart(h.coinId, range))),
+      portfolio.utility.length > 0 ? fetchGoldChart(range) : Promise.resolve([]),
+    ]);
 
-  portfolio.stocks.forEach((h, i)  => addToCombined(stockCharts[i],  h.quantity, 1));
-  portfolio.crypto.forEach((h, i)  => addToCombined(cryptoCharts[i], h.quantity, h.leverage||1));
-  portfolio.utility.forEach(h      => addToCombined(goldChartData,   h.quantity, 1));
+    portfolio.stocks.forEach((h, i)  => addPoints(stockCharts[i],  h.quantity, 1));
+    portfolio.crypto.forEach((h, i)  => addPoints(cryptoCharts[i], h.quantity, h.leverage || 1));
+    portfolio.utility.forEach(h      => addPoints(goldData,         h.quantity, 1));
 
-  // Sort numerically and build clean dataset
-  const data = Object.keys(combined)
-    .map(Number)
-    .sort((a, b) => a - b)
-    .map(t => ({ x: t, y: parseFloat(combined[t].toFixed(2)) }));
+    const data = Object.keys(combined)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .map(t => ({ x: t, y: parseFloat(combined[t].toFixed(2)) }));
 
-  loading.style.display = 'none';
+    loading.style.display = 'none';
 
-  if (data.length < 2) {
-    loading.style.display = 'flex';
-    loading.innerHTML = '<span style="color:var(--muted);font-size:13px">Not enough data to plot chart yet</span>';
-    return;
+    if (data.length < 2) {
+      loading.style.display = 'flex';
+      loading.innerHTML = '<span style="color:var(--muted);font-size:13px">Chart data loading, try refreshing…</span>';
+      isChartBuilding = false;
+      return;
+    }
+
+    renderLineChart('portfolioChart', data, null, c => { portfolioChart = c; }, '#00c8ff');
+  } catch(err) {
+    console.error('[buildPortfolioChart]', err);
+    loading.innerHTML = '<span style="color:var(--muted);font-size:13px">Chart error, try refreshing</span>';
   }
 
-  renderLineChart('portfolioChart', data, null, c => portfolioChart = c, '#00c8ff');
+  isChartBuilding = false;
 }
 
 /* ═══════════════════════════════════════════════
@@ -1183,8 +1203,8 @@ async function loadPortfolio() {
       portfolio = d.portfolio;
       await refreshLivePrices();
       renderPortfolio();
-      buildPortfolioChart();
       updateSummary();
+      await buildPortfolioChart();   // ← await so it only runs once
     }
   } catch(e) { showToast('Could not load portfolio', 'error'); }
 
