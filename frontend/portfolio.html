@@ -1020,21 +1020,42 @@ async function loadExploreChart() {
     el.className   = 'chart-asset-change '+(change>=0?'up':'down');
   }
 
-  renderLineChart('exploreChart', data, exploreChart, c=>exploreChart=c);
+  safeDestroyChart('exploreChart');
+  renderLineChart('exploreChart', data, null, c=>exploreChart=c);
 }
 
 /* ═══════════════════════════════════════════════
    CHART RENDERER
+   KEY: responsive:false + animation:false prevents
+   the ResizeObserver infinite loop on mobile
 ═══════════════════════════════════════════════ */
-function renderLineChart(canvasId, data, existingChart, setter, color) {
+
+// Safely destroy any existing Chart.js instance on a canvas
+function safeDestroyChart(canvasId) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
-  if (existingChart) existingChart.destroy();
+  const existing = Chart.getChart(canvas);
+  if (existing) { try { existing.destroy(); } catch(e) {} }
+}
 
-  const isUp = data.length>=2 && data[data.length-1].y >= data[0].y;
-  const c = color || (isUp ? '#00e5a0' : '#ff4d6d');
+function renderLineChart(canvasId, data, _unused, setter, color) {
+  const wrapper = document.getElementById(canvasId) && document.getElementById(canvasId).parentElement;
+  if (!wrapper) return;
 
-  const chart = new Chart(canvas, {
+  // Nuclear destroy — replace canvas with fresh one to avoid Chart.js stale state
+  safeDestroyChart(canvasId);
+  const oldCanvas = document.getElementById(canvasId);
+  if (!oldCanvas) return;
+  const newCanvas = document.createElement('canvas');
+  newCanvas.id = canvasId;
+  oldCanvas.replaceWith(newCanvas);
+
+  if (!data || data.length < 2) return;
+
+  const isUp = data[data.length-1].y >= data[0].y;
+  const c    = color || (isUp ? '#00e5a0' : '#ff4d6d');
+
+  const chart = new Chart(newCanvas, {
     type: 'line',
     data: {
       datasets: [{
@@ -1042,20 +1063,22 @@ function renderLineChart(canvasId, data, existingChart, setter, color) {
         borderColor: c,
         borderWidth: 2,
         pointRadius: 0,
-        pointHoverRadius: 5,
+        pointHoverRadius: 4,
         pointHoverBackgroundColor: c,
         fill: true,
-        backgroundColor: (ctx) => {
-          const g = ctx.chart.ctx.createLinearGradient(0,0,0,ctx.chart.height);
-          g.addColorStop(0, c+'33');
-          g.addColorStop(1, c+'00');
+        backgroundColor: function(ctx) {
+          const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height || 220);
+          g.addColorStop(0, c + '33');
+          g.addColorStop(1, c + '00');
           return g;
         },
-        tension: 0.4,
+        tension: 0.3,
       }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: false,           // ← CRITICAL: prevents ResizeObserver loop
+      maintainAspectRatio: false,
+      animation: false,            // ← CRITICAL: prevents redraw loop
       interaction: { mode:'index', intersect:false },
       plugins: {
         legend: { display: false },
@@ -1065,44 +1088,54 @@ function renderLineChart(canvasId, data, existingChart, setter, color) {
           borderWidth: 1,
           titleColor: 'rgba(230,238,248,0.5)',
           bodyColor: '#e6eef8',
-          callbacks: {
-            label: ctx => '₹'+fmt(ctx.parsed.y)
-          }
+          callbacks: { label: function(ctx) { return '₹' + fmt(ctx.parsed.y); } }
         }
       },
       scales: {
         x: {
           type: 'time',
           time: { tooltipFormat: 'dd MMM HH:mm' },
-          grid: { color: 'rgba(255,255,255,0.03)', drawBorder:false },
+          grid: { color: 'rgba(255,255,255,0.03)' },
           ticks: { color:'rgba(230,238,248,0.3)', font:{size:10}, maxTicksLimit:6 },
         },
         y: {
-          grid: { color: 'rgba(255,255,255,0.04)', drawBorder:false },
+          grid: { color: 'rgba(255,255,255,0.04)' },
           ticks: {
             color:'rgba(230,238,248,0.35)', font:{size:10}, maxTicksLimit:5,
-            callback: v => '₹'+fmtShort(v)
+            callback: function(v) { return '₹' + fmtShort(v); }
           },
           position: 'right'
         }
       }
     }
   });
-  setter(chart);
+
+  // Manually size canvas to fill its wrapper
+  try {
+    newCanvas.style.width  = '100%';
+    newCanvas.style.height = '100%';
+    newCanvas.width  = wrapper.clientWidth  || 340;
+    newCanvas.height = wrapper.clientHeight || 220;
+    chart.resize();
+  } catch(e) {}
+
+  if (setter) setter(chart);
 }
 
 function renderMiniChart(canvasId, data) {
+  safeDestroyChart(canvasId);
   const canvas = document.getElementById(canvasId);
-  if (!canvas) return null;
-  const isUp = data.length>=2 && data[data.length-1].y >= data[0].y;
-  const c = isUp ? '#00e5a0' : '#ff4d6d';
+  if (!canvas || !data || data.length < 2) return null;
+  const isUp = data[data.length-1].y >= data[0].y;
+  const c    = isUp ? '#00e5a0' : '#ff4d6d';
   return new Chart(canvas, {
-    type:'line',
-    data:{ datasets:[{ data, borderColor:c, borderWidth:1.5, pointRadius:0, fill:false, tension:0.4 }] },
-    options:{
-      responsive:true, maintainAspectRatio:false, animation:false,
-      plugins:{ legend:{display:false}, tooltip:{enabled:false} },
-      scales:{ x:{display:false,type:'time'}, y:{display:false} }
+    type: 'line',
+    data: { datasets: [{ data, borderColor:c, borderWidth:1.5, pointRadius:0, fill:false, tension:0.3 }] },
+    options: {
+      responsive: false,
+      animation: false,
+      plugins: { legend:{display:false}, tooltip:{enabled:false} },
+      scales: { x:{display:false, type:'time'}, y:{display:false} }
     }
   });
 }
@@ -1589,21 +1622,20 @@ async function loadDetailChart() {
   const loading = document.getElementById('detailChartLoading');
   loading.style.display = 'flex';
 
-  // Properly destroy existing chart
-  if (currentDetailChart) { currentDetailChart.destroy(); currentDetailChart = null; }
+  // Use safe destroy — chart instance tracked by Canvas ID
+  safeDestroyChart('detailChart');
+  currentDetailChart = null;
 
   let data = [];
   if (h.type==='stock')   data = await fetchStockChart(h.symbol, detailTimeRange);
   if (h.type==='crypto')  data = await fetchCryptoChart(h.coinId, detailTimeRange);
   if (h.type==='utility') data = await fetchGoldChart(detailTimeRange);
 
-  // Filter out bad points and scale
   const scaled = data
     .filter(pt => pt.y && !isNaN(pt.y))
     .map(pt => ({ x: pt.x, y: parseFloat((pt.y * h.quantity * (h.leverage||1)).toFixed(2)) }));
 
   loading.style.display = 'none';
-
   if (scaled.length < 2) return;
 
   renderLineChart('detailChart', scaled, null, c => currentDetailChart = c);
