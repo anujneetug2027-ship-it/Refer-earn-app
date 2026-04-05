@@ -27,6 +27,141 @@ app.use(bodyParser.json());                       // ← MOVED UP ✅
 app.use(bodyParser.urlencoded({ extended: true })); // ← MOVED UP ✅
 // ══════════════════════════════════════════════════════════════
 
+// ══════════════════════════════════════════════════════════════
+
+const Razorpay = require('razorpay');
+
+
+// ─── Init Razorpay (put your keys in .env) ───
+const razorpay = new Razorpay({
+  key_id:     process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
+// ─── Subscription plan map ───
+const PLAN_IDS = {
+  pro:     'plan_SZx48IcE73Vlvz',
+  premium: 'plan_SZx5SR5dsKPPeQ'
+};
+
+// ══════════════════════════════════════════
+// POST /api/subscription/create
+// Creates a Razorpay subscription for the user
+// ══════════════════════════════════════════
+app.post('/api/subscription/create', async (req, res) => {
+  try {
+    const { email, planKey } = req.body;
+
+    if (!email || !planKey || !PLAN_IDS[planKey])
+      return res.json({ success: false, msg: 'Invalid request' });
+
+    const subscription = await razorpay.subscriptions.create({
+      plan_id:         PLAN_IDS[planKey],
+      total_count:     12,      // 12 billing cycles (1 year)
+      quantity:        1,
+      customer_notify: 1,
+      notes:           { email, planKey }
+    });
+
+    res.json({ success: true, subscriptionId: subscription.id });
+
+  } catch (err) {
+    console.error('❌ /api/subscription/create:', err.message);
+    res.status(500).json({ success: false, msg: err.message });
+  }
+});
+
+// ══════════════════════════════════════════
+// POST /api/subscription/verify
+// Verifies Razorpay payment signature & upgrades user
+// ══════════════════════════════════════════
+app.post('/api/subscription/verify', async (req, res) => {
+  try {
+    const {
+      email,
+      planKey,
+      razorpay_payment_id,
+      razorpay_subscription_id,
+      razorpay_signature
+    } = req.body;
+
+    // Verify signature
+    const body      = razorpay_payment_id + '|' + razorpay_subscription_id;
+    const expected  = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest('hex');
+
+    if (expected !== razorpay_signature)
+      return res.json({ success: false, msg: 'Payment verification failed' });
+
+    // Save plan to user in DB
+    const user = await User.findOne({ email });
+    if (!user) return res.json({ success: false, msg: 'User not found' });
+
+    user.plan              = planKey;
+    user.planExpiresAt     = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+    user.subscriptionId    = razorpay_subscription_id;
+    await user.save();
+
+    res.json({ success: true, plan: planKey });
+
+  } catch (err) {
+    console.error('❌ /api/subscription/verify:', err.message);
+    res.status(500).json({ success: false, msg: err.message });
+  }
+});
+
+// ══════════════════════════════════════════
+// POST /api/coupon/claim
+// Validates a coupon code and upgrades user's plan
+// ══════════════════════════════════════════
+
+// Simple in-memory coupon store (or move to MongoDB collection)
+// Format: { CODE: { plan: 'pro'|'premium', days: 30, uses: 1 } }
+// You can generate and add codes here, or pull from a DB collection.
+const COUPONS = {
+  // Example coupons — replace or manage dynamically
+  // 'FREEPRO30': { plan: 'pro',     days: 30, maxUses: 100, usedBy: [] },
+  // 'PREMIUM7':  { plan: 'premium', days:  7, maxUses:  50, usedBy: [] },
+};
+
+app.post('/api/coupon/claim', async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) return res.json({ success: false, msg: 'Missing fields' });
+
+    const coupon = COUPONS[code.toUpperCase()];
+    if (!coupon)
+      return res.json({ success: false, msg: 'Invalid or expired coupon code.' });
+
+    if (coupon.maxUses && coupon.usedBy.length >= coupon.maxUses)
+      return res.json({ success: false, msg: 'This coupon has reached its usage limit.' });
+
+    if (coupon.usedBy.includes(email))
+      return res.json({ success: false, msg: 'You have already claimed this coupon.' });
+
+    // Mark as used
+    coupon.usedBy.push(email);
+
+    // Upgrade user
+    const user = await User.findOne({ email });
+    if (user) {
+      user.plan          = coupon.plan;
+      user.planExpiresAt = new Date(Date.now() + coupon.days * 24 * 60 * 60 * 1000);
+      await user.save();
+    }
+
+    res.json({ success: true, plan: coupon.plan, days: coupon.days });
+
+  } catch (err) {
+    console.error('❌ /api/coupon/claim:', err.message);
+    res.status(500).json({ success: false, msg: 'Server error' });
+  }
+});
+
+
+
 
 // ────────────────────────────────────────────────────────────────────────
 const portfolioRoutes = require('./portfolio');
