@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AmbikaShelf — Choose Your Plan</title>
+  <link rel="icon" href="icons/favicon.ico?v=4" type="image/x-icon">
+  <link rel="shortcut icon" href="icons/favicon.ico">
+  <link rel="apple-touch-icon" href="icons/android-chrome-192x192.png?v=4">
+  <meta name="theme-color" content="#0a1628">
+  <meta name="description" content="Upgrade your AmbikaShelf experience — unlock premium PDF tools, more images per PDF, unlimited creation and more.">
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #07111f;
+      --bg2:       #0a1628;
+      --bg3:       #0d1e35;
+      --bg4:       #021326;
+      --card:      #031a33;
+      --accent:    #00c8ff;
+      --accent2:   #0077b6;
+      --gold:      #f5c842;
+      --gold2:     #e0a800;
+      --purple:    #a78bfa;
+      --purple2:   #7c3aed;
+      --green:     #22d3a0;
+      --text:      #e6eef8;
+      --muted:     rgba(255,255,255,0.4);
+      --border:    rgba(0,200,255,0.15);
+      --radius:    14px;
+    }
+
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ═══ NAVBAR ═══ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 68px;
+      gap: 12px;
+      background: rgba(7,17,31,0.85);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo img {
+      height: 40px; width: 40px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .nav-logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-logo-text span { color: var(--accent); }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-login {
+      font-size: 13px; font-weight: 600;
+      padding: 8px 20px; border-radius: 10px;
+      border: 1px solid var(--border); color: var(--text);
+      background: transparent; cursor: pointer;
+      transition: all 0.25s; font-family: 'Montserrat', sans-serif;
+    }
+
+    .btn-login:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-signup {
+      font-size: 13px; font-weight: 600;
+      padding: 8px 20px; border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; cursor: pointer;
+      transition: opacity 0.25s, transform 0.2s;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .btn-signup:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* ═══ HERO ═══ */
+    .hero {
+      padding: 130px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 60px; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 300px;
+      background: radial-gradient(ellipse, rgba(0,200,255,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,200,255,0.08);
+      border: 1px solid rgba(0,200,255,0.2);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span { color: var(--accent); }
+
+    .hero p {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 12px;
+      line-height: 1.7;
+    }
+
+    /* ═══ PLANS GRID ═══ */
+    .plans-section {
+      padding: 20px 24px 80px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Plan card */
+    .plan-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      position: relative;
+      transition: transform 0.3s, box-shadow 0.3s;
+      overflow: hidden;
+    }
+
+    .plan-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .plan-card.basic::before   { background: linear-gradient(90deg, var(--green), #0e9e7a); }
+    .plan-card.pro::before     { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .plan-card.premium::before { background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+
+    .plan-card.pro {
+      border-color: rgba(0,200,255,0.3);
+      transform: scale(1.02);
+      box-shadow: 0 0 40px rgba(0,200,255,0.08);
+    }
+
+    .plan-card.premium {
+      border-color: rgba(245,200,66,0.25);
+    }
+
+    .plan-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .plan-card.pro:hover { transform: scale(1.02) translateY(-4px); }
+
+    /* Popular badge */
+    .popular-badge {
+      position: absolute;
+      top: 18px; right: 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .plan-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      font-size: 22px;
+    }
+
+    .plan-icon.basic   { background: rgba(34,211,160,0.12); }
+    .plan-icon.pro     { background: rgba(0,200,255,0.12); }
+    .plan-icon.premium { background: rgba(245,200,66,0.12); }
+
+    .plan-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .plan-name.basic   { color: var(--green); }
+    .plan-name.pro     { color: var(--accent); }
+    .plan-name.premium { color: var(--gold); }
+
+    .plan-tagline {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .plan-price {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .price-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 38px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .price-amount.basic   { color: var(--green); }
+    .price-amount.pro     { color: var(--accent); }
+    .price-amount.premium { color: var(--gold); }
+
+    .price-period {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .price-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* Divider */
+    .plan-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 20px 0;
+    }
+
+    /* Features list */
+    .plan-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      margin-bottom: 28px;
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.45;
+    }
+
+    .feat-icon {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .feat-icon.check.basic   { background: rgba(34,211,160,0.15); color: var(--green); }
+    .feat-icon.check.pro     { background: rgba(0,200,255,0.15);  color: var(--accent); }
+    .feat-icon.check.premium { background: rgba(245,200,66,0.15); color: var(--gold); }
+
+    .feat-icon.new {
+      background: rgba(167,139,250,0.15);
+      color: var(--purple);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    /* Plan CTA button */
+    .plan-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.4px;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.2s;
+    }
+
+    .plan-btn:hover::after { background: rgba(255,255,255,0.07); }
+
+    .plan-btn.basic {
+      background: rgba(34,211,160,0.1);
+      border: 1px solid rgba(34,211,160,0.3);
+      color: var(--green);
+    }
+
+    .plan-btn.pro {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(0,200,255,0.25);
+    }
+
+    .plan-btn.premium {
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #07111f;
+      box-shadow: 0 4px 20px rgba(245,200,66,0.2);
+    }
+
+    .plan-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .plan-btn.current {
+      background: rgba(34,211,160,0.06);
+      border: 1px solid rgba(34,211,160,0.2);
+      color: var(--green);
+      cursor: default;
+    }
+
+    /* ═══ COUPON SECTION ═══ */
+    .coupon-section {
+      max-width: 520px;
+      margin: 0 auto 80px;
+      padding: 0 24px;
+    }
+
+    .coupon-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .coupon-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--purple), var(--purple2));
+      border-radius: 20px 20px 0 0;
+    }
+
+    .coupon-card::after {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(167,139,250,0.06), transparent 70%);
+      pointer-events: none;
+    }
+
+    .coupon-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .coupon-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .coupon-card p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 22px;
+      line-height: 1.6;
+    }
+
+    .coupon-input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .coupon-input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      outline: none;
+      transition: border-color 0.25s;
+    }
+
+    .coupon-input::placeholder {
+      color: var(--muted);
+      text-transform: none;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .coupon-input:focus { border-color: var(--purple); }
+
+    .coupon-btn {
+      padding: 12px 22px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.25s, transform 0.2s;
+      white-space: nowrap;
+    }
+
+    .coupon-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .coupon-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .coupon-msg {
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+
+    .coupon-msg.success {
+      display: block;
+      background: rgba(34,211,160,0.1);
+      border: 1px solid rgba(34,211,160,0.2);
+      color: var(--green);
+    }
+
+    .coupon-msg.error {
+      display: block;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      color: #f87171;
+    }
+
+    /* ═══ FAQ / NOTE ═══ */
+    .note-section {
+      max-width: 780px;
+      margin: 0 auto 80px;
+      padding: 0 24px;
+    }
+
+    .note-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .note-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .note-emoji { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+
+    .note-card h4 {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .note-card p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ═══ SECTION LABEL ═══ */
+    .section-label {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .section-label h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.4px;
+    }
+
+    /* ═══ TOAST ═══ */
+    .toast {
+      position: fixed;
+      bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #0d1e35;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 22px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      z-index: 9999;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s;
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.green { border-color: rgba(34,211,160,0.3); color: var(--green); }
+    .toast.red   { border-color: rgba(239,68,68,0.3);  color: #f87171; }
+
+    /* ═══ LOADING SPINNER ═══ */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ═══ REVEAL ANIMATION ═══ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 640px) {
+      .plans-grid { grid-template-columns: 1fr; }
+      .plan-card.pro { transform: none; }
+      .plan-card.pro:hover { transform: translateY(-4px); }
+      .coupon-input-row { flex-direction: column; }
+      nav { padding: 0 16px; }
+      .plans-section { padding: 20px 16px 60px; }
+    }
+
+    /* ═══ ACTIVE PLAN INDICATOR ═══ */
+    .current-plan-tag {
+      display: inline-block;
+      background: rgba(34,211,160,0.1);
+      border: 1px solid rgba(34,211,160,0.2);
+      color: var(--green);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <img src="icons/android-chrome-192x192.png" alt="AmbikaShelf">
+    <span class="nav-logo-text">Ambika<span>Shelf</span></span>
+  </a>
+  <div class="nav-actions" id="navActions">
+    <button class="btn-login" onclick="window.location.href='login.html'">Login</button>
+    <button class="btn-signup" onclick="window.location.href='register.html'">Sign Up</button>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-badge">✦ Subscription Plans</div>
+  <h1>Power Up Your <span>PDF Shelf</span></h1>
+  <p>Choose a plan that fits your workflow. Upgrade, downgrade or cancel anytime. All plans include access to every other tool on AmbikaShelf — free, forever.</p>
+</section>
+
+<!-- ═══ PLANS ═══ -->
+<section class="plans-section">
+  <div class="plans-grid">
+
+    <!-- BASIC -->
+    <div class="plan-card basic reveal">
+      <div class="plan-icon basic">📄</div>
+      <div class="plan-name basic">Basic</div>
+      <div class="plan-tagline">Everything you need to get started with PDF Shelf — completely free.</div>
+      <div class="plan-price">
+        <span class="price-amount basic">Free</span>
+      </div>
+      <div class="price-note">No credit card required • Always free for logged-in users</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>
+          <span class="feat-icon check basic">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          Up to <strong style="color:#fff">&nbsp;30 images</strong>&nbsp;per PDF
+        </li>
+        <li>
+          <span class="feat-icon check basic">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <strong style="color:#fff">10 PDFs</strong>&nbsp;per day
+        </li>
+        <li>
+          <span class="feat-icon check basic">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          Core PDF Shelf features
+        </li>
+        <li>
+          <span class="feat-icon check basic">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          Unlimited access to all other tools (QR, Chat, AI & more)
+        </li>
+      </ul>
+      <button class="plan-btn basic current" id="basicBtn" onclick="handleBasic()">✓ Your Current Plan</button>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan-card pro reveal" style="transition-delay:0.1s">
+      <span class="popular-badge">⚡ Most Popular</span>
+      <div class="plan-icon pro">🚀</div>
+      <div class="plan-name pro">Pro</div>
+      <div class="plan-tagline">Built for regular creators who need more power and flexibility every day.</div>
+      <div class="plan-price">
+        <span class="price-amount pro">₹29</span>
+        <span class="price-period">/ month</span>
+      </div>
+      <div class="price-note">Billed monthly • Cancel anytime</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>
+          <span class="feat-icon check pro">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          Everything in Basic
+        </li>
+        <li>
+          <span class="feat-icon check pro">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          Up to <strong style="color:#fff">&nbsp;50 images</strong>&nbsp;per PDF
+        </li>
+        <li>
+          <span class="feat-icon check pro">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <strong style="color:#fff">25 PDFs</strong>&nbsp;per day
+        </li>
+        <li>
+          <span class="feat-icon new">NEW</span>
+          PDF Editor — edit pages, reorder, merge
+        </li>
+        <li>
+          <span class="feat-icon new">NEW</span>
+          Digital Signature support
+        </li>
+        <li>
+          <span class="feat-icon check pro">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          Unlimited access to all other tools
+        </li>
+      </ul>
+      <button class="plan-btn pro" id="proBtn" onclick="handlePurchase('pro')">Get Pro — ₹29/mo</button>
+    </div>
+
+    <!-- PREMIUM -->
+    <div class="plan-card premium reveal" style="transition-delay:0.2s">
+      <div class="plan-icon premium">👑</div>
+      <div class="plan-name premium">Premium</div>
+      <div class="plan-tagline">For power users who demand zero limits and the full feature set.</div>
+      <div class="plan-price">
+        <span class="price-amount premium">₹49</span>
+        <span class="price-period">/ month</span>
+      </div>
+      <div class="price-note">Billed monthly • Cancel anytime</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>
+          <span class="feat-icon check premium">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          Everything in Pro
+        </li>
+        <li>
+          <span class="feat-icon check premium">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          Up to <strong style="color:#fff">&nbsp;100 images</strong>&nbsp;per PDF
+        </li>
+        <li>
+          <span class="feat-icon check premium">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <strong style="color:#fff">Unlimited</strong>&nbsp;PDF creation
+        </li>
+        <li>
+          <span class="feat-icon new">NEW</span>
+          Remove PDF password protection
+        </li>
+        <li>
+          <span class="feat-icon new">NEW</span>
+          Add custom watermarks to PDFs
+        </li>
+        <li>
+          <span class="feat-icon check premium">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          Unlimited access to all other tools
+        </li>
+      </ul>
+      <button class="plan-btn premium" id="premiumBtn" onclick="handlePurchase('premium')">Get Premium — ₹49/mo</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ COUPON SECTION ═══ -->
+<section class="coupon-section reveal">
+  <div class="coupon-card">
+    <div class="coupon-icon">🎟️</div>
+    <h3>Have a Coupon Code?</h3>
+    <p>Enter your exclusive coupon code below to unlock your plan instantly — no payment needed.</p>
+    <div class="coupon-input-row">
+      <input type="text" id="couponInput" class="coupon-input" placeholder="Enter coupon code…" maxlength="32" autocomplete="off" spellcheck="false">
+      <button class="coupon-btn" id="couponBtn" onclick="claimCoupon()">Claim</button>
+    </div>
+    <div class="coupon-msg" id="couponMsg"></div>
+  </div>
+</section>
+
+<!-- ═══ TRUST NOTES ═══ -->
+<section class="note-section reveal">
+  <div class="note-grid">
+    <div class="note-card">
+      <span class="note-emoji">🔒</span>
+      <div>
+        <h4>Secure Payments</h4>
+        <p>All transactions are processed securely via Razorpay. We never store your card details.</p>
+      </div>
+    </div>
+    <div class="note-card">
+      <span class="note-emoji">🔄</span>
+      <div>
+        <h4>Cancel Anytime</h4>
+        <p>No lock-ins. Cancel your subscription any time from your account settings.</p>
+      </div>
+    </div>
+    <div class="note-card">
+      <span class="note-emoji">⚡</span>
+      <div>
+        <h4>Instant Activation</h4>
+        <p>Your plan upgrades instantly after payment. No waiting, no manual approval.</p>
+      </div>
+    </div>
+    <div class="note-card">
+      <span class="note-emoji">📬</span>
+      <div>
+        <h4>Need Help?</h4>
+        <p>Contact us at <a href="mailto:support@ambikashelf.in" style="color:var(--accent)">support@ambikashelf.in</a> — we're always here for you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ════════════════════════════════════════════
+     CONFIG — replace with your actual values
+  ════════════════════════════════════════════ */
+  const RAZORPAY_KEY_ID = 'rzp_live_SZx88pTbwXEX7C'; // ← replace with your key_id
+  const API_BASE        = 'https://refer-earn-app.onrender.com'; // your server base URL
+
+  const PLAN_CONFIG = {
+    pro: {
+      id:      'plan_SZx48IcE73Vlvz',
+      name:    'AmbikaShelf Pro',
+      amount:  2900,   // in paise (₹29)
+      currency:'INR',
+      label:   'Pro'
+    },
+    premium: {
+      id:      'plan_SZx5SR5dsKPPeQ',
+      name:    'AmbikaShelf Premium',
+      amount:  4900,   // in paise (₹49)
+      currency:'INR',
+      label:   'Premium'
+    }
+  };
+
+  /* ════════════════════════════════════════════
+     COOKIE HELPERS (same as index.html)
+  ════════════════════════════════════════════ */
+  function getCookie(name) {
+    const found = document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith(name + '='));
+    return found ? decodeURIComponent(found.split('=')[1]) : null;
+  }
+
+  function setCookie(name, value, days) {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires};path=/;SameSite=Lax`;
+  }
+
+  /* ════════════════════════════════════════════
+     AUTH STATE
+  ════════════════════════════════════════════ */
+  const userEmail = getCookie('as_user_email') || localStorage.getItem('userEmail');
+  const userName  = getCookie('as_user_name')  || localStorage.getItem('userName') || userEmail;
+
+  // Update navbar
+  (function initNav() {
+    const navActions = document.getElementById('navActions');
+    if (userEmail) {
+      navActions.innerHTML = `
+        <span style="font-size:13px;color:var(--muted);margin-right:6px">Hi, <strong style="color:var(--text)">${(userName||'').split(' ')[0]}</strong></span>
+        <a href="index.html" style="font-size:13px;font-weight:600;padding:8px 18px;border-radius:10px;border:1px solid var(--border);color:var(--muted);">← Home</a>
+      `;
+    }
+  })();
+
+  /* ════════════════════════════════════════════
+     CURRENT PLAN STATE
+     Reads from localStorage / cookie: as_plan = 'basic' | 'pro' | 'premium'
+  ════════════════════════════════════════════ */
+  const currentPlan = getCookie('as_plan') || localStorage.getItem('as_plan') || 'basic';
+
+  function highlightCurrentPlan() {
+    const basicBtn   = document.getElementById('basicBtn');
+    const proBtn     = document.getElementById('proBtn');
+    const premiumBtn = document.getElementById('premiumBtn');
+
+    // Reset all
+    basicBtn.textContent   = 'Your Free Plan';
+    basicBtn.className     = 'plan-btn basic';
+    proBtn.textContent     = 'Get Pro — ₹29/mo';
+    proBtn.className       = 'plan-btn pro';
+    premiumBtn.textContent = 'Get Premium — ₹49/mo';
+    premiumBtn.className   = 'plan-btn premium';
+
+    if (currentPlan === 'pro') {
+      proBtn.textContent = '✓ Current Plan';
+      proBtn.className   = 'plan-btn pro current';
+      proBtn.onclick     = null;
+    } else if (currentPlan === 'premium') {
+      premiumBtn.textContent = '✓ Current Plan';
+      premiumBtn.className   = 'plan-btn premium current';
+      premiumBtn.onclick     = null;
+    }
+
+    if (!userEmail) {
+      proBtn.textContent     = 'Login to Upgrade';
+      premiumBtn.textContent = 'Login to Upgrade';
+    }
+  }
+
+  highlightCurrentPlan();
+
+  /* ════════════════════════════════════════════
+     TOAST
+  ════════════════════════════════════════════ */
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.innerHTML = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => { t.className = `toast ${type}`; }, 3500);
+  }
+
+  /* ════════════════════════════════════════════
+     BASIC PLAN HANDLER
+  ════════════════════════════════════════════ */
+  function handleBasic() {
+    if (!userEmail) { window.location.href = 'login.html'; return; }
+    showToast('✓ You are already on the Basic (Free) plan!', 'green');
+  }
+
+  /* ════════════════════════════════════════════
+     RAZORPAY SUBSCRIPTION PURCHASE
+  ════════════════════════════════════════════ */
+  async function handlePurchase(planKey) {
+    if (!userEmail) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    if (currentPlan === planKey) {
+      showToast(`✓ You're already on the ${PLAN_CONFIG[planKey].label} plan.`, 'green');
+      return;
+    }
+
+    const plan = PLAN_CONFIG[planKey];
+    const btn  = document.getElementById(planKey + 'Btn');
+
+    // Button loading state
+    btn.disabled  = true;
+    btn.innerHTML = `<span class="spinner"></span> &nbsp; Setting up…`;
+
+    try {
+      // 1. Create order / subscription on your backend
+      const res  = await fetch(`${API_BASE}/api/subscription/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, planId: plan.id, planKey })
+      });
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.msg || 'Could not create order');
+
+      // 2. Open Razorpay checkout
+      const options = {
+        key:          RAZORPAY_KEY_ID,
+        subscription_id: data.subscriptionId,  // or use order_id if one-time
+        name:         'AmbikaShelf',
+        description:  plan.name + ' Plan',
+        image:        'icons/android-chrome-192x192.png',
+        prefill: {
+          email: userEmail,
+          name:  userName || ''
+        },
+        theme: { color: planKey === 'premium' ? '#f5c842' : '#00c8ff' },
+        handler: async function(response) {
+          await verifyPayment(planKey, response);
+        },
+        modal: {
+          ondismiss: function() {
+            btn.disabled  = false;
+            btn.textContent = planKey === 'pro' ? 'Get Pro — ₹29/mo' : 'Get Premium — ₹49/mo';
+          }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+
+    } catch(err) {
+      console.error('Purchase error:', err);
+      showToast('⚠ ' + (err.message || 'Something went wrong. Please try again.'), 'red');
+      btn.disabled  = false;
+      btn.textContent = planKey === 'pro' ? 'Get Pro — ₹29/mo' : 'Get Premium — ₹49/mo';
+    }
+  }
+
+  /* ════════════════════════════════════════════
+     PAYMENT VERIFICATION
+  ════════════════════════════════════════════ */
+  async function verifyPayment(planKey, rzpResponse) {
+    const btn = document.getElementById(planKey + 'Btn');
+    btn.innerHTML = `<span class="spinner"></span> &nbsp; Verifying…`;
+
+    try {
+      const res  = await fetch(`${API_BASE}/api/subscription/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:                       userEmail,
+          planKey,
+          razorpay_payment_id:         rzpResponse.razorpay_payment_id,
+          razorpay_subscription_id:    rzpResponse.razorpay_subscription_id,
+          razorpay_signature:          rzpResponse.razorpay_signature
+        })
+      });
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.msg || 'Verification failed');
+
+      // Save plan locally
+      localStorage.setItem('as_plan', planKey);
+      setCookie('as_plan', planKey, 35);
+
+      showToast(`🎉 Welcome to ${PLAN_CONFIG[planKey].label}! Your plan is now active.`, 'green');
+
+      setTimeout(() => {
+        location.reload();
+      }, 2000);
+
+    } catch(err) {
+      showToast('⚠ Payment verification failed. Contact support@ambikashelf.in', 'red');
+      btn.disabled  = false;
+      btn.textContent = planKey === 'pro' ? 'Get Pro — ₹29/mo' : 'Get Premium — ₹49/mo';
+    }
+  }
+
+  /* ════════════════════════════════════════════
+     COUPON CLAIM
+  ════════════════════════════════════════════ */
+  async function claimCoupon() {
+    if (!userEmail) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const input   = document.getElementById('couponInput');
+    const btn     = document.getElementById('couponBtn');
+    const msg     = document.getElementById('couponMsg');
+    const code    = input.value.trim().toUpperCase();
+
+    if (!code) {
+      msg.className   = 'coupon-msg error';
+      msg.textContent = '⚠ Please enter a coupon code.';
+      return;
+    }
+
+    btn.disabled  = true;
+    btn.innerHTML = `<span class="spinner"></span>`;
+    msg.className = 'coupon-msg';
+
+    try {
+      const res  = await fetch(`${API_BASE}/api/coupon/claim`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, code })
+      });
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.msg || 'Invalid or expired coupon.');
+
+      // Save activated plan
+      const grantedPlan = data.plan || 'pro';
+      localStorage.setItem('as_plan', grantedPlan);
+      setCookie('as_plan', grantedPlan, data.days || 30);
+
+      msg.className   = 'coupon-msg success';
+      msg.textContent = `🎉 Coupon claimed! ${PLAN_CONFIG[grantedPlan]?.label || grantedPlan} plan activated for ${data.days || 30} days.`;
+      input.value     = '';
+
+      setTimeout(() => location.reload(), 2200);
+
+    } catch(err) {
+      msg.className   = 'coupon-msg error';
+      msg.textContent = '✕ ' + (err.message || 'Invalid or expired coupon.');
+    } finally {
+      btn.disabled  = false;
+      btn.textContent = 'Claim';
+    }
+  }
+
+  // Allow Enter key on coupon input
+  document.getElementById('couponInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') claimCoupon();
+  });
+
+  /* ════════════════════════════════════════════
+     SCROLL REVEAL
+  ════════════════════════════════════════════ */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
+
