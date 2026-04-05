@@ -123,7 +123,7 @@ app.post('/api/subscription/verify', async (req, res) => {
 const COUPONS = {
   // Example coupons — replace or manage dynamically
   // 'FREEPRO30': { plan: 'pro',     days: 30, maxUses: 100, usedBy: [] },
-  // 'PREMIUM7':  { plan: 'premium', days:  7, maxUses:  50, usedBy: [] },
+  'PREMIUM7':  { plan: 'premium', days:  7, maxUses:  50, usedBy: [] },
 };
 
 app.post('/api/coupon/claim', async (req, res) => {
