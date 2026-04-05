@@ -25,7 +25,7 @@ module.exports = function(io) {
         id: Date.now(),
         user: "AmbikaShelf",
         text: `${username} joined the chat`,
-        time: new Date().toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata"}),
+        time: new Date().toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" }),
         createdAt: Date.now()
       });
     });
@@ -41,12 +41,9 @@ module.exports = function(io) {
     });
 
     socket.on("sendMessage", (data) => {
+      const username = data.isBot ? "AmbikaShelf" : users[socket.id];
+      if (!username) return;
 
-  const username = data.isBot
-    ? "AmbikaShelf"
-    : users[socket.id];
-
-  if (!username) return;
       cleanOldMessages();
 
       const messageData = {
@@ -54,22 +51,24 @@ module.exports = function(io) {
         user: username,
         text: data.text || "",
         image: data.image || null,
+        video: data.video || null,
+        pdf: data.pdf || null,
+        pdfName: data.pdfName || null,
+        voice: data.voice || null,
+        voiceDur: data.voiceDur || null,
         reply: data.reply || null,
         reactions: {},
-        time: new Date().toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata"}),
+        time: new Date().toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" }),
         createdAt: Date.now()
       };
 
       messages.push(messageData);
-
-      if (messages.length > 100) {
-        messages.shift();
-      }
+      if (messages.length > 100) messages.shift();
 
       io.emit("message", messageData);
     });
 
-    socket.on("react", ({id, emoji}) => {
+    socket.on("react", ({ id, emoji }) => {
       const msg = messages.find(m => m.id === id);
       if (!msg) return;
 
@@ -89,7 +88,7 @@ module.exports = function(io) {
           id: Date.now(),
           user: "AmbikaShelf",
           text: `${username} left the chat`,
-          time: new Date().toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata"}),
+          time: new Date().toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" }),
           createdAt: Date.now()
         });
       }
