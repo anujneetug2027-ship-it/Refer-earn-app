@@ -10,7 +10,9 @@ const userSchema = new mongoose.Schema({
 googleId:  { type: String, default: null },
   otp: String,
   otpExpires: Date,
-
+plan:           { type: String, default: 'basic' },   // 'basic' | 'pro' | 'premium'
+  planExpiresAt:  { type: Date,   default: null  },
+  subscriptionId: { type: String, default: null  },
   walletTransactions: [{
     paymentId: String,
     orderId: String,
